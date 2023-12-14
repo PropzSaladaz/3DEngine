@@ -1,0 +1,16 @@
+# Find all subdirectories inside the current directory (tests)
+file(GLOB SUBDIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
+foreach(SUBDIR ${SUBDIRS})
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR})
+        file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR}/*.cpp")
+        set(TEST_EXEC Test_${SUBDIR})
+        message("${TEST_SOURCES}")
+        # Create a test executable for each subdirectory
+        add_executable(${TEST_EXEC} ${TEST_SOURCES})
+        include_directories(${TEST_EXEC} ${INCLUDE_LIBS_DIR} ${INCLUDE_DIRS})
+        target_link_libraries(${TEST_EXEC} ${INCLUDE_LIBS_NAME} GTest::gtest_main engine_library)
+
+        include(GoogleTest)
+        gtest_discover_tests(${TEST_EXEC})
+    endif()
+endforeach()

@@ -1,0 +1,7 @@
+# .gitignore
+
+# User-specific files
+.vscode/
+.idea/
+
+out/
