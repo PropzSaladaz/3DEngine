@@ -19,7 +19,7 @@ set(SOURCES
   src/main.cpp
   src/glad.c
   src/mgl/mglApp.cpp
-  src/mgl/mglCamera.cpp
+  #src/mgl/mglCamera.cpp
   src/mgl/mglError.cpp
   src/mgl/mglShaders.cpp
   src/mgl/mglTransform.cpp
@@ -35,6 +35,11 @@ set(SOURCES
   src/mgl/scene/mglSceneObject.cpp
   # utils
   src/utils/logger.cpp
+  # camera
+  src/mgl/camera/mglCamera.cpp
+  src/mgl/camera/mglCameraController.cpp
+  src/mgl/camera/mglFPSCamController.cpp
+  src/mgl/camera/mglPerspectiveCamera.cpp
 )
 
 message("${SOURCES}")
@@ -43,6 +48,7 @@ message("${SOURCES}")
 set(INCLUDE_DIRS
 	include
 	include/mgl
+	include/mgl/camera
 	include/mgl/scene
 	include/utils
 )

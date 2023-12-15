@@ -2,6 +2,7 @@
 
 # User-specific files
 .vscode/
+.vs/
 .idea/
 
 out/

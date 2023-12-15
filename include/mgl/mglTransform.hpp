@@ -47,20 +47,19 @@ public:
     Transform* setScale(const glm::vec3 &scale);
 
     Transform* translate2D(GLfloat x, GLfloat y);
-    virtual Transform* translate(GLfloat x, GLfloat y, GLfloat z);
-    virtual Transform* translate(const glm::vec3& translateDir);
+    Transform* translate(GLfloat x, GLfloat y, GLfloat z);
+    Transform* translate(const glm::vec3& translateDir);
 
-    virtual Transform* setPosition(GLfloat x, GLfloat y, GLfloat z);
-    virtual Transform* setPosition(const glm::vec3& newPos);
+    Transform* setPosition(GLfloat x, GLfloat y, GLfloat z);
+    Transform* setPosition(const glm::vec3& newPos);
 
-    virtual Transform* lookAt(const Transform* target);
-    virtual Transform* lookAtFrom(const Transform* target, const Transform* source);
+    Transform* lookAt(const Transform* target);
+    Transform* lookAtFrom(const Transform* target, const Transform* source);
 
     void trackTarget(const Transform* target);
     void disableTargetTracking();
 
     void resetTransform();
-    GLuint getId() const;
 
     void setTransform(const Transform* t);
 
@@ -81,8 +80,6 @@ public:
 private:
     void computeTransformMatrix();
     Transform* rotateRad(GLfloat angleRads, glm::vec3 rotationAxis);
-    static GLuint idCounter;
-    GLuint id;
 
 protected:
     // basic orientation parameters

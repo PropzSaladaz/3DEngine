@@ -7,11 +7,20 @@
 
 namespace mgl {
 
-class ITimeUpdateable {
+class Identifiable {
 public:
+	Identifiable();
+	GLuint getId();
+private:
+	GLuint id;
+	static GLuint idCounter;
+};
+	
+class ITimeUpdateable : public Identifiable {
+public:
+	ITimeUpdateable();
 	virtual void update(GLfloat deltaTime) = 0;
 };
-
 
 class Simulation {
 

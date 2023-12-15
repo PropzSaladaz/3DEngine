@@ -13,7 +13,6 @@ public:
     void initCallback(GLFWwindow* win) override;
     void displayCallback(GLFWwindow* win, double elapsed) override;
     void windowSizeCallback(GLFWwindow* win, int width, int height) override;
-    void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 
 private:
     const float initialScreenRatio = 800.0f / 600.0f;
@@ -23,11 +22,10 @@ private:
     mgl::ShaderManager* shaders;
     mgl::Animation* squareAnim;
     // cameras
-    mgl::Camera* Camera;
+    mgl::FPSCamController* FPSCamera;
     mgl::PerspectiveParams perspectiveP = { 45.0f, 800.0 / 600.0, 0.1, 100.0 };
     // input
     void processInput(double elapsed);
-    void registerInputCallBacks();
     // scene
     void createMeshes();
     void createShaderPrograms();
@@ -58,7 +56,6 @@ void MyApp::createShaderPrograms() {
         program->addUniform(mgl::MODEL_MATRIX);
         program->addUniform(mgl::COLOR_ATTRIBUTE);
         program->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
-    
         });
 
     mgl::ShaderProgram* squareShaders = new mgl::ShaderProgram();
@@ -134,47 +131,16 @@ void MyApp::processInput(double elapsed) {
     if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_LEFT)) {
         squareAnim->step(-elapsed * 8);
     }
-    // movement
-    float sensitivity = elapsed * 3.0f;
-    glm::vec3 movementDir = { 0, 0, 0};
-    if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_W)) {
-        movementDir += sensitivity * Camera->getFrontV();
-    }
-    if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_A)) {
-        movementDir += -sensitivity * Camera->getRightV();
-    }
-    if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_S)) {
-        movementDir += -sensitivity * Camera->getFrontV();
-    }
-    if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_D)) {
-        movementDir += sensitivity * Camera->getRightV();
-    }
-    Camera->translate(movementDir);
-
-}
-
-void MyApp::registerInputCallBacks() {
-    mgl::InputManager::getInstance().registerMouseOffsetCallBack(
-        [this](GLfloat xOffset, GLfloat yOffset) {
-        Camera->yaw(-xOffset * 0.1);
-        Camera->pitch(-yOffset * 0.1);
-        }
-    );
-}
-
-void MyApp::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    // do nothing
 }
 
 
 ///////////////////////////////////////////////////////////////////////// CAMERAS
 
 void MyApp::createCamera() {
-    Camera = new mgl::Camera(UBO_BP);
-    Camera->setPerspective(perspectiveP);
-    Camera->setPosition(0, 0, 5);
-    Camera->lookAt(new mgl::Transform(0, 0, 0));
-    Camera->setActive();
+    mgl::PerspectiveCamera* camera = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
+    FPSCamera = new mgl::FPSCamController(camera, 1, 0.1);
+    FPSCamera->setPosition(0, 0, 5);
+    FPSCamera->setActive();
 }
 
 /////////////////////////////////////////////////////////////////////////// DRAW
@@ -187,7 +153,6 @@ void MyApp::drawScene() {
 
 void MyApp::initCallback(GLFWwindow* win) {
     glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    registerInputCallBacks();
     createMeshes();
     createShaderPrograms();  // after mesh;
     createSceneGraph();

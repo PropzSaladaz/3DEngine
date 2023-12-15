@@ -42,16 +42,15 @@ GLfloat angle(const glm::vec3& vec, const glm::vec3& vec2) {
 }
 
 ////////////////////////////////////////////////////////////////// Transform
-GLuint Transform::idCounter = 0;
-
-Transform::Transform() : id(idCounter++) {}
+Transform::Transform() : ITimeUpdateable() {
+    setPosition(0, 0, 0);
+}
 Transform::Transform(const glm::vec3& _up, const  glm::vec3& _right, 
                                 const  glm::vec3& _front) : Transform() {
     up = _up;
     right = _right;
     front = _front;
     targetPoint = positionV + front; // look at front
-    setPosition(0, 0, 0);
 }
 
 Transform::Transform(GLfloat x, GLfloat y, GLfloat z) 
@@ -127,11 +126,6 @@ const glm::vec3 Transform::getScale() const {
 const glm::quat Transform::getRotationQuat() const {
     return rotation;
 }
-
-GLuint Transform::getId() const {
-    return id;
-}
-
 
 //////////////////////////////////////////////////////////////// Track Target
 

@@ -138,8 +138,18 @@ void ShaderProgram::setUniformMatrix(const std::string &name, const GLfloat * ma
 }
 
 
-// PRIVATE
 
+#ifdef DEBUG
+void ShaderProgram::assertUniform(const std::string &name) {
+    if (!isUniform(name)) {
+        util::Logger::LogError("Uniform with name " + name + 
+            " doesn't exist in the shader program " + std::to_string(ProgramId));
+        exit(EXIT_FAILURE);
+    }
+}
+#endif
+
+// PRIVATE
 const GLuint ShaderProgram::checkCompilation(const GLuint shader_id, const std::string &filename) {
   GLint compiled;
   glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);

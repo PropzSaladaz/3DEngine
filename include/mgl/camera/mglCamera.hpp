@@ -6,39 +6,49 @@
 
 namespace mgl {
 
+	struct PerspectiveParams {
+		GLfloat fov;
+		GLfloat screenRatio;
+		GLfloat near;
+		GLfloat far;
+	};
+
+	struct OrthoParams {
+		GLfloat left;
+		GLfloat right;
+		GLfloat bottom;
+		GLfloat top;
+		GLfloat near;
+		GLfloat far;
+	};
+
 	class Camera : Transform {
 	public:
 		Camera(GLuint bindingPoint);
 
-		static void orthoResize(OrthoParams* params,
-			GLuint winx, GLuint winy);
-		static void perspectiveResize(PerspectiveParams* params,
-			GLuint winx, GLuint winy);
+		static void orthoResize(OrthoParams* params, GLuint winx, GLuint winy);
+		static void perspectiveResize(PerspectiveParams* params, GLuint winx, GLuint winy);
 
 		void lookAtFrom(const Transform* target, const glm::vec3& position);
-		void setPerspective(const PerspectiveParams& params);
-		void setPerspective(GLfloat fov, GLfloat screen_ratio,
-			GLfloat near, GLfloat far);
-		void setOrtho(const OrthoParams& params);
-		void setOrtho(GLfloat left, GLfloat right, GLfloat bottom,
-			GLfloat top, GLfloat near, GLfloat far);
+		void lookAtFrom(const Transform* target, const Transform* _position);
+		void lookAt(const Transform* target);
+		void setPosition(GLfloat x, GLfloat y, GLfloat z);
+		void setPosition(const glm::vec3& newPos);
+		void translate(GLfloat x, GLfloat y, GLfloat z);
+		void translate(const glm::vec3& translateDir);
 
-		// overrides from Transform
-		Transform* lookAtFrom(const Transform* target, const Transform* _position) override;
-		Transform* lookAt(const Transform* target) override;
-		Transform* setPosition(GLfloat x, GLfloat y, GLfloat z) override;
-		Transform* setPosition(const glm::vec3& newPos) override;
-		Transform* translate(GLfloat x, GLfloat y, GLfloat z) override;
-		Transform* translate(const glm::vec3& translateDir) override;
-
-		void zoom(GLfloat step);
+		virtual void zoom(GLfloat step) = 0;
 		void pitch(GLfloat degrees);
 		void yaw(GLfloat degrees);
 		void setActive();
 
-		void updateScreenRatio(GLuint width, GLuint height);
+		glm::vec3 getFrontV();
+		glm::vec3 getRightV();
+		glm::vec3 getUpV();
 
-	private:
+		virtual void updateScreenRatio(GLuint width, GLuint height) = 0;
+
+	protected:
 
 		GLuint uboId;
 		GLuint bindingPoint;
@@ -46,9 +56,12 @@ namespace mgl {
 		glm::mat4 viewMatrix;
 		glm::mat4 projectionMatrix;
 
-		void setViewMatrix(const glm::mat4& matrix);
+		void updateViewMatrix();
+		void computeViewMatrix();
+		void setViewMatrix(const glm::mat4& mat);
 		void setViewMatrix();
-		void setProjectionMatrix(const glm::mat4& matrix);
+		virtual void updateProjectionMatrix();
+		virtual void computeProjectionMatrix() = 0;
 		void setProjectionMatrix();
 	};
 

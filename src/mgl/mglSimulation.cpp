@@ -2,6 +2,15 @@
 
 namespace mgl {
 
+GLuint Identifiable::idCounter = 0;
+Identifiable::Identifiable() : id(++idCounter) {}
+GLuint Identifiable::getId() {
+	return id;
+}
+
+ITimeUpdateable::ITimeUpdateable() : Identifiable() {}
+
+
 Simulation::Simulation() {}
 
 Simulation::~Simulation() {}
