@@ -67,12 +67,12 @@ void ShaderProgram::create() {
     for (auto &i : Uniforms) {
         i.second.index = glGetUniformLocation(ProgramId, i.first.c_str());
         if (i.second.index < 0)
-            util::Logger::LogWarning("Uniform " + i.first + "not found");
+            util::Logger::LogWarning("Uniform " + i.first + " not found");
     }
     for (auto &i : Ubos) {
         i.second.index = glGetUniformBlockIndex(ProgramId, i.first.c_str());
         if (i.second.index < 0)
-            util::Logger::LogWarning("UBO " + i.first + "not found");
+            util::Logger::LogWarning("UBO " + i.first + " not found");
         glUniformBlockBinding(ProgramId, i.second.index, i.second.binding_point);
     }
 }

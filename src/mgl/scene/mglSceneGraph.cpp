@@ -8,7 +8,9 @@ SceneGraph* SceneNode::NO_PARENT = nullptr;
 SceneNode::SceneNode() : IDrawable(), Transform(), 
 	Parent(NO_PARENT), AbsoluteTransform(I) {}
 
-
+glm::vec3 SceneNode::getAbsolutePosition() {
+	return glm::vec3(AbsoluteTransform * glm::vec4(getPosition(), 1.0f));
+}
 
 // SceneGraph
 SceneGraph::~SceneGraph(void) {
@@ -38,6 +40,7 @@ void SceneGraph::draw() {
 
 	AbsoluteTransform = Parent == NO_PARENT ? getTransformMatrix() :
 				  Parent->AbsoluteTransform * getTransformMatrix();
+
 	for (const auto& node : children) {
 		node.second->draw();
 	}

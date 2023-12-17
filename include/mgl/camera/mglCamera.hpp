@@ -45,6 +45,7 @@ namespace mgl {
 		glm::vec3 getFrontV();
 		glm::vec3 getRightV();
 		glm::vec3 getUpV();
+		glm::vec3 getPosition();
 
 		virtual void updateScreenRatio(GLuint width, GLuint height) = 0;
 

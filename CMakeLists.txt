@@ -16,10 +16,10 @@ project (${PROJECT_NAME})
 
 # SOURCE FILES
 set(SOURCES
+  # core
   src/main.cpp
   src/glad.c
   src/mgl/mglApp.cpp
-  #src/mgl/mglCamera.cpp
   src/mgl/mglError.cpp
   src/mgl/mglShaders.cpp
   src/mgl/mglTransform.cpp
@@ -27,18 +27,25 @@ set(SOURCES
   src/mgl/mglAnimation.cpp
   src/mgl/mglInputManager.cpp
   src/mgl/mglShaderManager.cpp
-  # scene
-  src/mgl/scene/mglSceneGraph.cpp
-  src/mgl/scene/mglMaterial.cpp
-  src/mgl/scene/mglMesh.cpp
-  src/mgl/scene/mglMeshManager.cpp
-  src/mgl/scene/mglSceneObject.cpp
   # utils
   src/utils/logger.cpp
+  src/utils/stb_image.cpp
+  # models
+  src/mgl/models/materials/mglMaterial.cpp
+  src/mgl/models/materials/mglBasicMaterial.cpp
+  src/mgl/models/materials/mglPhongMaterial.cpp
+  src/mgl/models/meshes/mglMesh.cpp
+  src/mgl/models/meshes/mglMeshManager.cpp
+  src/mgl/models/textures/mglTexture.cpp
+  src/mgl/models/textures/mglSampler.cpp
+  # scene
+  src/mgl/scene/mglSceneGraph.cpp
+  src/mgl/scene/mglSceneObject.cpp
   # camera
   src/mgl/camera/mglCamera.cpp
   src/mgl/camera/mglCameraController.cpp
   src/mgl/camera/mglFPSCamController.cpp
+  src/mgl/camera/mglOrbitCamController.cpp
   src/mgl/camera/mglPerspectiveCamera.cpp
 )
 
@@ -50,6 +57,7 @@ set(INCLUDE_DIRS
 	include/mgl
 	include/mgl/camera
 	include/mgl/scene
+	include/mgl/models
 	include/utils
 )
 

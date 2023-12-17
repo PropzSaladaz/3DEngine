@@ -59,6 +59,10 @@ namespace mgl {
 		return Transform::getUpV();
 	}
 
+	glm::vec3 Camera::getPosition() {
+		return Transform::getPosition();
+	}
+
 	/////////////////////////////////////////////////////////////////// Position
 
 	void Camera::lookAtFrom(const Transform* target, const glm::vec3& _position) {

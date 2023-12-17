@@ -53,6 +53,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
 
 static void scroll_callback(GLFWwindow *window, double xoffset,
                             double yoffset) {
+    InputManager::getInstance().scrollCallback(window, xoffset, yoffset);
     Engine::getInstance().getApp()->scrollCallback(window, xoffset, yoffset);
 }
 
@@ -174,8 +175,8 @@ void Engine::init() {
   setupGLAD();
   setupOpenGL();
   GlApp->initCallback(Window);
-  util::Logger::SetDebugActive();
 #ifdef DEBUG
+  util::Logger::SetDebugActive();
   displayInfo();
   setupDebugOutput();
 #endif

@@ -14,7 +14,6 @@
 #include <mgl/mglError.hpp>
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglTransform.hpp>
-//#include <mgl/mglCamera.hpp>
 #include <mgl/mglSimulation.hpp>
 #include <mgl/mglAnimation.hpp>
 #include <mgl/mglInputManager.hpp>
@@ -22,15 +21,23 @@
 #include <mgl/mglShaderManager.hpp>
 
 // scene
-#include <mgl/scene/mglMaterial.hpp>
-#include <mgl/scene/mglMesh.hpp>
-#include <mgl/scene/mglMeshManager.hpp>
 #include <mgl/scene/mglSceneGraph.hpp>
 #include <mgl/scene/mglSceneObject.hpp>
+
+// models
+#include <mgl/models/materials/mglMaterial.hpp>
+#include <mgl/models/materials/mglBasicMaterial.hpp>
+#include <mgl/models/materials/mglPhongMaterial.hpp>
+#include <mgl/models/meshes/mglMesh.hpp>
+#include <mgl/models/meshes/mglMeshManager.hpp>
+#include <mgl/models/textures/mglSampler.hpp>
+#include <mgl/models/textures/mglTexture.hpp>
 
 // camera
 #include <mgl/camera/mglCamera.hpp>
 #include <mgl/camera/mglCameraController.hpp>
 #include <mgl/camera/mglFPSCamController.hpp>
+#include <mgl/camera/mglOrbitCamController.hpp>
 #include <mgl/camera/mglPerspectiveCamera.hpp>
+
 #endif /* MGL_HPP */

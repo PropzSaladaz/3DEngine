@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <mgl/scene/mglMesh.hpp>
+#include <mgl/models/meshes/mglMesh.hpp>
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglManager.hpp>
 #include <iostream>

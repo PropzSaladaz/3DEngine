@@ -62,12 +62,22 @@ void InputManager::cursorPosCallback(GLFWwindow* window, double xpos,
     }
 }
 
+void InputManager::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    for (const auto& callback : MOUSE_SCROLL_CALLBACKS) {
+        callback(xoffset, yoffset);
+    }
+}
+
 void InputManager::windowSizeCallback(GLFWwindow* window, int width, int height) {
     for (const auto& callback : WINDOW_SIZE_CALLBACKS) {
         callback(width, height);
     }
 }
 ///////////////////////////////////////////////////////////////// REGISTER CALLBACKS
+void InputManager::registerMouseScrollCallBack(const MouseOffsetCallBack callback) {
+    MOUSE_SCROLL_CALLBACKS.push_back(callback);
+}
+
 void InputManager::registerMouseOffsetCallBack(const MouseOffsetCallBack callback) {
     MOUSE_MOVE_CALLBACKS.push_back(callback);
 }

@@ -1,5 +1,5 @@
-#ifndef MGL_FPS_CAMERA_HPP
-#define MGL_FPS_CAMERA_HPP
+#ifndef MGL_FPS_CAM_CONTROLLER_HPP
+#define MGL_FPS_CAM_CONTROLLER_HPP
 
 #include <mgl/camera/mglCameraController.hpp>
 

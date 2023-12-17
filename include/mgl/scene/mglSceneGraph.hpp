@@ -24,6 +24,8 @@ namespace mgl {
 		static SceneGraph* NO_PARENT;
 		SceneGraph* Parent;
 		glm::mat4 AbsoluteTransform;
+
+		glm::vec3 getAbsolutePosition();
 	protected:
 		SceneNode();
 		~SceneNode() = default;

@@ -8,7 +8,9 @@
 
 namespace mgl {
 
+// callbacks
 using KeyCallBack = std::function<void()>;
+using MouseOffsetCallBack = std::function<void(GLfloat xOffset, GLfloat yOffset)>;
 using MouseOffsetCallBack = std::function<void(GLfloat xOffset, GLfloat yOffset)>;
 using WindowSizeCallBack = std::function<void(GLuint width, GLuint height)>;
 
@@ -40,10 +42,14 @@ public:
     MousePos getMousePos();
     MouseMove getMouseMovement();
     bool isMouseBtnPressed(int button);
+
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+    void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
     void registerMouseBtnCallBack(GLuint key, const KeyCallBack callback);
     void registerMouseOffsetCallBack(const MouseOffsetCallBack callback);
+    void registerMouseScrollCallBack(const MouseOffsetCallBack callback);
 
     // screen
     void windowSizeCallback(GLFWwindow* window, int width, int height);
@@ -63,7 +69,8 @@ private:
     bool MOUSE_BUFFER[GLFW_MOUSE_BUTTON_LAST] = { false };
     bool MOUSE_PRESSED[GLFW_MOUSE_BUTTON_LAST] = { false };
     std::vector<KeyCallBack> MOUSE_BTN_CALLBACKS[GLFW_MOUSE_BUTTON_LAST]; // callbacks per mouse btn
-    std::vector<MouseOffsetCallBack> MOUSE_MOVE_CALLBACKS; // callbacks per mouse movement
+    std::vector<MouseOffsetCallBack> MOUSE_MOVE_CALLBACKS;
+    std::vector<MouseOffsetCallBack> MOUSE_SCROLL_CALLBACKS;
 
     // window resize
     std::vector<WindowSizeCallBack> WINDOW_SIZE_CALLBACKS;

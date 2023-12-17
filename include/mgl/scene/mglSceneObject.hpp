@@ -4,8 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <mgl/mglTransform.hpp>
-#include <mgl/scene/mglMesh.hpp>
-#include <mgl/scene/mglMaterial.hpp>
+#include <mgl/models/meshes/mglMesh.hpp>
+#include <mgl/models/materials/mglMaterial.hpp>
+#include <mgl/models/textures/mglTexture.hpp>
 #include <mgl/scene/mglSceneGraph.hpp>
 #include <functional>
 #include <vector>
