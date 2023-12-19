@@ -148,7 +148,7 @@ void Engine::setupGLAD() {
 }
 
 void Engine::setupOpenGL() {
-  glClearColor(0, 0, 0, 0);
+  glClearColor(0.05, 0.05, 0.05, 0);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_TRUE);

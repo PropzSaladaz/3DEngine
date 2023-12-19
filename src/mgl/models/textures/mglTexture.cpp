@@ -1,10 +1,12 @@
 #include <cassert>
 #include <sstream>
+#include <cmath>
 
 #include <mgl/models/textures/mglTexture.hpp>
 #include <utils/stb_image.h>
 #include <utils/logger.hpp>
 #include <utils/file.hpp>
+#include <utils/noise.hpp>
 
 namespace mgl {
 
@@ -34,6 +36,45 @@ Texture::Texture() : id(-1) {}
 
 Texture::~Texture() {}
 
+void Texture::genAndBindTextureOpenGL(GLuint  texType, GLuint channels, 
+    GLuint width, GLuint height, void* image, GLuint type) {
+    glGenTextures(1, &id);
+    glBindTexture(texType, id);
+
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    // glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexParameteri(texType, GL_TEXTURE_BASE_LEVEL, 0);
+
+    // glTexParameteri(texType, GL_TEXTURE_MIN_FILTER,
+    //                GL_LINEAR_MIPMAP_LINEAR);
+    // glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(texType, 0, channels, width, height, 0, channels,
+        type, image);
+
+    // syntax: glTexImage2D(target, level, internalformat, width, height, border,
+    // format, type, data)
+
+    glGenerateMipmap(texType);
+    glBindTexture(texType, 0);
+}
+
 ////////////////////////////////////////////////////////////////////// Texture2D
 
 void Texture2D::bind() { glBindTexture(GL_TEXTURE_2D, id); }
@@ -44,9 +85,9 @@ void Texture2D::load(const std::string &filename) {
     stbi_set_flip_vertically_on_load(true);
     int width, height, channels;
 
-#ifdef DEBUG
-  util::Logger::LogDebug("Loading image: " + filename + "...");
-#endif
+    #ifdef DEBUG
+    util::Logger::LogDebug("Loading image: " + filename + "...");
+    #endif
 
     unsigned char *image = stbi_load(file::getFullPathFromRelative(filename).c_str(),
             &width, &height, &channels, 0);
@@ -55,37 +96,11 @@ void Texture2D::load(const std::string &filename) {
         exit(EXIT_FAILURE);
     } 
 
-#ifdef DEBUG
+    #ifdef DEBUG
     else {
         util::Logger::LogDebug("Loaded successfully");
     }
-#endif
-
-
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-    //                GL_LINEAR_MIPMAP_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    #endif
 
     channels = 
           channels == 4 ? GL_RGBA
@@ -93,16 +108,134 @@ void Texture2D::load(const std::string &filename) {
         : channels == 2 ? GL_RG
         : GL_R;
 
-    glTexImage2D(GL_TEXTURE_2D, 0, channels, width, height, 0, channels,
-            GL_UNSIGNED_BYTE, image);
+    genAndBindTextureOpenGL(GL_TEXTURE_2D, channels, width, height, image, GL_UNSIGNED_BYTE);
 
-    // syntax: glTexImage2D(target, level, internalformat, width, height, border,
-    // format, type, data)
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     stbi_image_free(image);
+}
+
+void Texture2D::genPerlinNoise(GLuint size, GLuint octaves,
+    GLdouble atenuation, GLdouble frequency) {
+
+    float* image = new float[size * size * 3];
+    double min = 0;
+    double max = 0;
+    for (size_t x = 0; x < size; x++) {
+        for (size_t y = 0; y < size; y++) {
+            double noise = util::PerlinNoise::getWithPersistance(x, y, 0, octaves, atenuation, frequency);
+            image[3 * x * size + 3 * y]     = noise;
+            image[3 * x * size + 3 * y + 1] = noise;
+            image[3 * x * size + 3 * y + 2] = noise;
+        }
+    }
+    genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
+    delete image;
+}
+
+void Texture2D::genSinePerlinNoise(GLuint size, GLuint octaves,
+    GLdouble xPeriod, GLdouble yPeriod, GLfloat turbulence) {
+
+    float* image = new float[size * size * 3];
+    double min = 0;
+    double max = 0;
+    double _xPeriod = xPeriod * size;
+    double _yPeriod = yPeriod * size;
+
+    for (size_t x = 0; x < size; x++) {
+        for (size_t y = 0; y < size; y++) {
+            double perlinNoise = util::PerlinNoise::getWithPersistance(x, y, 0, octaves);
+            double xyValue = x * _xPeriod + y * _yPeriod + turbulence * perlinNoise;
+            double noise = sin(xyValue * 3.14159)*0.5 + 0.5;
+            image[3 * x * size + 3 * y] = noise;
+            image[3 * x * size + 3 * y + 1] = noise;
+            image[3 * x * size + 3 * y + 2] = noise;
+        }
+    }
+    genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
+    delete image;
+}
+
+void Texture2D::genSawPerlinNoise(GLuint size, GLuint octaves,
+    GLfloat period, GLfloat turbulence) {
+        float* image = new float[size * size * 3];
+        double min = 0;
+        double max = 0;
+
+        for (size_t x = 0; x < size; x++) {
+            for (size_t y = 0; y < size; y++) {
+                double perlinNoise = util::PerlinNoise::getWithPersistance(x, y, 0, octaves);
+                double sawInput = (x / period) + turbulence * perlinNoise;
+                double output = (modf(sawInput,  &sawInput) + turbulence * modf(perlinNoise, &perlinNoise))/2;
+                image[3 * x * size + 3 * y] = output;
+                image[3 * x * size + 3 * y + 1] = output;
+                image[3 * x * size + 3 * y + 2] = output;
+                if (x == 3) {
+                    float a = 2;
+                }
+            }
+        }
+        genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
+        delete image;
+}
+
+////////////////////////////////////////////////////////////////////// Texture3D
+
+
+void Texture3D::bind() { glBindTexture(GL_TEXTURE_3D, id); }
+
+void Texture3D::unbind() { glBindTexture(GL_TEXTURE_3D, 0); }
+
+void Texture3D::load(const std::string& filename) {
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, channels;
+
+    #ifdef DEBUG
+    util::Logger::LogDebug("Loading image: " + filename + "...");
+    #endif
+
+    unsigned char* image = stbi_load(file::getFullPathFromRelative(filename).c_str(),
+        &width, &height, &channels, 0);
+    if (image == nullptr) {
+        util::Logger::LogError("Could not load image");
+        exit(EXIT_FAILURE);
+    }
+
+    #ifdef DEBUG
+    else {
+        util::Logger::LogDebug("Loaded successfully");
+    }
+    #endif
+
+    channels =
+        channels == 4 ? GL_RGBA
+        : channels == 3 ? GL_RGB
+        : channels == 2 ? GL_RG
+        : GL_R;
+
+    genAndBindTextureOpenGL(GL_TEXTURE_3D, channels, width, height, image, GL_UNSIGNED_BYTE);
+
+    stbi_image_free(image);
+}
+
+void Texture3D::genPerlinNoise(GLuint size, GLuint octaves,
+    GLdouble atenuation, GLdouble frequency) {
+
+    float* image = new float[size * size * size * 3];
+    double min = 0;
+    double max = 0;
+    for (size_t x = 0; x < size; x++) {
+        for (size_t y = 0; y < size; y++) {
+            for (size_t z = 0; z < size; z++) {
+                double noise = util::PerlinNoise::getWithPersistance(x, y, z, octaves, atenuation, frequency);
+                image[3 * x * size * size + 3 * y * size + z] = noise;
+                image[3 * x * size * size + 3 * y * size + z + 1] = noise;
+                image[3 * x * size * size + 3 * y * size + z + 2] = noise;
+            }
+        }
+    }
+
+    genAndBindTextureOpenGL(GL_TEXTURE_3D, GL_RGB, size, size, image, GL_FLOAT);
+    delete image;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

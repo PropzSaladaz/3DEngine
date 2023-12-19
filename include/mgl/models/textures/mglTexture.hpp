@@ -32,6 +32,9 @@ public:
   ~Texture();
   virtual void bind() = 0;
   virtual void unbind() = 0;
+protected:
+    void genAndBindTextureOpenGL(GLuint  texType, GLuint channels,
+        GLuint width, GLuint height, void* image, GLuint type);
 };
 
 //////////////////////////////////////////////////////////////////// TextureInfo
@@ -55,6 +58,22 @@ public:
   void bind() override;
   void unbind() override;
   void load(const std::string &filename);
+  void genPerlinNoise(GLuint size, GLuint octaves, 
+      GLdouble atenuation, GLdouble frequency);
+  void genSinePerlinNoise(GLuint size, GLuint octaves,
+      GLdouble xPeriod, GLdouble yPeriod, GLfloat turbulence);
+  void genSawPerlinNoise(GLuint size, GLuint octaves,
+      GLfloat period, GLfloat turbulence);
+};
+
+
+class Texture3D : public Texture {
+public:
+    void bind() override;
+    void unbind() override;
+    void load(const std::string& filename);
+    void genPerlinNoise(GLuint size, GLuint octaves,
+        GLdouble atenuation, GLdouble frequency);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

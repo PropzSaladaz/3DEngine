@@ -16,7 +16,7 @@ namespace mgl {
 	}
 
 	void OrbitCamController::setCenter(const glm::vec3& centerP) {
-		glm::vec3 translation = center->getPosition() - centerP;
+		glm::vec3 translation = centerP - center->getPosition();
 		center->setPosition(centerP);
 		camera->translate(translation);
 	}
@@ -37,8 +37,21 @@ namespace mgl {
 	void OrbitCamController::handleContinuousInput(GLfloat deltatime) {
 		if (InputManager::getInstance().isMouseBtnPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			MouseMove movement = InputManager::getInstance().getMouseMovement();
-			float val = -movement.xOffset * deltatime * mouseSensitivity;
-			rotateCamera(val, YY);
+			float valX = -movement.xOffset * deltatime * mouseSensitivity;
+			float valY = -movement.yOffset * deltatime * mouseSensitivity;
+
+			if (InputManager::getInstance().isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+				float sense = 0.02;
+				glm::vec3 translationXZ = camera->getRightV() * valX * sense;
+				setCenter(center->getPosition() + 
+					glm::vec3(translationXZ.x, -valY * sense, translationXZ.z));
+			}
+			else {
+				rotateCamera(valX, YY);
+				rotateCamera(valY, camera->getRightV());
+			}
+
+
 		}
 	}
 	 // zoom
@@ -48,8 +61,6 @@ namespace mgl {
 				radius -= yOffset;
 			    if (radius < 1.0f) radius = 1.0f;
 				else {
-					util::Logger::Log("Scroll: " + std::to_string(xOffset));
-					util::Logger::Log("Radius: " + std::to_string(radius));
 					camera->zoom(yOffset);
 				}
 			});
@@ -62,10 +73,6 @@ namespace mgl {
 		glm::vec3 prevPos = camera->getPosition() - center->getPosition(); // move it back to origin
 		glm::quat newPosQ = rot * glm::quat(0, prevPos) * glm::inverse(rot);
 		glm::vec3 newPos = glm::vec3(newPosQ.x, newPosQ.y, newPosQ.z) + center->getPosition(); // move back to centerP
-
-		util::Logger::Log("RotateCam - Prev. position: " + glm::to_string(prevPos) +
-			" new wposition: " + glm::to_string(glm::vec3(newPos.x, newPos.y, newPos.z)));
-
 		camera->lookAtFrom(center, newPos);
 	}
 }
