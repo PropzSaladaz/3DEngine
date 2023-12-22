@@ -4,24 +4,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mgl {
-	GLuint Material::id = 0;
-
-	Material::Material(ShaderProgram* shaders) {
-		Shaders = shaders;
-		shader_id = getShaderPrefix() + "_" + std::to_string(++id);
-	}
-
-	void Material::bind() {
-		Shaders->bind();
+	void Material::updateShaders(ShaderProgram* shaders) {
 		// set material uniforms
-		setMaterialUniforms(Shaders);
+		setMaterialUniforms(shaders);
 
-		if (texture) texture->updateShader(Shaders); // bind texture
-		if (textureSpecular) textureSpecular->updateShader(Shaders); // bind texture
-	}
-
-	void Material::unbind() {
-		Shaders->unbind();
+		if (texture) texture->updateShader(shaders); // bind texture
+		if (textureSpecular) textureSpecular->updateShader(shaders); // bind texture
 	}
 
 	void Material::setTexture(TextureInfo* texture) {
@@ -31,11 +19,5 @@ namespace mgl {
 	void Material::setTextureSpecular(TextureInfo* texture) {
 		this->textureSpecular = texture;
 	}
-
-	std::string Material::getShaderPrefix() {
-		return "AbstractMaterial";
-	}
-
-
 
 }

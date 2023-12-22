@@ -23,9 +23,10 @@ namespace mgl {
 		virtual void add(const std::string& name, T* item);
 		void remove(const std::string& name);
 		T* get(const std::string& name);
+		void forEach(SetManagedItemCallback function);
 
-		void setManagedItemCallback(SetManagedItemCallback callback);
 	protected:
+		void setManagedItemCallback(SetManagedItemCallback callback);
 		SetManagedItemCallback itemCallback;
 	private:
 		std::map<std::string, T*> items;
@@ -66,6 +67,15 @@ namespace mgl {
 	void Manager<T>::setManagedItemCallback(SetManagedItemCallback callback) {
 		itemCallback = callback;
 	}
+
+	template <typename T>
+	void Manager<T>::forEach(SetManagedItemCallback function) {
+		for (const auto& item : items) {
+			function(item.second);
+		}
+	}
+
+
 }
 
 #endif

@@ -49,20 +49,23 @@ namespace mgl {
 		updateViewMatrix();
 	}
 
-	glm::vec3 Camera::getFrontV() {
+	glm::vec3 Camera::getFrontV() const {
 		return Transform::getFrontV();
 	}
-	glm::vec3 Camera::getRightV() {
+	glm::vec3 Camera::getRightV() const {
 		return Transform::getRightV();
 	}
-	glm::vec3 Camera::getUpV() {
+	glm::vec3 Camera::getUpV() const {
 		return Transform::getUpV();
 	}
 
-	glm::vec3 Camera::getPosition() {
+	glm::vec3 Camera::getPosition() const {
 		return Transform::getPosition();
 	}
 
+	glm::mat4 Camera::getViewMatrix() const {
+		return viewMatrix;
+	}
 	/////////////////////////////////////////////////////////////////// Position
 
 	void Camera::lookAtFrom(const Transform* target, const glm::vec3& _position) {

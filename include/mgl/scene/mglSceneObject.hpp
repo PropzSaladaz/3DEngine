@@ -17,16 +17,22 @@ using SetShaderUniformCallback = std::function<void(ShaderProgram* shaders)>;
 
 class SceneObject : public SceneNode {
 public:
+	SceneObject();
 	SceneObject(Mesh* mesh);
 	SceneObject(Mesh* mesh, Material* material);
+	SceneObject(Mesh* mesh, Material* material, ShaderProgram* shaders);
 	~SceneObject();
 
-	void draw() override;
 	void setMaterial(Material* _material);
+	void setShaders(ShaderProgram* shaders);
 	void setUniforms();
 	void setShaderUniformCallback(SetShaderUniformCallback callback);
 
+protected:
+	void performDraw() override;
+
 private:
+	ShaderProgram* shaders;
 	Mesh* mesh;
 	Material* material;
 	std::vector<SetShaderUniformCallback> shaderUniformCallbacks;

@@ -9,20 +9,23 @@ namespace mgl {
 
 class PhongMaterial : public Material {
 public:
-	// shader uniform values
-	static inline const char MATERIAL_PHONG_AMBIENT[] = "material.ambient";
-	static inline const char MATERIAL_PHONG_DIFFUSE[] = "material.diffuse";
-	static inline const char MATERIAL_PHONG_SPECULAR[] = "material.specular";
-	static inline const char MATERIAL_PHONG_SHININESS[] = "material.shininess";
+	// shader must have a struct, with vec3 attributes, and float shininess
+	static const char MATERIAL_PHONG_AMBIENT[];
+	static const char MATERIAL_PHONG_DIFFUSE[];
+	static const char MATERIAL_PHONG_SPECULAR[];
+	static const char MATERIAL_PHONG_SHININESS[];
 
-	PhongMaterial(ShaderProgram* shaders);
-	PhongMaterial(ShaderProgram* shaders, const glm::vec3 &color);
+	static void declareShaderUniforms(ShaderProgram* shaders);
+
+	PhongMaterial();
+	PhongMaterial(const glm::vec3 &color);
 
 	Material* setColor(const glm::vec3& color) override;
 	PhongMaterial* setAmbientColor(const glm::vec3& ambient);
 	PhongMaterial* setDiffuseColor(const glm::vec3& diffuse);
 	PhongMaterial* setSpecularColor(const glm::vec3& specular);
 	PhongMaterial* setShininess(GLfloat shininess);
+
 
 private:
 	glm::vec3 ambientColor  = COLOR_WHITE;
@@ -31,7 +34,6 @@ private:
 	GLfloat shininess		= 1.0f;
 
 	void setMaterialUniforms(ShaderProgram* shaders) override;
-	std::string getShaderPrefix() override;
 
 };
 

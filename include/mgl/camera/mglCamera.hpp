@@ -42,10 +42,11 @@ namespace mgl {
 		void yaw(GLfloat degrees);
 		void setActive();
 
-		glm::vec3 getFrontV();
-		glm::vec3 getRightV();
-		glm::vec3 getUpV();
-		glm::vec3 getPosition();
+		glm::vec3 getFrontV() const;
+		glm::vec3 getRightV() const;
+		glm::vec3 getUpV() const;
+		glm::vec3 getPosition() const;
+		glm::mat4 getViewMatrix() const;
 
 		virtual void updateScreenRatio(GLuint width, GLuint height) = 0;
 

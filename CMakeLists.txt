@@ -39,6 +39,9 @@ set(SOURCES
   src/mgl/models/textures/mglTexture.cpp
   src/mgl/models/textures/mglSampler.cpp
   # scene
+  src/mgl/scene/mglLight.cpp
+  src/mgl/scene/mglLightManager.cpp
+  src/mgl/scene/mglPointLight.cpp
   src/mgl/scene/mglSceneGraph.cpp
   src/mgl/scene/mglSceneObject.cpp
   # camera

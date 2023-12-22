@@ -20,27 +20,19 @@ const glm::vec3 COLOR_GREEN	(0, 1, 0);
 const glm::vec3 COLOR_BLUE	(0, 0, 1);
 
 /////////////////////////////////////////////////////////////////////////// Material
-class Material {
+class Material : public ShaderUpdator {
 public:
 	static inline const char MATERIAL_LIGHT_COLOR[] = "lightColor";
 
-	ShaderProgram* Shaders;
-
-	Material(ShaderProgram* shaders);
-	void bind();
-	void unbind();
 	void setTexture(TextureInfo* texture);
 	void setTextureSpecular(TextureInfo* texture);
 	virtual Material* setColor(const glm::vec3 &color) = 0;
+	void updateShaders(ShaderProgram* shaders) override;
 
 private:
-	static GLuint id;
-	std::string shader_id;
 	TextureInfo* texture = nullptr;
 	TextureInfo* textureSpecular = nullptr;
-
 	virtual void setMaterialUniforms(ShaderProgram* shaders) = 0;
-	virtual std::string getShaderPrefix();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

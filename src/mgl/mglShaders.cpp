@@ -5,6 +5,13 @@
 
 namespace mgl {
 
+////////////////////////////////////////////////////////////////// ShaderUpdator
+
+void ShaderUpdator::declareShaderUniforms(ShaderProgram* shaders) {
+    util::Logger::LogError("DeclareShaderUniforms is not defined!");
+    exit(EXIT_FAILURE);
+}
+
 ////////////////////////////////////////////////////////////////// ShaderProgram
 
 ShaderProgram::ShaderProgram() : ProgramId(glCreateProgram()) {}

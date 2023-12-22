@@ -212,7 +212,7 @@ void Mesh::destroyBufferObjects() {
   glBindVertexArray(0);
 }
 
-void Mesh::draw() {
+void Mesh::performDraw() {
   glBindVertexArray(VaoId);
   for (MeshData &mesh : Meshes) {
     glDrawElementsBaseVertex(

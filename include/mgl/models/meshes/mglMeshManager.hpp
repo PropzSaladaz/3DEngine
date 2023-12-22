@@ -21,6 +21,7 @@ namespace mgl {
 		MeshManager();
 		~MeshManager();
 		void import(const std::string& name, const std::string& filePath);
+		void meshConfigCallback(SetManagedItemCallback callback);
 	};
 }
 

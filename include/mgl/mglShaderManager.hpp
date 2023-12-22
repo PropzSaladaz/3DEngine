@@ -19,6 +19,7 @@ namespace mgl {
 	class ShaderManager : public Manager<ShaderProgram>{
 	public:
 		void add(const std::string& name, ShaderProgram* program) override;
+		void beforeBuild(SetManagedItemCallback shaders);
 	};
 }
 

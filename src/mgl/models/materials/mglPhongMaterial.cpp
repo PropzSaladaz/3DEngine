@@ -2,11 +2,21 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mgl {
-	PhongMaterial::PhongMaterial(ShaderProgram* shaders) 
-		: Material(shaders) {}
+	const char PhongMaterial::MATERIAL_PHONG_AMBIENT[] = "material.ambient";
+	const char PhongMaterial::MATERIAL_PHONG_DIFFUSE[] = "material.diffuse";
+	const char PhongMaterial::MATERIAL_PHONG_SPECULAR[] = "material.specular";
+	const char PhongMaterial::MATERIAL_PHONG_SHININESS[] = "material.shininess";
 
-	PhongMaterial::PhongMaterial(ShaderProgram* shaders, 
-		const glm::vec3& color) : PhongMaterial(shaders) {
+	void PhongMaterial::declareShaderUniforms(ShaderProgram* shaders) {
+		shaders->addUniform(MATERIAL_PHONG_AMBIENT);
+		shaders->addUniform(MATERIAL_PHONG_DIFFUSE);
+		shaders->addUniform(MATERIAL_PHONG_SPECULAR);
+		shaders->addUniform(MATERIAL_PHONG_SHININESS);
+	}
+
+	PhongMaterial::PhongMaterial() {}
+
+	PhongMaterial::PhongMaterial(const glm::vec3& color) {
 		setColor(color);
 	}
 
@@ -31,10 +41,6 @@ namespace mgl {
 	PhongMaterial* PhongMaterial::setShininess(GLfloat shininess) {
 		this->shininess = shininess;
 		return this;
-	}
-
-	std::string PhongMaterial::getShaderPrefix() {
-		return "Phong";
 	}
 
 	void PhongMaterial::setMaterialUniforms(ShaderProgram* shaders) {

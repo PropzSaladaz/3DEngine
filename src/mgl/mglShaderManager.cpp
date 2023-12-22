@@ -11,4 +11,8 @@ void ShaderManager::add(const std::string& name, ShaderProgram* program) {
 	Manager::add(name, program);
 }
 
+void ShaderManager::beforeBuild(SetManagedItemCallback callback) {
+	itemCallback = callback;
+}
+
 }

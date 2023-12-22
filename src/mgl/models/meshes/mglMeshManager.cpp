@@ -16,4 +16,8 @@ void MeshManager::import(const std::string& name, const std::string& filePath) {
 	add(name, mesh);
 }
 
+void MeshManager::meshConfigCallback(SetManagedItemCallback callback) {
+	setManagedItemCallback(callback);
+}
+
 }

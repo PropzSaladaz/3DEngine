@@ -10,6 +10,22 @@
 namespace mgl {
 
 class ShaderProgram;
+class ShaderUpdator;
+
+class ShaderUpdator {
+public:
+    /*
+        Called when creating a shader program to declare shader
+        uniform's names
+    */
+    static void declareShaderUniforms(ShaderProgram* shaders);
+
+    /*
+        Called at runtime to set the values on the predeclared
+        shader uniform names
+    */
+    virtual void updateShaders(ShaderProgram* shaders) = 0;
+};
 
 class ShaderProgram {
 public:
@@ -41,6 +57,8 @@ public:
     void addShader(const GLenum shader_type, const std::string &filename);
     void addAttribute(const std::string &name, const GLuint index);
     bool isAttribute(const std::string &name);
+    
+    template <typename T> void addUniforms();
     void addUniform(const std::string &name);
     bool isUniform(const std::string &name);
     void addUniformBlock(const std::string &name, const GLuint binding_point);
@@ -57,6 +75,7 @@ public:
     void setUniformVec4f(const std::string& name, const GLfloat* vec);
     void setUniformMatrix(const std::string &name, const GLfloat * matrix);
     void setUniformMatrix(GLint varID, const GLfloat * matrix);
+   
 
  private:
     const GLuint checkCompilation(const GLuint shader_id,const std::string &filename);
@@ -67,6 +86,16 @@ public:
     void assertAttribute(const std::string& name);
 #endif
 };
+
+// template methods
+template <typename T>
+void ShaderProgram::addUniforms() {
+    #ifdef DEBUG
+        static_assert(std::is_base_of<ShaderUpdator, T>::value, 
+            "T must be a subclass of ShaderUpdator");
+    #endif
+    T::declareShaderUniforms(this);
+}
 
 
 } // namespace mgl

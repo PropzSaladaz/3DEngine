@@ -9,17 +9,39 @@
 #include <vector>
 
 #include <mgl/mglShaders.hpp>
+#include <mgl/mglTransform.hpp>
+#include <mgl/scene/mglLight.hpp>
+#include <mgl/scene/mglSceneObject.hpp>
+#include <mgl/models/materials/mglMaterial.hpp>
 
 namespace mgl {
 
 	///////////////////////////////////////////////////////////////// Light
-	class Light {
+	class PointLight : public Light {
 	public:
-		Light(const glm::vec3& color);
-		glm::vec3 getColor();
-		glm::vec3 setColor();
+		PointLight(const glm::vec3 &position);
+		PointLight(const SceneObject* position);
+		PointLight(const glm::vec3 &position, const glm::vec3 &color);
+		PointLight(const SceneObject* position, const glm::vec3 &color);
+
+		void setColor(const glm::vec3 &color) override;
+		void setPosition(const glm::vec3& position);
+		void setAmbient(const glm::vec3 &ambient);
+		void setDiffuse(const glm::vec3 &diffuse);
+		void setSpecular(const glm::vec3 &specular);
+
+		glm::vec3 getPosition();
+		glm::vec3 getAmbient();
+		glm::vec3 getDiffuse();
+		glm::vec3 getSpecular();
+
+		void updateShaders(ShaderProgram* shader) override;
+
 	private:
-		glm::vec3 color;
+		glm::vec3 ambientColor;
+		glm::vec3 diffuseColor;
+		glm::vec3 specularColor;
+		const SceneObject* position;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////

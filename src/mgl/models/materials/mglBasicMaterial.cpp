@@ -4,10 +4,13 @@
 
 namespace mgl {
 
-	BasicMaterial::BasicMaterial(ShaderProgram* shaders) : Material(shaders) {}
-	BasicMaterial::BasicMaterial(ShaderProgram* shaders, 
-		const glm::vec3& color) : BasicMaterial(shaders) {
+	void BasicMaterial::declareShaderUniforms(ShaderProgram* shaders) {
+		shaders->addUniform(COLOR_ATTRIBUTE);
+	}
 
+	BasicMaterial::BasicMaterial() {}
+	BasicMaterial::BasicMaterial(const glm::vec3& color) {
+		setColor(color);
 	}
 	Material* BasicMaterial::setColor(const glm::vec3& color) {
 		this->color = color;
@@ -16,11 +19,6 @@ namespace mgl {
 
 	void BasicMaterial::setMaterialUniforms(ShaderProgram* shaders) {
 		shaders->setUniformVec3f(COLOR_ATTRIBUTE, glm::value_ptr(color));
-	}
-
-	std::string BasicMaterial::getShaderPrefix()
-	{
-		return "Basic";
 	}
 
 	glm::vec3 BasicMaterial::getColor() {

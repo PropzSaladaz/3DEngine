@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include <mgl/scene/mglSceneGraph.hpp>
+#include <mgl/scene/mglDrawable.hpp>
 
 namespace mgl {
 
@@ -31,7 +31,7 @@ class Mesh;
 /////////////////////////////////////////////////////////////////////////// Mesh
 
 class Mesh : public IDrawable {
- public:
+public:
   static const GLuint INDEX = 0;
   static const GLuint POSITION = 1;
   static const GLuint NORMAL = 2;
@@ -53,13 +53,15 @@ class Mesh : public IDrawable {
   void flipUVs();
 
   void create(const std::string &filename);
-  void draw() override;
 
   bool hasNormals();
   bool hasTexcoords();
   bool hasTangentsAndBitangents();
 
- private:
+protected:
+    void performDraw() override;
+
+private:
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;

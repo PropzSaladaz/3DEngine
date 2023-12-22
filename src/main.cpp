@@ -17,7 +17,7 @@ public:
 private:
     const float initialScreenRatio = 800.0f / 600.0f;
     const GLuint UBO_BP = 0;
-    mgl::SceneGraph* Scene = nullptr;
+    mgl::Scene* Scene = nullptr;
     mgl::SceneGraph* lightObj;
     mgl::MeshManager* meshes;
     mgl::ShaderManager* shaders;
@@ -41,7 +41,7 @@ private:
 
 void MyApp::createMeshes() {
     meshes = new mgl::MeshManager();
-    meshes->setManagedItemCallback([](mgl::Mesh* mesh) {
+    meshes->meshConfigCallback([](mgl::Mesh* mesh) {
         mesh->joinIdenticalVertices();
     });
 
@@ -55,7 +55,7 @@ void MyApp::createMeshes() {
 
 void MyApp::createShaderPrograms() {
     shaders = new mgl::ShaderManager();
-    shaders->setManagedItemCallback([this](mgl::ShaderProgram* program) {
+    shaders->beforeBuild([this](mgl::ShaderProgram* program) {
         program->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
         program->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
         program->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
@@ -66,12 +66,8 @@ void MyApp::createShaderPrograms() {
     mgl::ShaderProgram* statueShaders = new mgl::ShaderProgram();
     statueShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
     statueShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
-    statueShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_AMBIENT);
-    statueShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_DIFFUSE);
-    statueShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_SPECULAR);
-    statueShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_SHININESS);
-    statueShaders->addUniform("lightColor");
-    statueShaders->addUniform("lightPos");
+    statueShaders->addUniforms<mgl::PhongMaterial>();
+    statueShaders->addUniforms<mgl::Light>();
     statueShaders->addUniform("texture1");
     statueShaders->addUniform("whiteColor");
     statueShaders->addUniform("darkColor");
@@ -79,12 +75,8 @@ void MyApp::createShaderPrograms() {
     mgl::ShaderProgram* woodShaders = new mgl::ShaderProgram();
     woodShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
     woodShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/wood.glsl");
-    woodShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_AMBIENT);
-    woodShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_DIFFUSE);
-    woodShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_SPECULAR);
-    woodShaders->addUniform(mgl::PhongMaterial::MATERIAL_PHONG_SHININESS);
-    woodShaders->addUniform("lightColor");
-    woodShaders->addUniform("lightPos");
+    woodShaders->addUniforms<mgl::PhongMaterial>();
+    woodShaders->addUniforms<mgl::Light>();
     woodShaders->addUniform("texture1");
     woodShaders->addUniform("whiteColor");
     woodShaders->addUniform("darkColor");
@@ -92,7 +84,7 @@ void MyApp::createShaderPrograms() {
     mgl::ShaderProgram* lightShaders = new mgl::ShaderProgram();
     lightShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
     lightShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/basic-color-fs.glsl");
-    lightShaders->addUniform(mgl::COLOR_ATTRIBUTE);
+    lightShaders->addUniforms<mgl::BasicMaterial>();
 
     shaders->add("phong", statueShaders);
     shaders->add("light", lightShaders);
@@ -108,14 +100,16 @@ const glm::vec3 lightColor(1, 1, 1);
 const glm::vec4 position(0, 2, 4, 0);
 
 void MyApp::createSceneGraph() {
-    // light ----------------------------------------------------
-    mgl::Material* WHITE_M = (new mgl::BasicMaterial(shaders->get("light")))
-        ->setColor(lightColor);
-    mgl::Transform* light_i = (new mgl::Transform())
+    // light Object----------------------------------------------------
+    mgl::Material* WHITE_M = new mgl::BasicMaterial(lightColor);
+    mgl::Transform* light_pos = (new mgl::Transform())
         ->scale(0.03)
         ->translate(0, 2.5, 2);
-    mgl::SceneObject* light = new mgl::SceneObject(meshes->get("light"), WHITE_M);
-    light->setTransform(light_i);
+    mgl::SceneObject* light = new mgl::SceneObject(
+        meshes->get("light"), 
+        WHITE_M, 
+        shaders->get("light"));
+    light->setTransform(light_pos);
     lightObj = new mgl::SceneGraph(light);
 
     // statue ----------------------------------------------------
@@ -125,7 +119,7 @@ void MyApp::createSceneGraph() {
     s->create();
     mgl::TextureInfo* tInfo = new mgl::TextureInfo(GL_TEXTURE0, 0, "texture1", t, s);
 
-    mgl::Material* STONE_M = (new mgl::PhongMaterial(shaders->get("phong")))
+    mgl::Material* STONE_M = (new mgl::PhongMaterial())
         ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
         ->setDiffuseColor(0.8f * mgl::COLOR_WHITE)
         ->setSpecularColor(0.9f * mgl::COLOR_WHITE)
@@ -140,11 +134,13 @@ void MyApp::createSceneGraph() {
         ->scale(glm::vec3(1, 0.5, 0.5))
         ->rotate(90.0f, mgl::YY);
 
-    mgl::SceneObject* statueObj = new mgl::SceneObject(meshes->get("statue"), STONE_M);
+    mgl::SceneObject* statueObj = new mgl::SceneObject(
+        meshes->get("statue"), 
+        STONE_M, 
+        shaders->get("phong"));
     statueObj->setTransform(statue_i);
-    statueObj->setShaderUniformCallback([light](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec3f("lightColor", glm::value_ptr(lightColor));
-        shaders->setUniformVec3f("lightPos", glm::value_ptr(light->getAbsolutePosition()));
+
+    statueObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
         shaders->setUniformVec3f("whiteColor", glm::value_ptr(glm::vec3(0.949, 0.902, 0.769)));
         shaders->setUniformVec3f("darkColor", glm::value_ptr(glm::vec3(0.849, 0.802, 0.669)));
         });
@@ -157,7 +153,7 @@ void MyApp::createSceneGraph() {
 
     mgl::TextureInfo* woodTInfo = new mgl::TextureInfo(GL_TEXTURE0, 0, "texture1", woodTexture, woodSampler);
 
-    mgl::Material* WOOD_M = (new mgl::PhongMaterial(shaders->get("wood")))
+    mgl::Material* WOOD_M = (new mgl::PhongMaterial())
         ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
         ->setDiffuseColor(0.6f * mgl::COLOR_WHITE)
         ->setSpecularColor(0.6f * mgl::COLOR_WHITE)
@@ -166,20 +162,26 @@ void MyApp::createSceneGraph() {
 
     mgl::Transform* wood_i = (new mgl::Transform());
 
-    mgl::SceneObject* woodenBaseObj = new mgl::SceneObject(meshes->get("wood-base"), WOOD_M);
+    mgl::SceneObject* woodenBaseObj = new mgl::SceneObject(
+        meshes->get("wood-base"), 
+        WOOD_M, 
+        shaders->get("wood"));
     woodenBaseObj->setTransform(wood_i);
-    woodenBaseObj->setShaderUniformCallback([light](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec3f("lightColor", glm::value_ptr(lightColor));
-        shaders->setUniformVec3f("lightPos", glm::value_ptr(light->getAbsolutePosition()));
+    woodenBaseObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
         shaders->setUniformVec3f("whiteColor", glm::value_ptr(glm::vec3(0.549, 0.309, 0.114)));
         shaders->setUniformVec3f("darkColor", glm::value_ptr(glm::vec3(0.258, 0.149, 0.058)));
         });
 
     // scene graph
-    Scene = new mgl::SceneGraph(statueObj);
-    Scene->add(lightObj);
-    Scene->add(woodenBaseObj);
-    //Scene->registerCallback(
+    mgl::SceneGraph* graph = new mgl::SceneGraph(statueObj);
+    graph->add(lightObj);
+    graph->add(woodenBaseObj);
+
+    Scene = new mgl::Scene(graph);
+    Scene->addLight("light1", new mgl::PointLight(light, mgl::COLOR_WHITE));
+    Scene->addCamera("main_camera", OrbitCam->getCamera());
+    Scene->assignLightToCamera("light1", "main_camera");
+    //graph->registerCallback(
     //    []() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, // init
     //    []() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }  // destroy
     //);
@@ -231,8 +233,9 @@ void MyApp::initCallback(GLFWwindow* win) {
     glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     createMeshes();
     createShaderPrograms();  // after mesh;
-    createSceneGraph();
     createCamera();
+    createSceneGraph();
+  
 }
 
 void MyApp::windowSizeCallback(GLFWwindow* win, int winx, int winy) {

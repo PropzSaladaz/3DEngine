@@ -1,4 +1,16 @@
 #version 330 core
+struct Light {
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 struct Material {
     vec3 ambient;
     vec3 diffuse;
@@ -10,12 +22,12 @@ struct Material {
 in vec3 exNormal;
 in vec3 exPosition;
 in vec2 exTexcoord;
-in vec3 exLightPos;
 
 out vec4 FragColor;
 
-uniform vec3 lightColor;
+// uniform vec3 lightColor;
 uniform Material material;
+uniform Light light;
 
 uniform vec3 whiteColor;
 uniform vec3 darkColor;
@@ -29,19 +41,19 @@ void main()
     vec4 texSpecular = texture(texture1, exTexcoord);
 
     // ambient
-    vec3 ambient = lightColor * material.ambient;
+    vec3 ambient = light.ambient * material.ambient;
 
     // diffuse
     vec3 norm = normalize(exNormal);
-    vec3 lightDir = normalize(exLightPos - exPosition);
+    vec3 lightDir = normalize(light.position - exPosition);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = lightColor * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
     // specular
     // reflect expects the 1st vector to be directed towards the refractable surface
     vec3 reflection = reflect(-lightDir, norm);
     float specularInt = pow(max(dot(normalize(-exPosition), normalize(reflection)), 0.0), material.shininess);
-    vec3 specular = lightColor * (specularInt * material.specular);
+    vec3 specular = light.specular * (specularInt * material.specular);
 
     vec3 color = mix(whiteColor, darkColor, texColor.r);
     FragColor = vec4((ambient + diffuse) * color + specular , 1);
