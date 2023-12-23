@@ -68,8 +68,8 @@ void Scene::performDraw() {
 }
 
 void Scene::updateShaders(ShaderProgram* shaders) {
-	// check light is defined for current shader
-	if (shaders->isUniform(Light::LIGHT_POSITION)) {
+	// check if lights are defined for current shader
+	if (shaders->isUniform(Light::LIGHT_UNIFORM(0, Light::LIGHT_POSITION_PROP))) {
 		lights->updateShaders(shaders);
 	}
 }

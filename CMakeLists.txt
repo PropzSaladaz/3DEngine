@@ -42,6 +42,9 @@ set(SOURCES
   src/mgl/scene/mglLight.cpp
   src/mgl/scene/mglLightManager.cpp
   src/mgl/scene/mglPointLight.cpp
+  src/mgl/scene/mglDirectionalLight.cpp
+  src/mgl/scene/mglPositionalLight.cpp
+  src/mgl/scene/mglSpotLight.cpp
   src/mgl/scene/mglSceneGraph.cpp
   src/mgl/scene/mglSceneObject.cpp
   # camera

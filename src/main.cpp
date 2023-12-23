@@ -74,7 +74,7 @@ void MyApp::createShaderPrograms() {
 
     mgl::ShaderProgram* woodShaders = new mgl::ShaderProgram();
     woodShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    woodShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/wood.glsl");
+    woodShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
     woodShaders->addUniforms<mgl::PhongMaterial>();
     woodShaders->addUniforms<mgl::Light>();
     woodShaders->addUniform("texture1");
@@ -123,7 +123,7 @@ void MyApp::createSceneGraph() {
         ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
         ->setDiffuseColor(0.8f * mgl::COLOR_WHITE)
         ->setSpecularColor(0.9f * mgl::COLOR_WHITE)
-        ->setShininess(256);
+        ->setShininess(64);
     STONE_M->setTexture(tInfo);
 
     mgl::Transform* statue_i = (new mgl::Transform())
@@ -178,9 +178,25 @@ void MyApp::createSceneGraph() {
     graph->add(woodenBaseObj);
 
     Scene = new mgl::Scene(graph);
-    Scene->addLight("light1", new mgl::PointLight(light, mgl::COLOR_WHITE));
+
+    mgl::PointLight* pointLight = new mgl::PointLight(light, mgl::COLOR_BLUE);
+    pointLight->setAttenuation(50);
+
+    mgl::DirectionalLight* dirLight = new mgl::DirectionalLight(glm::vec3(1.0f), 0.4f * mgl::COLOR_GREEN);
+
+    mgl::SpotLight* spotLight = new mgl::SpotLight(glm::vec3(2.0f), mgl::COLOR_RED, glm::vec3(0.0f));
+    spotLight->setAmbient(mgl::COLOR_RED * 0.1f);
+    spotLight->setInnerCutoffAngle(10.0f);
+    spotLight->setOuterCutoffAngle(15.0f);
+
     Scene->addCamera("main_camera", OrbitCam->getCamera());
+
+    Scene->addLight("light1", pointLight);
     Scene->assignLightToCamera("light1", "main_camera");
+    Scene->addLight("dirLight", dirLight);
+    Scene->assignLightToCamera("dirLight", "main_camera");
+    Scene->addLight("spotLight", spotLight);
+    Scene->assignLightToCamera("spotLight", "main_camera");
     //graph->registerCallback(
     //    []() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, // init
     //    []() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }  // destroy

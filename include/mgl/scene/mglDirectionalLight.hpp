@@ -1,5 +1,5 @@
-#ifndef MGL_POINT_LIGHT_HPP
-#define MGL_POINT_LIGHT_HPP
+#ifndef MGL_DIRECTIONAL_LIGHT_HPP
+#define MGL_DIRECTIONAL_LIGHT_HPP
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -15,16 +15,23 @@
 #include <mgl/models/materials/mglMaterial.hpp>
 
 namespace mgl {
-
-	///////////////////////////////////////////////////////////////// Light
-	class PointLight : public PositionalLight {
+	/*
+		Represents directional light, simulating a source of light
+		at an infinite distance, with no position, and only a direction
+		vector.
+	*/
+	class DirectionalLight : public Light {
 	public:
-		PointLight(const glm::vec3 &position);
-		PointLight(const SceneObject* position);
-		PointLight(const glm::vec3 &position, const glm::vec3 &color);
-		PointLight(const SceneObject* position, const glm::vec3 &color);
+		DirectionalLight(const glm::vec3& direction);
+		DirectionalLight(const glm::vec3& direction, const glm::vec3& color);
+
+		void setDirection(const glm::vec3 &direction);
+		glm::vec3 getDirection() const;
 
 		void updateShaders(ShaderProgram* shader) override;
+
+	private:
+		glm::vec3 direction;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////

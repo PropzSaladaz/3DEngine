@@ -1,6 +1,6 @@
 #version 330 core
 
-struct Light {
+struct LightProperties {
     vec3 position;
 
     vec3 ambient;
@@ -26,7 +26,7 @@ in vec2 exTexcoord;
 
 out vec4 FragColor;
 
-uniform Light light;
+uniform LightProperties light;
 uniform Material material;
 
 uniform vec3 whiteColor;
@@ -56,8 +56,16 @@ void main()
     vec3 specular = light.specular * (specularInt * material.specular);
     vec3 combinedSpecular = specular * (1 - texColor.r);
 
+    // attenuation
+    float distance = length(light.position - exPosition);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + 
+        light.quadratic * (distance * distance));
+    ambient  *= attenuation;
+    diffuse  *= attenuation;
+    specular *= attenuation;
+
+    // final frag color
     vec3 color = mix(whiteColor, darkColor, texColor.r);
     FragColor = vec4((ambient + diffuse) * color + combinedSpecular, 1);
-    // FragColor = vec4(mix(marble, marbleLight, k), 1);
     
 }

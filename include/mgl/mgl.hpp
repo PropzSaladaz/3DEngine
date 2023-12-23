@@ -24,6 +24,8 @@
 #include <mgl/scene/mglSceneGraph.hpp>
 #include <mgl/scene/mglSceneObject.hpp>
 #include <mgl/scene/mglPointLight.hpp>
+#include <mgl/scene/mglDirectionalLight.hpp>
+#include <mgl/scene/mglSpotLight.hpp>
 
 // models
 #include <mgl/models/materials/mglMaterial.hpp>

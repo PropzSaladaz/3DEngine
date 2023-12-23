@@ -5,11 +5,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+
 #include <mgl/models/meshes/mglMesh.hpp>
+#include <utils/logger.hpp>
+
 #include <iostream>
 #include <string>
 #include <map>
 #include <functional>
+#include <typeinfo>
 
 namespace mgl {
 
@@ -57,8 +61,7 @@ namespace mgl {
 			return it->second;
 		}
 		else {
-			std::cerr << "MESH_MANAGER::GET::ERROR" << std::endl;
-			std::cerr << "No mesh found with name " << name << std::endl;
+			util::Logger::LogError("No item found with name " + name + " in manager of " + typeid(T).name());
 			exit(EXIT_FAILURE);
 		}
 	}
