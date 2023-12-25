@@ -10,11 +10,15 @@ namespace mgl {
 class Light;
 class PointLight;
 
+/*
+	Represents an abstract generic light with all the parameters
+	needed at the shader
+*/
 class Light : public ShaderUpdator {
 public:
 	static inline char* LIGHT_UNIFORM(GLuint light_nr, const char* propertyName) {
 		std::string result = "Lights[" + std::to_string(light_nr) + "]." + propertyName;
-		return strdup(result.c_str());
+		return _strdup(result.c_str());
 	}
 
 
@@ -74,9 +78,9 @@ public:
 
 protected:
 	bool enabled;
-	glm::vec3 ambientColor;
-	glm::vec3 diffuseColor;
-	glm::vec3 specularColor;
+	glm::vec4 ambientColor;
+	glm::vec4 diffuseColor;
+	glm::vec4 specularColor;
 	const Camera* camera;
 };
 

@@ -79,9 +79,9 @@ namespace mgl {
 		glm::vec3 eyeSpaceAbsolutePos = camera->getViewMatrix() * glm::vec4(position->getAbsolutePosition(), 1.0);
 		shader->setUniformBool (LIGHT_IS_ENABLED,	enabled);
 		shader->setUniformVec3f(LIGHT_POSITION,		glm::value_ptr(eyeSpaceAbsolutePos));
-		shader->setUniformVec3f(LIGHT_AMBIENT,		glm::value_ptr(ambientColor));
-		shader->setUniformVec3f(LIGHT_DIFFUSE,		glm::value_ptr(diffuseColor));
-		shader->setUniformVec3f(LIGHT_SPECULAR,		glm::value_ptr(specularColor));
+		shader->setUniformVec4f(LIGHT_AMBIENT,		glm::value_ptr(ambientColor));
+		shader->setUniformVec4f(LIGHT_DIFFUSE,		glm::value_ptr(diffuseColor));
+		shader->setUniformVec4f(LIGHT_SPECULAR,		glm::value_ptr(specularColor));
 		shader->setUniformFloat(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
 		shader->setUniformFloat(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
 		shader->setUniformFloat(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);

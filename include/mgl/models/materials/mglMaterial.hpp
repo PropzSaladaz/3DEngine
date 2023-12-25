@@ -27,6 +27,7 @@ public:
 	void setTexture(TextureInfo* texture);
 	void setTextureSpecular(TextureInfo* texture);
 	virtual Material* setColor(const glm::vec3 &color) = 0;
+	virtual Material* setColor(const glm::vec4 &color) = 0;
 	void updateShaders(ShaderProgram* shaders) override;
 
 private:

@@ -42,10 +42,11 @@ namespace mgl {
 
 		virtual void updateShaders(ShaderProgram* shader) override;
 
-	private:
-
-		LightAttenuation attenuation;
+	protected:
 		const SceneObject* position;
+
+	private:
+		LightAttenuation attenuation;
 
 		// default attenuation parameters
 		static inline const GLuint attenuationDistances[] = { 7, 13, 20, 32, 50, 65, 100,

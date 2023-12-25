@@ -82,6 +82,7 @@ void ShaderProgram::create() {
             util::Logger::LogWarning("UBO " + i.first + " not found");
         glUniformBlockBinding(ProgramId, i.second.index, i.second.binding_point);
     }
+    glLinkProgram(0);
 }
 
 void ShaderProgram::bind() { glUseProgram(ProgramId); }

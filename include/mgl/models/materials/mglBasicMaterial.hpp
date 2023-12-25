@@ -11,10 +11,14 @@ namespace mgl {
 
 		BasicMaterial();
 		BasicMaterial(const glm::vec3& color);
+		BasicMaterial(const glm::vec4& color);
+
 		mgl::Material* setColor(const glm::vec3& color) override;
+		mgl::Material* setColor(const glm::vec4& color) override;
+
 		glm::vec3 getColor();
 	private:
-		glm::vec3 color = COLOR_WHITE;
+		glm::vec4 color = glm::vec4(COLOR_WHITE, 1.0f);
 
 		void setMaterialUniforms(ShaderProgram* shaders) override;
 	};

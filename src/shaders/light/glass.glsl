@@ -51,9 +51,6 @@ out vec4 FragColor;
 uniform Material material;
 uniform LightProperties Lights[MAX_NR_LIGHTS];
 
-uniform vec4 whiteColor;
-uniform vec4 darkColor;
-
 uniform sampler2D texture1;
 
 vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDir, bool attenuation, float intensity) {
@@ -61,7 +58,8 @@ vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDi
     float diff = max(dot(lightDir, normal), 0.0);
     // specular
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(normalize(viewDir), normalize(reflectDir)), 0.0), material.shininess);
+    float spec = pow(max(abs(dot(normalize(viewDir), normalize(reflectDir))), 0.0), material.shininess);
+    // float spec = pow(max(dot(normalize(viewDir), normalize(reflectDir)), 0.0), material.shininess);
     // combine results w/ intensity
     vec4 ambient  = light.ambient  *        material.ambient   * intensity;
     vec4 diffuse  = light.diffuse  * diff * material.diffuse   * intensity;
@@ -111,6 +109,7 @@ vec4 CalcLight(vec3 normal, vec3 viewDir) {
                 break;
             case POINT_LIGHT:
                 resultColor += CalcPointLight(Lights[light], normal, viewDir);
+                return resultColor;
                 break;
             case SPOT_LIGHT:
                 resultColor += CalcSpotLight(Lights[light], normal, viewDir);
@@ -129,7 +128,5 @@ void main()
     vec4 texSpecular = texture(texture1, exTexcoord);
 
     vec4 resultColor = CalcLight(normalize(exNormal), normalize(-exPosition));
-
-    vec4 color = mix(whiteColor, darkColor, texColor.r);
-    FragColor = resultColor * color;
+    FragColor = resultColor;
 }

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Textures (small example for 2D textures)
+// Textures 
 //
 // Copyright (c)2022-23 by Carlos Martinho
 //
@@ -76,7 +76,13 @@ public:
         GLdouble atenuation, GLdouble frequency);
 };
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////// CubeMap
+class TextureCubeMap : public Texture {
+public:
+    void bind() override;
+    void unbind() override;
+    void loadCubeMap(const std::string& prefix, const std::string& suffix);
+};
 } // namespace mgl
 
 #endif /* MGL_TEXTURE_HPP */

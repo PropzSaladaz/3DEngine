@@ -6,14 +6,24 @@
 namespace mgl {
 
 class SpotLight : public PositionalLight {
-public:
-	SpotLight(glm::vec3 position);
-	SpotLight(glm::vec3 position, glm::vec3 color);
-	SpotLight(glm::vec3 position, glm::vec3 color, glm::vec3 direction);
-	SpotLight(glm::vec3 position, glm::vec3 color, SceneObject* direction);
 
-	void setDirection(glm::vec3 direction);
-	void setDirection(SceneObject* direction);
+public:
+	static const GLfloat DEFAULT_INNER_COS_CUTOFF;
+	static const GLfloat DEFAULT_OUTER_COS_CUTOFF;
+	static const GLfloat DEFAULT_EPSILON;
+
+	SpotLight();
+	SpotLight(const glm::vec3 &position);
+	SpotLight(const SceneObject* position);
+	SpotLight(const glm::vec3 &position, const glm::vec3 &color);
+	SpotLight(const SceneObject* position, const glm::vec3 &color);
+	SpotLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &target);
+	SpotLight(const glm::vec3 &position, const glm::vec3 &color, const SceneObject* target);
+	SpotLight(const SceneObject* position, const glm::vec3 &color, const glm::vec3 & target);
+	SpotLight(const SceneObject* position, const glm::vec3 &color, const SceneObject* target);
+
+	void setTarget(const glm::vec3 &target);
+	void setTarget(const SceneObject* target);
 	void setInnerCutoffAngle(GLfloat angleDegrees);
 	void setOuterCutoffAngle(GLfloat angleDegrees);
 
@@ -22,10 +32,10 @@ public:
 	void updateShaders(ShaderProgram* shader) override;
 
 private:
-	SceneObject* direction;
-	GLfloat spotOuterCosCutoff;
-	GLfloat spotInnerCosCutoff;
-	GLfloat epsilon;
+	const SceneObject* target = nullptr;
+	GLfloat spotOuterCosCutoff = DEFAULT_OUTER_COS_CUTOFF;
+	GLfloat spotInnerCosCutoff = DEFAULT_INNER_COS_CUTOFF;
+	GLfloat epsilon = DEFAULT_EPSILON;
 };
 
 }

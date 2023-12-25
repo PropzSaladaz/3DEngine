@@ -23,9 +23,9 @@ namespace mgl {
 		shader->setUniformBool(LIGHT_IS_ENABLED, enabled);
 		shader->setUniformInt  (LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
 		shader->setUniformVec3f(LIGHT_DIRECTION,  glm::value_ptr(eyeSpaceDirection));
-		shader->setUniformVec3f(LIGHT_AMBIENT, glm::value_ptr(ambientColor));
-		shader->setUniformVec3f(LIGHT_DIFFUSE, glm::value_ptr(diffuseColor));
-		shader->setUniformVec3f(LIGHT_SPECULAR, glm::value_ptr(specularColor));
+		shader->setUniformVec4f(LIGHT_AMBIENT, glm::value_ptr(ambientColor));
+		shader->setUniformVec4f(LIGHT_DIFFUSE, glm::value_ptr(diffuseColor));
+		shader->setUniformVec4f(LIGHT_SPECULAR, glm::value_ptr(specularColor));
 	}
 
 }

@@ -89,13 +89,13 @@ namespace mgl {
 		setSpecular(color);
 	}
 	void Light::setAmbient(const glm::vec3& ambient) {
-		ambientColor = ambient;
+		ambientColor = glm::vec4(ambient, 1.0f);
 	}
 	void Light::setDiffuse(const glm::vec3& diffuse) {
-		diffuseColor = diffuse;
+		diffuseColor = glm::vec4(diffuse, 1.0f);
 	}
 	void Light::setSpecular(const glm::vec3& specular) {
-		specularColor = specular;
+		specularColor = glm::vec4(specular, 1.0f);
 	}
 
 	////////////////////////////////////////////////// Getters
