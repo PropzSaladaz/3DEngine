@@ -52,6 +52,7 @@ uniform Material material;
 uniform LightProperties Lights[MAX_NR_LIGHTS];
 
 uniform sampler2D texture1;
+uniform samplerCube cubemap;
 
 vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDir, bool attenuation, float intensity) {
     // diffuse
@@ -73,8 +74,8 @@ vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDi
         diffuse  *= attenuation;
         specular *= attenuation;
     }
-    vec4 result = ambient + diffuse + specular;
-    result.a = ambient.a + diffuse.a + specular.a / 3; // average alpha
+    vec4 result = ambient + 0.1 * specular + specular; // specular has little contribution in galssy materials
+    result.a = ambient.a + specular.a; // average alpha
     return result;
 }
 
@@ -109,7 +110,6 @@ vec4 CalcLight(vec3 normal, vec3 viewDir) {
                 break;
             case POINT_LIGHT:
                 resultColor += CalcPointLight(Lights[light], normal, viewDir);
-                return resultColor;
                 break;
             case SPOT_LIGHT:
                 resultColor += CalcSpotLight(Lights[light], normal, viewDir);
@@ -118,7 +118,7 @@ vec4 CalcLight(vec3 normal, vec3 viewDir) {
                 break;
         }
     }
-    resultColor.a = max(resultColor.a, 1.0);
+    resultColor.a = min(resultColor.a, 1.0);
     return resultColor;
 }
 
@@ -128,5 +128,13 @@ void main()
     vec4 texSpecular = texture(texture1, exTexcoord);
 
     vec4 resultColor = CalcLight(normalize(exNormal), normalize(-exPosition));
-    FragColor = resultColor;
+    vec3 I = normalize(exPosition);
+    vec3 R = reflect(I, normalize(exNormal));
+    
+    vec4 reflection = vec4(texture(cubemap, R).rgb, 0.0);
+    reflection.r = min(pow(reflection.r, 8), 0.2);
+    reflection.g = min(pow(reflection.g, 8), 0.2);
+    reflection.b = min(pow(reflection.b, 8), 0.2);
+    reflection.a = reflection.r + reflection.b + reflection.g / 3;
+    FragColor =  resultColor + reflection;
 }

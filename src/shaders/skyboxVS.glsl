@@ -17,14 +17,9 @@ uniform Camera {
 
 void main(void)
 {
-	mat4 ModelView = ViewMatrix * ModelMatrix;
-
 	vec4 MCPosition = vec4(inPosition, 1.0);
-	exTexcoord = inTexcoord;;
+    mat4 ViewWithoutTranslation = mat4(mat3(ViewMatrix));
+	exPosition = inPosition;
 
-	// Eye space
-	exNormal = mat3(transpose(inverse(ModelView))) * inNormal;
-	exPosition = vec3(ModelView * MCPosition);
-
-	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * MCPosition;
+	gl_Position = (ProjectionMatrix * ViewWithoutTranslation * ModelMatrix * MCPosition).xyww;
 }

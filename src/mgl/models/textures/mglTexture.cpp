@@ -244,16 +244,16 @@ void TextureCubeMap::bind() { glBindTexture(GL_TEXTURE_CUBE_MAP, id); }
 
 void TextureCubeMap::unbind() { glBindTexture(GL_TEXTURE_CUBE_MAP, 0); }
 
-const std::string CUBEMAP_SUFFIXES[6] = { "right",  "left",  "top",
-                                         "bottom", "front", "back" };
+const std::string CUBEMAP_SUFFIXES[6] = { "px", "nx",  // right, left
+                                          "py", "ny",  // top, bottom
+                                          "pz", "nz" };// back, front
 
 const GLenum CUBEMAP_TEXTURES[6] = {
     GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
     GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
 
-void TextureCubeMap::loadCubeMap(const std::string& prefix,
-    const std::string& suffix) {
+void TextureCubeMap::loadCubeMap(const std::string& folder, const std::string &fileType) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
@@ -265,7 +265,7 @@ void TextureCubeMap::loadCubeMap(const std::string& prefix,
 
     for (int i = 0; i < 6; ++i) {
         std::stringstream ss;
-        ss << prefix << CUBEMAP_SUFFIXES[i] << suffix;
+        ss << folder << CUBEMAP_SUFFIXES[i] << "." << fileType;
         std::string filename = ss.str();
 
         int width, height, channels;

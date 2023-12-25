@@ -49,6 +49,7 @@ void MyApp::createMeshes() {
     meshes->import("statue", "resources/models/statue.obj");
     meshes->import("wood-base", "resources/models/base.obj");
     meshes->import("glass", "resources/models/dome.obj");
+    meshes->import("cubemap", "resources/models/cube-vtn.obj");
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
@@ -86,6 +87,13 @@ void MyApp::createShaderPrograms() {
     glassShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass.glsl");
     glassShaders->addUniforms<mgl::PhongMaterial>();
     glassShaders->addUniforms<mgl::Light>();
+    glassShaders->addUniform("cubemap");
+
+    mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
+    skyboxShaders->addShader(GL_VERTEX_SHADER, "src/shaders/skyboxVS.glsl");
+    skyboxShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/skybox.glsl");
+    skyboxShaders->addUniforms<mgl::BasicMaterial>();
+    skyboxShaders->addUniform("cubemap");
 
     mgl::ShaderProgram* lightShaders = new mgl::ShaderProgram();
     lightShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
@@ -96,6 +104,7 @@ void MyApp::createShaderPrograms() {
     shaders->add("light", lightShaders);
     shaders->add("wood", woodShaders);
     shaders->add("glass", glassShaders);
+    shaders->add("skybox", skyboxShaders);
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
@@ -105,6 +114,34 @@ const glm::vec3 lightColor(1, 1, 1);
 const glm::vec4 position(0, 2, 4, 0);
 
 void MyApp::createSceneGraph() {
+    // skybox ---------------------------------------------------------
+    mgl::TextureCubeMap* cubemapT = new mgl::TextureCubeMap();
+    cubemapT->loadCubeMap("resources/textures/cubemaps/dance_hall/", "png");
+    mgl::Sampler* cubemapS = new mgl::LinearSampler();
+    cubemapS->create();
+
+    mgl::TextureInfo* cubeTinfo = new mgl::TextureInfo(GL_TEXTURE0, 0, 
+        "cubemap", cubemapT, cubemapS); // has no sampler
+    mgl::Material* SKYBOX_M = new mgl::BasicMaterial();
+    SKYBOX_M->setTexture(cubeTinfo);
+
+    mgl::Transform* skybox_i = new mgl::Transform();
+
+    mgl::SceneObject* skyboxObj = new mgl::SceneObject(
+        meshes->get("cubemap"),
+        SKYBOX_M,
+        shaders->get("skybox"));
+    skyboxObj->setTransform(skybox_i);
+    skyboxObj->beforeAndAfterDraw(
+        []() { // before
+            glDepthFunc(GL_LEQUAL); // Skybox z value will be 1
+            glCullFace(GL_FRONT);
+        },
+        []() { // after
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+        });
+
     // light Object----------------------------------------------------
     mgl::Material* WHITE_M = new mgl::BasicMaterial(lightColor);
     mgl::Transform* light_pos = (new mgl::Transform())
@@ -178,12 +215,17 @@ void MyApp::createSceneGraph() {
         });
 
     // Glass dome ----------------------------------------------------
-    // Has to be drawn last since it is transparent
+    // Has to be created to be drawn last (graph objects ordered by id,
+    // which is incremented for each new object)
+     mgl::TextureInfo* cubeTinfo2 = new mgl::TextureInfo(GL_TEXTURE1, 1,
+        "cubemap", cubemapT, cubemapS); // has no sampler
 
-    mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.18f)))
-        ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.01f))
+    mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.3f)))
+        ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.0f))
         ->setSpecularColor(glm::vec4(mgl::COLOR_WHITE, 0.9f))
-        ->setShininess(300);
+        ->setShininess(256);
+    GLASS_M->setTexture(cubeTinfo2);
+
     mgl::Transform* glass_pos = (new mgl::Transform())
         ->scale(glm::vec3(1.0f, 1.7f, 1.0f))
         ->translate(0, 0.1f, 0);
@@ -200,8 +242,8 @@ void MyApp::createSceneGraph() {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         },
         []() { // after
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
+            //glEnable(GL_CULL_FACE);
+            //glCullFace(GL_BACK);
             glDisable(GL_BLEND);
         });
 
@@ -210,16 +252,18 @@ void MyApp::createSceneGraph() {
     graph->add(lightObj);
     graph->add(woodenBaseObj);
     graph->add(glassObj);
+    graph->add(skyboxObj);
 
     Scene = new mgl::Scene(graph);
 
+    // lights
     mgl::PointLight* pointLight = new mgl::PointLight(light, mgl::COLOR_WHITE);
-    pointLight->setAttenuation(50);
+    pointLight->setAttenuation(70);
 
-    mgl::SpotLight* spotLight = new mgl::SpotLight(light, mgl::COLOR_WHITE, glm::vec3(0.0f, 1.4f, 0.0f));
-    spotLight->setAmbient(mgl::COLOR_WHITE * 0.0f);
-    spotLight->setInnerCutoffAngle(2.0f);
-    spotLight->setOuterCutoffAngle(20.0f);
+    //mgl::SpotLight* spotLight = new mgl::SpotLight(light, mgl::COLOR_WHITE, glm::vec3(0.0f, 1.4f, 0.0f));
+    //spotLight->setAmbient(mgl::COLOR_WHITE * 0.0f);
+    //spotLight->setInnerCutoffAngle(2.0f);
+    //spotLight->setOuterCutoffAngle(20.0f);
 
     Scene->addCamera("main_camera", OrbitCam->getCamera());
 

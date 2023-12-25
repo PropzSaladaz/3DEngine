@@ -81,7 +81,7 @@ class TextureCubeMap : public Texture {
 public:
     void bind() override;
     void unbind() override;
-    void loadCubeMap(const std::string& prefix, const std::string& suffix);
+    void loadCubeMap(const std::string& folder, const std::string& fileType);
 };
 } // namespace mgl
 

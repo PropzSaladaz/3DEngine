@@ -43,7 +43,7 @@ void SceneObject::performDraw() {
 		Parent->AbsoluteTransform * getTransformMatrix();
 
 	shaders->bind();
-	material->updateShaders(shaders);
+	if (material) material->updateShaders(shaders);
 	scene->updateShaders(shaders); // update with global scene info
 	setUniforms();
 	mesh->draw();
