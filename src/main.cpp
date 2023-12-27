@@ -21,6 +21,8 @@ private:
     mgl::SceneGraph* lightObj;
     mgl::MeshManager* meshes;
     mgl::ShaderManager* shaders;
+    mgl::TextureManager* textures;
+    mgl::MaterialManager* materials;
     mgl::Animation* squareAnim;
     // cameras
     mgl::FPSCamController* FPSCamera;
@@ -32,6 +34,8 @@ private:
     // scene
     void createMeshes();
     void createShaderPrograms();
+    void createTextures();
+    void createMaterials();
     void createSceneGraph();
     void createCamera();
     void drawScene();
@@ -48,8 +52,62 @@ void MyApp::createMeshes() {
     meshes->import("light", "resources/models/square.obj");
     meshes->import("statue", "resources/models/statue.obj");
     meshes->import("wood-base", "resources/models/base.obj");
-    meshes->import("glass", "resources/models/dome.obj");
-    meshes->import("cubemap", "resources/models/cube-vtn.obj");
+    meshes->import("glass", "resources/models/dome3.obj");
+}
+
+///////////////////////////////////////////////////////////////////////// TEXTURES
+
+void MyApp::createTextures() {
+    textures = new mgl::TextureManager();
+
+    // stone texture
+    mgl::Texture2D* stoneT = new mgl::Texture2D();
+    stoneT->genSinePerlinNoise(512, 15, 200, 200, 15);
+    mgl::Sampler* stoneS = new mgl::LinearSampler();
+    stoneS->create();
+    mgl::TextureInfo* stoneTinfo = new mgl::TextureInfo(GL_TEXTURE1, 1, "texture1", stoneT, stoneS);
+
+    // wood texture
+    mgl::Texture2D* woodT = new mgl::Texture2D();
+    woodT->genSawPerlinNoise(512, 10, 26, 2.6f);
+    mgl::Sampler* woodS = new mgl::LinearSampler();
+    woodS->create();
+    mgl::TextureInfo* woodTinfo = new mgl::TextureInfo(GL_TEXTURE1, 1, "texture1", woodT, woodS);
+
+    textures->add("stone", stoneTinfo);
+    textures->add("wood", woodTinfo);
+}
+
+///////////////////////////////////////////////////////////////////////// MATERIALS
+
+void MyApp::createMaterials() {
+    materials = new mgl::MaterialManager();
+    // stone
+    mgl::Material* STONE_M = (new mgl::PhongMaterial())
+        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
+        ->setDiffuseColor(0.8f * mgl::COLOR_WHITE)
+        ->setSpecularColor(0.9f * mgl::COLOR_WHITE)
+        ->setShininess(256);
+    STONE_M->addTexture(textures->get("stone"));
+    // light
+    mgl::Material* WHITE_M = new mgl::BasicMaterial(mgl::COLOR_WHITE);
+    // wood
+    mgl::Material* WOOD_M = (new mgl::PhongMaterial())
+        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
+        ->setDiffuseColor(0.6f * mgl::COLOR_WHITE)
+        ->setSpecularColor(0.6f * mgl::COLOR_WHITE)
+        ->setShininess(17);
+    WOOD_M->addTexture(textures->get("wood"));
+    // glass
+    mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.1f)))
+        ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.0f))
+        ->setSpecularColor(glm::vec4(mgl::COLOR_WHITE, 0.9f))
+        ->setShininess(256);
+
+    materials->add("stone", STONE_M);
+    materials->add("light", WHITE_M);
+    materials->add("wood", WOOD_M);
+    materials->add("glass", GLASS_M);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
@@ -69,6 +127,7 @@ void MyApp::createShaderPrograms() {
     statueShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
     statueShaders->addUniforms<mgl::PhongMaterial>();
     statueShaders->addUniforms<mgl::Light>();
+    statueShaders->addUniform(mgl::SKYBOX);
     statueShaders->addUniform("texture1");
     statueShaders->addUniform("whiteColor");
     statueShaders->addUniform("darkColor");
@@ -78,22 +137,24 @@ void MyApp::createShaderPrograms() {
     woodShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
     woodShaders->addUniforms<mgl::PhongMaterial>();
     woodShaders->addUniforms<mgl::Light>();
+    woodShaders->addUniform(mgl::SKYBOX);
     woodShaders->addUniform("texture1");
     woodShaders->addUniform("whiteColor");
     woodShaders->addUniform("darkColor");
 
-    mgl::ShaderProgram* glassShaders = new mgl::ShaderProgram();
-    glassShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    glassShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass.glsl");
-    glassShaders->addUniforms<mgl::PhongMaterial>();
-    glassShaders->addUniforms<mgl::Light>();
-    glassShaders->addUniform("cubemap");
+    mgl::ShaderProgram* glassFrontShaders = new mgl::ShaderProgram();
+    glassFrontShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
+    glassFrontShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass-front.glsl");
+    glassFrontShaders->addUniforms<mgl::PhongMaterial>();
+    glassFrontShaders->addUniforms<mgl::Light>();
+    glassFrontShaders->addUniform(mgl::SKYBOX);
 
-    mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
-    skyboxShaders->addShader(GL_VERTEX_SHADER, "src/shaders/skyboxVS.glsl");
-    skyboxShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/skybox.glsl");
-    skyboxShaders->addUniforms<mgl::BasicMaterial>();
-    skyboxShaders->addUniform("cubemap");
+    mgl::ShaderProgram* glassBackShaders = new mgl::ShaderProgram();
+    glassBackShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
+    glassBackShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass-back.glsl");
+    glassBackShaders->addUniforms<mgl::PhongMaterial>();
+    glassBackShaders->addUniforms<mgl::Light>();
+    glassBackShaders->addUniform(mgl::SKYBOX);
 
     mgl::ShaderProgram* lightShaders = new mgl::ShaderProgram();
     lightShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
@@ -103,8 +164,8 @@ void MyApp::createShaderPrograms() {
     shaders->add("phong", statueShaders);
     shaders->add("light", lightShaders);
     shaders->add("wood", woodShaders);
-    shaders->add("glass", glassShaders);
-    shaders->add("skybox", skyboxShaders);
+    shaders->add("glass-front", glassFrontShaders);
+    shaders->add("glass-back", glassBackShaders);
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
@@ -114,73 +175,25 @@ const glm::vec3 lightColor(1, 1, 1);
 const glm::vec4 position(0, 2, 4, 0);
 
 void MyApp::createSceneGraph() {
-    // skybox ---------------------------------------------------------
-    mgl::TextureCubeMap* cubemapT = new mgl::TextureCubeMap();
-    cubemapT->loadCubeMap("resources/textures/cubemaps/dance_hall/", "png");
-    mgl::Sampler* cubemapS = new mgl::LinearSampler();
-    cubemapS->create();
-
-    mgl::TextureInfo* cubeTinfo = new mgl::TextureInfo(GL_TEXTURE0, 0, 
-        "cubemap", cubemapT, cubemapS); // has no sampler
-    mgl::Material* SKYBOX_M = new mgl::BasicMaterial();
-    SKYBOX_M->setTexture(cubeTinfo);
-
-    mgl::Transform* skybox_i = new mgl::Transform();
-
-    mgl::SceneObject* skyboxObj = new mgl::SceneObject(
-        meshes->get("cubemap"),
-        SKYBOX_M,
-        shaders->get("skybox"));
-    skyboxObj->setTransform(skybox_i);
-    skyboxObj->beforeAndAfterDraw(
-        []() { // before
-            glDepthFunc(GL_LEQUAL); // Skybox z value will be 1
-            glCullFace(GL_FRONT);
-        },
-        []() { // after
-            glCullFace(GL_BACK);
-            glDepthFunc(GL_LESS);
-        });
-
-    // light Object----------------------------------------------------
-    mgl::Material* WHITE_M = new mgl::BasicMaterial(lightColor);
-    mgl::Transform* light_pos = (new mgl::Transform())
-        ->scale(0.03f)
-        ->translate(0, 2.5f, 2);
+     // light Object----------------------------------------------------
     mgl::SceneObject* light = new mgl::SceneObject(
         meshes->get("light"), 
-        WHITE_M, 
+        materials->get("light"),
         shaders->get("light"));
-    light->setTransform(light_pos);
+    light->setTransform((new mgl::Transform())
+        ->scale(0.03f)
+        ->translate(0, 2.5f, 2));
     lightObj = new mgl::SceneGraph(light); // created to ease rotation (we rotate the center of graph, not the light itself)
 
     // statue ----------------------------------------------------
-    mgl::Texture2D* t = new mgl::Texture2D();
-    t->genSinePerlinNoise(512, 15, 200, 200, 15);
-    mgl::Sampler* s = new mgl::LinearSampler();
-    s->create();
-    mgl::TextureInfo* tInfo = new mgl::TextureInfo(GL_TEXTURE0, 0, "texture1", t, s);
-
-    mgl::Material* STONE_M = (new mgl::PhongMaterial())
-        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
-        ->setDiffuseColor(0.8f * mgl::COLOR_WHITE)
-        ->setSpecularColor(0.9f * mgl::COLOR_WHITE)
-        ->setShininess(64);
-    STONE_M->setTexture(tInfo);
-
-    mgl::Transform* statue_i = (new mgl::Transform())
-        ->scale(0.01f)
-        ->rotate(-90.0f, mgl::XX)
-        ->translate(0, 0.15f, 0);
-    mgl::Transform* statue_f = (new mgl::Transform())
-        ->scale(glm::vec3(1, 0.5f, 0.5f))
-        ->rotate(90.0f, mgl::YY);
-
     mgl::SceneObject* statueObj = new mgl::SceneObject(
         meshes->get("statue"), 
-        STONE_M, 
+        materials->get("stone"),
         shaders->get("phong"));
-    statueObj->setTransform(statue_i);
+    statueObj->setTransform((new mgl::Transform())
+        ->scale(0.01f)
+        ->rotate(-90.0f, mgl::XX)
+        ->translate(0, 0.15f, 0));
 
     statueObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
         shaders->setUniformVec4f("whiteColor", glm::value_ptr(glm::vec4(0.949f, 0.902f, 0.769f, 1.0f)));
@@ -188,27 +201,10 @@ void MyApp::createSceneGraph() {
         });
 
     // wooden base ----------------------------------------------------
-    mgl::Texture2D* woodTexture = new mgl::Texture2D();
-    woodTexture->genSawPerlinNoise(512, 10, 26, 2.6f);
-    mgl::Sampler* woodSampler = new mgl::LinearSampler();
-    s->create();
-
-    mgl::TextureInfo* woodTInfo = new mgl::TextureInfo(GL_TEXTURE0, 0, "texture1", woodTexture, woodSampler);
-
-    mgl::Material* WOOD_M = (new mgl::PhongMaterial())
-        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
-        ->setDiffuseColor(0.6f * mgl::COLOR_WHITE)
-        ->setSpecularColor(0.6f * mgl::COLOR_WHITE)
-        ->setShininess(17);
-    WOOD_M->setTexture(woodTInfo);
-
-    mgl::Transform* wood_i = (new mgl::Transform());
-
     mgl::SceneObject* woodenBaseObj = new mgl::SceneObject(
         meshes->get("wood-base"), 
-        WOOD_M, 
+        materials->get("wood"),
         shaders->get("wood"));
-    woodenBaseObj->setTransform(wood_i);
     woodenBaseObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
         shaders->setUniformVec4f("whiteColor", glm::value_ptr(glm::vec4(0.549f, 0.309f, 0.114f, 1.0f)));
         shaders->setUniformVec4f("darkColor", glm::value_ptr(glm::vec4(0.258f, 0.149f, 0.058f, 1.0f)));
@@ -217,44 +213,49 @@ void MyApp::createSceneGraph() {
     // Glass dome ----------------------------------------------------
     // Has to be created to be drawn last (graph objects ordered by id,
     // which is incremented for each new object)
-     mgl::TextureInfo* cubeTinfo2 = new mgl::TextureInfo(GL_TEXTURE1, 1,
-        "cubemap", cubemapT, cubemapS); // has no sampler
-
-    mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.3f)))
-        ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.0f))
-        ->setSpecularColor(glm::vec4(mgl::COLOR_WHITE, 0.9f))
-        ->setShininess(256);
-    GLASS_M->setTexture(cubeTinfo2);
-
-    mgl::Transform* glass_pos = (new mgl::Transform())
-        ->scale(glm::vec3(1.0f, 1.7f, 1.0f))
-        ->translate(0, 0.1f, 0);
-    mgl::SceneObject* glassObj = new mgl::SceneObject(
+    mgl::SceneObject* glassBackObj = new mgl::SceneObject(
         meshes->get("glass"),
-        GLASS_M,
-        shaders->get("glass"));
-    glassObj->setTransform(glass_pos);
+        materials->get("glass"),
+        shaders->get("glass-back"));
+    glassBackObj->setTransform((new mgl::Transform())
+        ->scale(0.9f)
+        ->translate(0, 0.1f, 0));
 
-    glassObj->beforeAndAfterDraw( // enable blending
+    glassBackObj->beforeAndAfterDraw( // enable blending
         []() { // before
-            //glDisable(GL_CULL_FACE); // front & back rendering TODO - try to implement OIT
+            glCullFace(GL_FRONT);
+        },
+        []() { // after
+            glCullFace(GL_BACK);
+        });
+
+    mgl::SceneObject* glassFrontObj = new mgl::SceneObject(
+        meshes->get("glass"),
+        materials->get("glass"),
+        shaders->get("glass-front"));
+    glassFrontObj->setTransform((new mgl::Transform())
+        ->scale(0.9f)
+        ->translate(0, 0.1f, 0));
+
+    glassFrontObj->beforeAndAfterDraw( // enable blending
+        []() { // before
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         },
         []() { // after
-            //glEnable(GL_CULL_FACE);
-            //glCullFace(GL_BACK);
             glDisable(GL_BLEND);
         });
 
     // scene graph
-    mgl::SceneGraph* graph = new mgl::SceneGraph(statueObj);
+    mgl::SceneGraph* graph = new mgl::SceneGraph(woodenBaseObj);
     graph->add(lightObj);
-    graph->add(woodenBaseObj);
-    graph->add(glassObj);
-    graph->add(skyboxObj);
+    graph->add(statueObj);
+    graph->add(glassFrontObj);
+    graph->add(glassBackObj);
 
-    Scene = new mgl::Scene(graph);
+    Scene = new mgl::Scene(meshes, shaders, textures);
+    Scene->setScenegraph(graph);
+    Scene->setSkybox("resources/textures/cubemaps/bedroom/", "png");
 
     // lights
     mgl::PointLight* pointLight = new mgl::PointLight(light, mgl::COLOR_WHITE);
@@ -271,9 +272,6 @@ void MyApp::createSceneGraph() {
     Scene->assignLightToCamera("light1", "main_camera");
     //Scene->addLight("spotLight", spotLight);
     //Scene->assignLightToCamera("spotLight", "main_camera");
-
-    // animations
-    squareAnim = new mgl::Animation(statueObj, statue_f);
 }
 
 ///////////////////////////////////////////////////////////////////////// INPUT
@@ -318,6 +316,8 @@ void MyApp::drawScene() {
 void MyApp::initCallback(GLFWwindow* win) {
     glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     createMeshes();
+    createTextures();
+    createMaterials();
     createShaderPrograms();  // after mesh;
     createCamera();
     createSceneGraph();

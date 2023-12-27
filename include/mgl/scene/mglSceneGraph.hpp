@@ -8,6 +8,9 @@
 #include <mgl/scene/mglLight.hpp>
 #include <mgl/scene/mglLightManager.hpp>
 #include <mgl/camera/mglCameraManager.hpp>
+#include <mgl/mglShaderManager.hpp>
+#include <mgl/models/meshes/mglMeshManager.hpp>
+#include <mgl/models/textures/mglTextureManager.hpp>
 #include <string>
 
 namespace mgl {
@@ -18,9 +21,11 @@ namespace mgl {
 
 	class Scene : public IDrawable, public ShaderUpdator {
 	public:
-		Scene(SceneGraph* graph);
+		Scene(MeshManager* meshes, ShaderManager* shaders, TextureManager* textures);
 		void addLight(const std::string &name, Light* light);
 		void addCamera(const std::string& name, Camera* camera);
+		void setScenegraph(SceneGraph* graph);
+		void setSkybox(const std::string& folder, const std::string& fileType);
 		void assignLightToCamera(const std::string& light, const std::string& camera);
 		void updateShaders(ShaderProgram* shaders) override;
 	protected:
@@ -28,7 +33,11 @@ namespace mgl {
 	private:
 		SceneGraph* graph;
 		LightManager* lights;
+		ShaderManager* shaders;
+		MeshManager* meshes;
+		TextureManager* textures;
 		CameraManager* cameras;
+		SceneNode* skybox;
 	};
 
 	/*
@@ -41,13 +50,13 @@ namespace mgl {
 		glm::mat4 AbsoluteTransform;
 
 		glm::vec3 getAbsolutePosition() const;
-		virtual void setScene(Scene* scene);
+		virtual void setScene(Scene* scene) = 0;
+		virtual void setSkybox(TextureInfo* skybox) = 0;
 
 	protected:
 		static SceneGraph* NO_PARENT;
 		SceneNode();
 		~SceneNode() = default;
-		Scene* scene;
 	};
 
 
@@ -65,6 +74,7 @@ namespace mgl {
 		void remove(SceneNode* drawable);
 
 		void setScene(Scene* scene) override;
+		void setSkybox(TextureInfo* skybox) override;
 
 	protected:
 		void performDraw() override;

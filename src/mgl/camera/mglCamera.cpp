@@ -9,7 +9,7 @@ namespace mgl {
 		bindingPoint(_bindingPoint) {
 		glGenBuffers(1, &uboId);
 		glBindBuffer(GL_UNIFORM_BUFFER, uboId);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, 0, GL_STREAM_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec3), 0, GL_STREAM_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		// register resize callback
@@ -121,6 +121,8 @@ namespace mgl {
 		glBindBuffer(GL_UNIFORM_BUFFER, uboId);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
 			glm::value_ptr(viewMatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3),
+			glm::value_ptr(positionV));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
@@ -133,6 +135,8 @@ namespace mgl {
 		glBindBuffer(GL_UNIFORM_BUFFER, uboId);
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
 			glm::value_ptr(projectionMatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3),
+			glm::value_ptr(positionV));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 }

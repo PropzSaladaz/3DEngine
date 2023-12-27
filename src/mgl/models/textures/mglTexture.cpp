@@ -165,13 +165,10 @@ void Texture2D::genSawPerlinNoise(GLuint size, GLuint octaves,
             for (size_t y = 0; y < size; y++) {
                 double perlinNoise = util::PerlinNoise::getWithPersistance(x, y, 0, octaves);
                 double sawInput = (x / period) + turbulence * perlinNoise;
-                double output = (modf(sawInput,  &sawInput) + turbulence * modf(perlinNoise, &perlinNoise))/2;
+                double output = (modf(sawInput, &sawInput));
                 image[3 * x * size + 3 * y] = output;
                 image[3 * x * size + 3 * y + 1] = output;
                 image[3 * x * size + 3 * y + 2] = output;
-                if (x == 3) {
-                    float a = 2;
-                }
             }
         }
         genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);

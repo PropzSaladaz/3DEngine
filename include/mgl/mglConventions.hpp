@@ -26,6 +26,8 @@ const char PROJECTION_MATRIX[] = "ProjectionMatrix";
 const char TEXTURE_MATRIX[] = "TextureMatrix";
 const char CAMERA_BLOCK[] = "Camera";
 
+const char SKYBOX[] = "Skybox";
+
 const char POSITION_ATTRIBUTE[] = "inPosition";
 const char NORMAL_ATTRIBUTE[] = "inNormal";
 const char TEXCOORD_ATTRIBUTE[] = "inTexcoord";

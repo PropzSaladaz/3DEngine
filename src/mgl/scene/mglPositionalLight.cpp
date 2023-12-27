@@ -76,9 +76,9 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////////////////// Shaders
 	void PositionalLight::updateShaders(ShaderProgram* shader) {
-		glm::vec3 eyeSpaceAbsolutePos = camera->getViewMatrix() * glm::vec4(position->getAbsolutePosition(), 1.0);
+		glm::vec3 WorldSpaceAbsolutePos = glm::vec4(position->getAbsolutePosition(), 1.0);
 		shader->setUniformBool (LIGHT_IS_ENABLED,	enabled);
-		shader->setUniformVec3f(LIGHT_POSITION,		glm::value_ptr(eyeSpaceAbsolutePos));
+		shader->setUniformVec3f(LIGHT_POSITION,		glm::value_ptr(WorldSpaceAbsolutePos));
 		shader->setUniformVec4f(LIGHT_AMBIENT,		glm::value_ptr(ambientColor));
 		shader->setUniformVec4f(LIGHT_DIFFUSE,		glm::value_ptr(diffuseColor));
 		shader->setUniformVec4f(LIGHT_SPECULAR,		glm::value_ptr(specularColor));

@@ -1,4 +1,8 @@
 #include <mgl/scene/mglSceneGraph.hpp>
+#include <mgl/mglConventions.hpp>
+#include <mgl/models/materials/mglBasicMaterial.hpp>
+#include <mgl/models/textures/mglTexture.hpp>
+#include <mgl/scene/mglSceneObject.hpp>
 #include <logger.hpp>
 
 namespace mgl {
@@ -30,11 +34,17 @@ void IDrawable::beforeAndAfterDraw(IDrawableVoidCallback before, IDrawableVoidCa
 
 //////////////////////////////////////////////////////////////// Scene
 
-Scene::Scene(SceneGraph* graph) {
-	this->graph = graph;
-	this->graph->setScene(this);
+Scene::Scene(MeshManager *meshes, ShaderManager *shaders, TextureManager* textures) {
+	this->meshes = meshes;
+	this->shaders = shaders;
+	this->textures = textures;
 	this->lights = new LightManager();
 	this->cameras = new CameraManager();
+}
+
+void Scene::setScenegraph(SceneGraph* graph) {
+	this->graph = graph;
+	this->graph->setScene(this);
 }
 
 void Scene::addLight(const std::string& name, Light* light) {
@@ -43,6 +53,47 @@ void Scene::addLight(const std::string& name, Light* light) {
 
 void Scene::addCamera(const std::string& name, Camera* camera) {
 	cameras->add(name, camera);
+}
+
+void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
+	// import skybox mesh
+	meshes->import(SKYBOX, "resources/models/cube-vtn.obj");
+	// create skybox shader
+	mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
+	skyboxShaders->addShader(GL_VERTEX_SHADER, "src/shaders/skyboxVS.glsl");
+	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/skybox.glsl");
+	skyboxShaders->addUniforms<mgl::BasicMaterial>();
+	skyboxShaders->addUniform(SKYBOX);
+	shaders->add(SKYBOX, skyboxShaders);
+	// create skybox material
+	mgl::TextureCubeMap* cubemapT = new mgl::TextureCubeMap();
+	cubemapT->loadCubeMap(folder, fileType);
+	mgl::Sampler* cubemapS = new mgl::LinearSampler();
+	cubemapS->create();
+	mgl::TextureInfo* cubeTinfo = new mgl::TextureInfo(GL_TEXTURE0, 0,
+		SKYBOX, cubemapT, cubemapS);
+	textures->add(SKYBOX, cubeTinfo);
+
+	mgl::Material* SKYBOX_M = new mgl::BasicMaterial();
+	SKYBOX_M->addTexture(cubeTinfo);
+	// create sceneNode
+	mgl::SceneObject* skyboxObj = new mgl::SceneObject(
+		meshes->get(SKYBOX),
+		SKYBOX_M,
+		shaders->get(SKYBOX));
+
+	skyboxObj->beforeAndAfterDraw(
+		[]() { // before
+			glDepthFunc(GL_LEQUAL); // Skybox z value will be 1
+			glCullFace(GL_FRONT);
+		},
+		[]() { // after
+			glCullFace(GL_BACK);
+			glDepthFunc(GL_LESS);
+		});
+
+	this->skybox = skyboxObj;
+	graph->setSkybox(cubeTinfo);
 }
 
 void Scene::assignLightToCamera(const std::string& light, const std::string& camera) {
@@ -64,7 +115,11 @@ void Scene::assignLightToCamera(const std::string& light, const std::string& cam
 }
 
 void Scene::performDraw() {
-	graph->draw();
+	// usually draw skybox at end for performance
+	// but we draw it first because we have transparent objects
+	// and we need to draw the background first to see the transparency
+	if (skybox) skybox->draw();
+	if (graph)  graph ->draw();
 }
 
 void Scene::updateShaders(ShaderProgram* shaders) {
@@ -79,14 +134,10 @@ void Scene::updateShaders(ShaderProgram* shaders) {
 SceneGraph* SceneNode::NO_PARENT = nullptr;
 
 SceneNode::SceneNode() : IDrawable(), Transform(), 
-	Parent(NO_PARENT), AbsoluteTransform(I), scene(nullptr) {}
+	Parent(NO_PARENT), AbsoluteTransform(I) {}
 
 glm::vec3 SceneNode::getAbsolutePosition() const {
 	return glm::vec3(AbsoluteTransform * glm::vec4(getPosition(), 1.0f));
-}
-
-void SceneNode::setScene(Scene* scene) {
-	this->scene = scene;
 }
 
 ////////////////////////////////////////////////////////////////// SceneGraph
@@ -105,6 +156,7 @@ void SceneGraph::add(SceneNode* child) {
 	children.insert(std::make_pair(child->getId(), child));
 	child->Parent = this;
 }
+
 void SceneGraph::remove(SceneNode* child) {
 	child->Parent = NO_PARENT;
 	children.erase(child->getId());
@@ -120,9 +172,14 @@ void SceneGraph::performDraw() {
 }
 
 void SceneGraph::setScene(Scene* scene) {
-	this->scene = scene;
 	for (const auto& node : children) {
 		node.second->setScene(scene);
+	}
+}
+
+void SceneGraph::setSkybox(TextureInfo* skybox) {
+	for (const auto& node : children) {
+		node.second->setSkybox(skybox);
 	}
 }
 

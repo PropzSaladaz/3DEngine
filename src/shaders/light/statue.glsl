@@ -43,6 +43,7 @@ struct Material {
 in vec3 exNormal;
 in vec3 exPosition;
 in vec2 exTexcoord;
+in vec3 camPosition;
 
 // out
 out vec4 FragColor;
@@ -54,6 +55,7 @@ uniform LightProperties Lights[MAX_NR_LIGHTS];
 uniform vec4 whiteColor;
 uniform vec4 darkColor;
 
+uniform samplerCube Skybox;
 uniform sampler2D texture1;
 
 vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDir, bool attenuation, float intensity) {
@@ -128,7 +130,7 @@ void main()
     vec4 texColor = texture(texture1, exTexcoord);
     vec4 texSpecular = texture(texture1, exTexcoord);
 
-    vec4 resultColor = CalcLight(normalize(exNormal), normalize(-exPosition));
+    vec4 resultColor = CalcLight(normalize(exNormal), normalize(camPosition - exPosition));
 
     vec4 color = mix(whiteColor, darkColor, texColor.r);
     FragColor = resultColor * color;

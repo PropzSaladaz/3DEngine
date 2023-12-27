@@ -25,6 +25,13 @@ public:
 
 	void setMaterial(Material* _material);
 	void setShaders(ShaderProgram* shaders);
+
+	void setScene(Scene* scene) override;
+	void setSkybox(TextureInfo* skybox) override;
+
+	Material* getMaterial();
+
+
 	void setUniforms();
 	void setShaderUniformCallback(SetShaderUniformCallback callback);
 
@@ -32,6 +39,7 @@ protected:
 	void performDraw() override;
 
 private:
+	Scene* scene;
 	ShaderProgram* shaders;
 	Mesh* mesh;
 	Material* material;

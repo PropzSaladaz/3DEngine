@@ -29,12 +29,14 @@
 
 // models
 #include <mgl/models/materials/mglMaterial.hpp>
+#include <mgl/models/materials/mglMaterialManager.hpp>
 #include <mgl/models/materials/mglBasicMaterial.hpp>
 #include <mgl/models/materials/mglPhongMaterial.hpp>
 #include <mgl/models/meshes/mglMesh.hpp>
 #include <mgl/models/meshes/mglMeshManager.hpp>
 #include <mgl/models/textures/mglSampler.hpp>
 #include <mgl/models/textures/mglTexture.hpp>
+#include <mgl/models/textures/mglTextureManager.hpp>
 
 // camera
 #include <mgl/camera/mglCamera.hpp>

@@ -1,23 +1,20 @@
 #include <mgl/models/materials/mglMaterial.hpp>
+#include <mgl/models/textures/mglTexture.hpp>
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglConventions.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mgl {
+
 	void Material::updateShaders(ShaderProgram* shaders) {
 		// set material uniforms
 		setMaterialUniforms(shaders);
-
-		if (texture) texture->updateShader(shaders); // bind texture
-		if (textureSpecular) textureSpecular->updateShader(shaders); // bind texture
+		for (const auto& texture : textures) {
+			texture->updateShader(shaders);
+		}
 	}
 
-	void Material::setTexture(TextureInfo* texture) {
-		this->texture = texture;
+	void Material::addTexture(TextureInfo* texture) {
+		textures.push_back(texture);
 	}
-
-	void Material::setTextureSpecular(TextureInfo* texture) {
-		this->textureSpecular = texture;
-	}
-
 }

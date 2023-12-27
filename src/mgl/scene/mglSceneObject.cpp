@@ -5,7 +5,7 @@ namespace mgl {
 SceneObject::SceneObject() : SceneNode() {}
 
 SceneObject::SceneObject(Mesh* _mesh) : SceneNode(), mesh(_mesh), 
-		material(nullptr), shaders(nullptr) {}
+		material(nullptr), shaders(nullptr), scene(nullptr) {}
 	
 SceneObject::SceneObject(Mesh* mesh, Material* material) 
 	: SceneObject(mesh) {
@@ -44,7 +44,7 @@ void SceneObject::performDraw() {
 
 	shaders->bind();
 	if (material) material->updateShaders(shaders);
-	scene->updateShaders(shaders); // update with global scene info
+	if (scene) scene->updateShaders(shaders); // update with global scene info
 	setUniforms();
 	mesh->draw();
 	shaders->unbind();
@@ -56,6 +56,21 @@ void SceneObject::setShaders(ShaderProgram* shaders) {
 
 void SceneObject::setMaterial(Material* material) {
 	this->material = material;
+}
+
+void SceneObject::setScene(Scene* scene) {
+	this->scene = scene;
+}
+
+void SceneObject::setSkybox(TextureInfo* skybox) {
+	// only add skybox to shaders that are expecting it
+	if (material && shaders->isUniform(skybox->uniform)) {
+		material->addTexture(skybox);
+	}
+}
+
+Material* SceneObject::getMaterial() {
+	return material;
 }
 
 }
