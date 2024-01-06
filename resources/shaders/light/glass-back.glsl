@@ -59,8 +59,8 @@ vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDi
     // diffuse
     float diff = max(dot(lightDir, normal), 0.0);
     // specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(abs(dot(normalize(viewDir), normalize(reflectDir))), 0.0), material.shininess);
+    vec3 halfVec = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normalize(halfVec), normalize(normal)), 0.0), material.shininess);
     // combine results w/ intensity
     vec4 ambient  = light.ambient  *        material.ambient   * intensity;
     vec4 diffuse  = light.diffuse  * diff * material.diffuse   * intensity;
@@ -131,25 +131,18 @@ void main()
     vec4 resultColor = CalcLight(normalize(exNormal), normalize(-fragDir));
     
     // reflection
-    vec3 Normal = -exNormal; // since its a back face
+    vec3 Normal = -normalize(exNormal); // since its a back face
     vec3 I = normalize(fragDir);
     vec3 Reflection = reflect(I, Normal);
     // if vecs coincide, reflection should be low. If they are close to parallel it should be 1
-    float reflectionFactor = pow(max(abs(1 - dot(-I, Normal)), 0.0), 4);
+    float reflectionFactor = pow(max(1 - abs(dot(-I, Normal)), 0.0), 2);
     
     vec4 reflection = vec4(texture(Skybox, Reflection).rgb, 0.0);
-    reflection.r = min(pow(reflection.r, 1), 0.9);
-    reflection.g = min(pow(reflection.g, 1), 0.9);
-    reflection.b = min(pow(reflection.b, 1), 0.9);
     reflection.a = reflection.r + reflection.b + reflection.g / 3;
 
     // refraction
-    vec3 Refraction = refract(I, Normal, 1.0/1.15); // glass refractive index
+    vec3 Refraction = refract(I, Normal, 1.0/1.52); // glass refractive index
     vec4 refraction = vec4(texture(Skybox, Refraction).rgb, 1.0);
-    // refraction.a = refraction.r + refraction.b + refraction.g / 3;
-    float refractionFactor = pow(max(1 - dot(-I, Normal), 0.0), 1);
 
     FragColor = 0.2 * resultColor + reflection * reflectionFactor + refraction;
-
-    // FragColor = vec4(camPosition, 1.0);
 }

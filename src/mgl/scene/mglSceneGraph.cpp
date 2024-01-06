@@ -60,8 +60,8 @@ void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 	meshes->import(SKYBOX, "resources/models/cube-vtn.obj");
 	// create skybox shader
 	mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
-	skyboxShaders->addShader(GL_VERTEX_SHADER, "src/shaders/skyboxVS.glsl");
-	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/skybox.glsl");
+	skyboxShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/skyboxVS.glsl");
+	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/skybox.glsl");
 	skyboxShaders->addUniforms<mgl::BasicMaterial>();
 	skyboxShaders->addUniform(SKYBOX);
 	shaders->add(SKYBOX, skyboxShaders);

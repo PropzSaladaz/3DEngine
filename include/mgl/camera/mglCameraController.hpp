@@ -14,9 +14,11 @@ namespace mgl {
 		Camera* getCamera();
 
 		void setActive();
+		void unset();
 		void setPosition(GLfloat x, GLfloat y, GLfloat z);
 
 	protected:
+		bool isActive = false;
 		Camera* camera;
 		void virtual handleContinuousInput(GLfloat deltatime) = 0;
 		void virtual registerDiscreteInputHandler() = 0;

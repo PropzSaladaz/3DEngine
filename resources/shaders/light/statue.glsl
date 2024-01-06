@@ -58,12 +58,19 @@ uniform vec4 darkColor;
 uniform samplerCube Skybox;
 uniform sampler2D texture1;
 
+uniform samplerCube DiffuseTexture;
+uniform samplerCube SpecularTexture;
+
 vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDir, bool attenuation, float intensity) {
     // diffuse
     float diff = max(dot(lightDir, normal), 0.0);
     // specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(normalize(viewDir), normalize(reflectDir)), 0.0), material.shininess);
+    float spec = 0;
+    if (diff > 0) {
+        vec3 halfVec = normalize(lightDir + viewDir);
+        spec = pow(max(dot(normalize(halfVec), normalize(normal)), 0.0), material.shininess);
+    }
+
     // combine results w/ intensity
     vec4 ambient  = light.ambient  *        material.ambient   * intensity;
     vec4 diffuse  = light.diffuse  * diff * material.diffuse   * intensity;
@@ -77,8 +84,17 @@ vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDi
         diffuse  *= attenuation;
         specular *= attenuation;
     }
-    vec4 result = ambient + diffuse + specular;
+
+    vec4 texColor = texture(texture1, exTexcoord);
+    vec4 color = mix(whiteColor, darkColor, texColor.r);
+
+    // Diffuse Environmental lighting
+    vec4 diffuseEnv = vec4(texture(DiffuseTexture, normal).rgb, 1.0);
+    diffuseEnv = vec4(0.3) + (diffuseEnv*0.3); // Give less importance to diffuse environment
+    vec4 result = (ambient + diffuse) * color * diffuseEnv + specular;
     result.a = ambient.a + diffuse.a + specular.a / 3; // average alpha
+
+    
     return result;
 }
 
@@ -93,14 +109,14 @@ vec4 CalcPointLight(LightProperties light, vec3 normal, vec3 viewDir) {
 }
 
 vec4 CalcSpotLight(LightProperties light, vec3 normal, vec3 viewDir) {
-    vec3 lightDir = normalize(light.position - exPosition);
+    vec3 lightDir = normalize(light.position - exPosition); // dir from light to fragment
     float theta = max(dot(lightDir, normalize(-light.direction)), 0.0);
     if (theta > light.spotOuterCosCutoff) {
         float intensity = clamp((theta - light.spotOuterCosCutoff) / light.epsilon, 0.0, 1.0);
          return computeLight(light, lightDir, normal, viewDir, true, intensity);
     }
     else
-        return light.ambient;
+        return vec4(light.ambient.rgb, 0.0);
 }
 
 vec4 CalcLight(vec3 normal, vec3 viewDir) {
@@ -127,11 +143,16 @@ vec4 CalcLight(vec3 normal, vec3 viewDir) {
 
 void main()
 {
-    vec4 texColor = texture(texture1, exTexcoord);
     vec4 texSpecular = texture(texture1, exTexcoord);
+    vec3 fragDir = exPosition - camPosition;
 
-    vec4 resultColor = CalcLight(normalize(exNormal), normalize(camPosition - exPosition));
+    vec4 resultColor = CalcLight(normalize(exNormal), normalize(-fragDir));
+    
+    // Specular Environment lighting
+    vec3 I = normalize(fragDir);
+    vec3 Reflection = reflect(I, exNormal);
+    vec4 specEnv = vec4(texture(SpecularTexture, Reflection).rgb, 1.0);
+    float specEnvFactor = pow(max(dot(normalize(-fragDir), normalize(exNormal)), 1.0), material.shininess);
 
-    vec4 color = mix(whiteColor, darkColor, texColor.r);
-    FragColor = resultColor * color;
+    FragColor = resultColor + (specEnv * specEnvFactor * 0.15);
 }

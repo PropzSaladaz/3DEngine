@@ -8,9 +8,11 @@ namespace mgl {
 		Simulation::getInstance().trackUpdateable(getId(), this);
 	}
 	void ICameraController::update(GLfloat deltaTime) {
-		handleContinuousInput(deltaTime);
+		if (isActive) {
+			handleContinuousInput(deltaTime);
+		}
 	} 
-	void ICameraController::setCamera(Camera* camera) { 
+	void ICameraController::setCamera(Camera* camera) {
 		this->camera = camera; 
 	}
 	Camera* ICameraController::getCamera() {
@@ -25,7 +27,10 @@ namespace mgl {
 		}
 #endif
 		camera->setActive();
+		isActive = true;
 	}
+
+
 	void ICameraController::setPosition(GLfloat x, GLfloat y, GLfloat z) {
 #ifdef DEBUG
 		if (camera == nullptr) {
@@ -34,6 +39,10 @@ namespace mgl {
 		}
 #endif
 		camera->setPosition(x, y, z);
+	}
+
+	void ICameraController::unset() {
+		isActive = false;
 	}
 
 }

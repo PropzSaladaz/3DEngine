@@ -12,7 +12,13 @@ namespace fs = std::filesystem;
 
 namespace file {
     static inline std::string getFullPathFromRelative(const std::string& relativeFilePath) {
-        fs::path sourcePath = fs::current_path().parent_path().parent_path().parent_path();
+        fs::path sourcePath;
+#ifdef DEBUG
+        sourcePath = fs::current_path().parent_path().parent_path().parent_path();
+#endif
+#ifdef RELEASE
+        sourcePath = fs::current_path();
+#endif
         std::string fullPath = (sourcePath / relativeFilePath).string();
         return fullPath;
     }

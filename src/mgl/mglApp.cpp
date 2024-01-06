@@ -191,6 +191,7 @@ void Engine::run() {
     double elapsed_time = time - last_time;
     last_time = time;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glfwSetWindowTitle(Window, std::to_string(static_cast<int>(1.0 / elapsed_time)).c_str());
     Simulation::getInstance().update(elapsed_time);
     GlApp->displayCallback(Window, elapsed_time);
     glfwSwapBuffers(Window);

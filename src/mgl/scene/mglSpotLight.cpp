@@ -82,11 +82,10 @@ namespace mgl {
 
 	void SpotLight::updateShaders(ShaderProgram* shader) {
 		PositionalLight::updateShaders(shader);
-		glm::vec3 eyeSpaceAbsoluteDirection = camera->getViewMatrix() * glm::vec4(getDirection(), 0.0);
 		shader->setUniformInt  (LIGHT_LIGHT_TYPE, SPOT_LIGHT);
 		shader->setUniformFloat(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
 		shader->setUniformFloat(LIGHT_EPSILON,	  epsilon);
-		shader->setUniformVec3f(LIGHT_DIRECTION, glm::value_ptr(eyeSpaceAbsoluteDirection));
+		shader->setUniformVec3f(LIGHT_DIRECTION, glm::value_ptr(glm::vec4(getDirection(), 0.0)));
 	}
 
 }

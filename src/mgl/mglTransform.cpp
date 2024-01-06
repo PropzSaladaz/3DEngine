@@ -5,6 +5,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/vector_angle.inl>
 #include <iostream>
+#include <utils/logger.hpp>
+#include <string>
 
 namespace mgl {
 
@@ -39,6 +41,44 @@ GLfloat angle(const glm::vec3& vec, const glm::vec3& vec2) {
         return 0;
     }
     return glm::angle(vec, vec2);
+}
+
+
+//  implementation taken from:
+// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
+    start = normalize(start);
+    dest = normalize(dest);
+
+    float cosTheta = glm::dot(start, dest);
+    glm::vec3 rotationAxis;
+
+    if (cosTheta < -1 + 0.001f) {
+        // special case when vectors in opposite directions :
+        // there is no "ideal" rotation axis
+        // So guess one; any will do as long as it's perpendicular to start
+        // This implementation favors a rotation around the Up axis,
+        // since it's often what you want to do.
+        rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+        if (glm::length(rotationAxis) < 0.01) // bad luck, they were parallel, try again!
+            rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+
+        rotationAxis = normalize(rotationAxis);
+        return angleAxis(glm::radians(180.0f), rotationAxis);
+    }
+
+    // Implementation from Stan Melax's Game Programming Gems 1 article
+    rotationAxis = glm::cross(start, dest);
+
+    float s = sqrt((1 + cosTheta) * 2);
+    float invs = 1 / s;
+
+    return glm::quat(
+        s * 0.5f,
+        rotationAxis.x * invs,
+        rotationAxis.y * invs,
+        rotationAxis.z * invs
+    );
 }
 
 ////////////////////////////////////////////////////////////////// Transform
@@ -131,36 +171,22 @@ const glm::quat Transform::getRotationQuat() const {
 
 Transform* Transform::lookAt(const Transform* target) {
     glm::vec3 newFront = glm::normalize(target->getPosition() - positionV);
-    glm::vec3 newRight;
+    glm::quat rot = rotationBetweenVectors(front, newFront);
 
-    // If target coincides with YY axis, set right vector manually
-    // Since we compute right vector against YY, if newFront is in YY, 
-    // cross product will be 0 so we set right vector manually for such cases
-    if (glm::all(glm::equal(newFront, -YY, FLOAT_THREASHOLD)) ||
-        glm::all(glm::equal(newFront,  YY, FLOAT_THREASHOLD))) {
-        newRight = front.z > 0 ? glm::vec3(-1.0f, 0.0f, 0.0f) : 
-            glm::vec3(1.0f, 0.0f, 0.0f);
-    }
-    else newRight = normalize(glm::cross(newFront, YY));
-    
-    // OpenGL Z positive direction is up and X is left (if we look from above xz plane)
-    // thus we have to invert x to make it to the right (as a normal xy plane would)
-    glm::vec2 xzSrc = { -front.x, front.z };
-    glm::vec2 xzSrcVec = (glm::length(xzSrc) > glm::epsilon<float>()) ?
-        normalize(xzSrc) : normalize(glm::vec2(up.x, up.z));
-    
-    glm::vec2 xzTrgt = { -newFront.x, newFront.z };
-    glm::vec2 xzTrgtVec = normalize(xzTrgt);
-    GLfloat angleYY = angle(xzSrcVec, xzTrgtVec);
-    rotateRad(angleYY, YY);
+    // check if we are heads down or not
+    glm::vec3 desiredUp = YY;
 
-    // front is updated already from previous rotation
-    // Take into account if we are now looking uppward - angle is positive
-    // if we are looking downward - angle is negative
-    GLfloat angleRight = (newFront.y > front.y) ?
-        angle(newFront, front) : -angle(newFront, front);
-    rotateRad(angleRight, newRight); // pitch
+    right = glm::cross(newFront, desiredUp);
+    up = glm::cross(right, newFront);
 
+    front = newFront;
+    targetPoint = target->getPosition();
+
+    glm::vec3 newUp = rot * up;
+    glm::quat rot2 = rotationBetweenVectors(newUp, desiredUp);
+
+    rotation = rot2 * rot * rotation;
+    computeTransformMatrix();
     return this;
 }
 
@@ -218,11 +244,11 @@ Transform* Transform::rotateRad(GLfloat angleRads, glm::vec3 rotationAxis) {
     glm::quat newUp = rot * glm::quat(0.0f, up) * glm::conjugate(rot);
     glm::quat newRight = rot * glm::quat(0.0f, right) * glm::conjugate(rot);
     glm::quat newFront = rot * glm::quat(0.0f, front) * glm::conjugate(rot);
-    // convert target point to directional vector
-    glm::quat newTargetPoint = rot * glm::quat(0.0f, targetPoint - positionV) * glm::conjugate(rot);
-    up    = glm::vec3(newUp.x, newUp.y, newUp.z);
+    up = glm::vec3(newUp.x, newUp.y, newUp.z);
     right = glm::vec3(newRight.x, newRight.y, newRight.z);
     front = glm::vec3(newFront.x, newFront.y, newFront.z);
+    // convert target point to directional vector
+    glm::quat newTargetPoint = rot * glm::quat(0.0f, targetPoint - positionV) * glm::conjugate(rot);
     // add the directional vector to position to get the target
     targetPoint = glm::vec3(newTargetPoint.x, newTargetPoint.y, newTargetPoint.z) + positionV;
     // update rotation quat & transformMatrix

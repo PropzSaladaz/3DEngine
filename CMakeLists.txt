@@ -9,8 +9,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(PROJECT_NAME "engine")
 set(EXEC_NAME "engine")
 
-# may need to change
-set(BUILD_DEST "out/build/x64-debug")
+# Set the build type to Debug by default
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
 
 project (${PROJECT_NAME})
 
@@ -55,8 +57,6 @@ set(SOURCES
   src/mgl/camera/mglPerspectiveCamera.cpp
 )
 
-message("${SOURCES}")
-
 # INCLUDE
 set(INCLUDE_DIRS
 	include
@@ -77,9 +77,13 @@ set(INCLUDE_LIBS_NAME
   assimp-vc143-mt
 )
 
+# DLLS
 set(DLLS
 	libs/assimp/assimp-vc143-mt.dll
 )
+
+# RESOURCES
+set(RESOURCES resources)
 
 include_directories(${INCLUDE_DIRS})
 link_directories(${INCLUDE_LIBS_DIR})
@@ -92,10 +96,19 @@ add_executable(       ${EXEC_NAME} ${SOURCES})
 include_directories(  ${EXEC_NAME} ${INCLUDE_LIBS_DIR})
 target_link_libraries(${EXEC_NAME} ${INCLUDE_LIBS_NAME})
 
-target_compile_definitions(${EXEC_NAME} PRIVATE
-    DEBUG
-    # Add other directives as needed
-)
+# Different build configs
+if(CMAKE_BUILD_TYPE STREQUAL "Debug") # DEBUG
+  message("Debug build configuration")
+  set(BUILD_DEST "out/build/x64-debug")
+  target_compile_definitions(${EXEC_NAME} PRIVATE DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release") # RELEASE
+  message("Release build configuration")
+  set(BUILD_DEST "./release")
+  target_compile_definitions(${EXEC_NAME} PRIVATE RELEASE)
+  # Copy resources folder to release
+  file(COPY ${CMAKE_SOURCE_DIR}/${RESOURCES} 
+  DESTINATION ${CMAKE_SOURCE_DIR}/${BUILD_DEST}/)
+endif()
 
 # copy all .dlls to build target where .exe is
 foreach(file ${DLLS})
@@ -105,23 +118,3 @@ foreach(file ${DLLS})
 		COPYONLY
 	)
 endforeach()
-
-
-
-
-
-
-# TESTS
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-enable_testing()
-add_subdirectory(test)
-
-

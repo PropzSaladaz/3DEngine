@@ -1,0 +1,10 @@
+Steps to recreate the release
+
+1. Open the source directory with Visual Studio
+2. Wait for VS to identify the project as CMake
+3. In the top bar of VS, change the configuration to "x64 Release" and wait for the changes to apply
+4. On the top menu go on "Build"->"Build All"
+   1. If "Build All" option does not appear, or you get any error, right-click in the CmakeLists.txt file and click "Delete Cache and Reconfigure"
+5. Run the .exe created in the release directory
+
+When running, some warnings will appear in the console, but those are expected (the app is trying to send the skybox to the shaders of the light points, which are not expecting to receive it) - Ignore them

@@ -59,10 +59,10 @@ vec4 computeLight(LightProperties light, vec3 lightDir, vec3 normal, vec3 viewDi
     // diffuse
     float diff = max(dot(lightDir, normal), 0.0);
     // specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(abs(dot(normalize(viewDir), normalize(reflectDir))), 0.0), material.shininess);
+    vec3 halfVec = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normalize(halfVec), normalize(normal)), 0.0), material.shininess);
     // combine results w/ intensity
-    vec4 ambient  = light.ambient  *        material.ambient   * intensity;
+    vec4 ambient  = light.ambient * material.ambient   * intensity;
     vec4 diffuse  = light.diffuse  * diff * material.diffuse   * intensity;
     vec4 specular = light.specular * spec * material.specular  * intensity;
     // attenuation
@@ -97,7 +97,7 @@ vec4 CalcSpotLight(LightProperties light, vec3 normal, vec3 viewDir) {
          return computeLight(light, lightDir, normal, viewDir, true, intensity);
     }
     else
-        return light.ambient;
+        return vec4(light.ambient.rgb, 0.0);
 }
 
 vec4 CalcLight(vec3 normal, vec3 viewDir) {
@@ -134,15 +134,10 @@ void main()
     vec3 I = normalize(fragDir);
     vec3 Reflection = reflect(I, exNormal);
     // if vecs coincide, reflection should be low. If they are close to parallel it should be 1
-    float reflectionFactor = pow(max(1 - dot(-I, exNormal), 0.0), 2);
+    float reflectionFactor = pow(max(1 - dot(-I, exNormal), 0.0), 1.5);
     
     vec4 reflection = vec4(texture(Skybox, Reflection).rgb, 0.0);
-    reflection.r = min(pow(reflection.r, 1), 0.9);
-    reflection.g = min(pow(reflection.g, 1), 0.9);
-    reflection.b = min(pow(reflection.b, 1), 0.9);
-    reflection.a = reflection.r + reflection.b + reflection.g / 3;
+    reflection.a = (reflection.r + reflection.b + reflection.g) / 3;
 
     FragColor =  resultColor +  reflection * reflectionFactor;
-
-    // FragColor = vec4(camPosition, 1.0);
 }

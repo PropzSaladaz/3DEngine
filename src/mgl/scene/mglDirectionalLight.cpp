@@ -19,10 +19,10 @@ namespace mgl {
 	}
 
 	void DirectionalLight::updateShaders(ShaderProgram* shader) {
-		glm::vec3 eyeSpaceDirection = camera->getViewMatrix() * glm::vec4(direction , 0.0);
+		glm::vec3 WorldSpaceDirection = glm::vec4(direction , 0.0);
 		shader->setUniformBool(LIGHT_IS_ENABLED, enabled);
 		shader->setUniformInt  (LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
-		shader->setUniformVec3f(LIGHT_DIRECTION,  glm::value_ptr(eyeSpaceDirection));
+		shader->setUniformVec3f(LIGHT_DIRECTION,  glm::value_ptr(WorldSpaceDirection));
 		shader->setUniformVec4f(LIGHT_AMBIENT, glm::value_ptr(ambientColor));
 		shader->setUniformVec4f(LIGHT_DIFFUSE, glm::value_ptr(diffuseColor));
 		shader->setUniformVec4f(LIGHT_SPECULAR, glm::value_ptr(specularColor));

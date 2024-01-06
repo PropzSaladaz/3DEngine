@@ -18,15 +18,16 @@ private:
     const float initialScreenRatio = 800.0f / 600.0f;
     const GLuint UBO_BP = 0;
     mgl::Scene* Scene = nullptr;
-    mgl::SceneGraph* lightObj;
+    mgl::SceneGraph *lightObj, *lightObj2;
     mgl::MeshManager* meshes;
     mgl::ShaderManager* shaders;
     mgl::TextureManager* textures;
     mgl::MaterialManager* materials;
-    mgl::Animation* squareAnim;
+    mgl::Animation* Animation;
     // cameras
     mgl::FPSCamController* FPSCamera;
     mgl::OrbitCamController* OrbitCam;
+    GLuint cam = 0;
     mgl::PerspectiveParams perspectiveP = { 45.0f, 800.0f / 600.0f, 0.1f, 100.0f };
     // input
     void processInput(double elapsed);
@@ -49,7 +50,7 @@ void MyApp::createMeshes() {
         mesh->joinIdenticalVertices();
     });
 
-    meshes->import("light", "resources/models/square.obj");
+    meshes->import("light", "resources/models/sphere.obj");
     meshes->import("statue", "resources/models/statue.obj");
     meshes->import("wood-base", "resources/models/base.obj");
     meshes->import("glass", "resources/models/dome3.obj");
@@ -67,6 +68,22 @@ void MyApp::createTextures() {
     stoneS->create();
     mgl::TextureInfo* stoneTinfo = new mgl::TextureInfo(GL_TEXTURE1, 1, "texture1", stoneT, stoneS);
 
+    // enviroment diffuse lighting
+    mgl::TextureCubeMap* environmentDiffuseT = new mgl::TextureCubeMap();
+    environmentDiffuseT->loadCubeMap("resources/textures/cubemaps/bedroom_diffuse/", "png");
+    mgl::Sampler* environmentDiffuseS = new mgl::LinearSampler();
+    environmentDiffuseS->create();
+    mgl::TextureInfo* environmentDiffuseTinfo = new mgl::TextureInfo(GL_TEXTURE2, 2,
+        "DiffuseTexture", environmentDiffuseT, environmentDiffuseS);
+
+    // enviroment diffuse lighting
+    mgl::TextureCubeMap* environmentSpecT = new mgl::TextureCubeMap();
+    environmentSpecT->loadCubeMap("resources/textures/cubemaps/bedroom_spec/", "png");
+    mgl::Sampler* environmentSpecS = new mgl::LinearSampler();
+    environmentSpecS->create();
+    mgl::TextureInfo* environmentSpecTinfo = new mgl::TextureInfo(GL_TEXTURE3, 3,
+        "SpecularTexture", environmentSpecT, environmentSpecS);
+
     // wood texture
     mgl::Texture2D* woodT = new mgl::Texture2D();
     woodT->genSawPerlinNoise(512, 10, 26, 2.6f);
@@ -76,7 +93,20 @@ void MyApp::createTextures() {
 
     textures->add("stone", stoneTinfo);
     textures->add("wood", woodTinfo);
+    textures->add("environmentDiffuse", environmentDiffuseTinfo);
+    textures->add("environmentSpecular", environmentSpecTinfo);
 }
+
+// Colors                          R       G       B      
+const glm::vec3 LIGHT_COLOR_1   (0.912f, 0.224f, 0.256f);
+const glm::vec3 LIGHT_COLOR_2   (0.955f, 0.943f, 0.555f);
+const glm::vec3 LIGHT_COLOR_3   (1, 1, 1);
+
+const glm::vec4 STATUE_COLOR_1(0.949f, 0.902f, 0.769f, 1.0f);
+const glm::vec4 STATUE_COLOR_2(0.849f, 0.802f, 0.669f, 1.0f);
+
+const glm::vec4 WOOD_COLOR_1(0.549f, 0.309f, 0.114f, 1.0f);
+const glm::vec4 WOOD_COLOR_2(0.258f, 0.149f, 0.058f, 1.0f);
 
 ///////////////////////////////////////////////////////////////////////// MATERIALS
 
@@ -84,28 +114,34 @@ void MyApp::createMaterials() {
     materials = new mgl::MaterialManager();
     // stone
     mgl::Material* STONE_M = (new mgl::PhongMaterial())
-        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
-        ->setDiffuseColor(0.8f * mgl::COLOR_WHITE)
-        ->setSpecularColor(0.9f * mgl::COLOR_WHITE)
-        ->setShininess(256);
+        ->setAmbientColor(0.8f * LIGHT_COLOR_3)
+        ->setDiffuseColor(0.8f * LIGHT_COLOR_3)
+        ->setSpecularColor(0.9f * LIGHT_COLOR_3)
+        ->setShininess(512);
     STONE_M->addTexture(textures->get("stone"));
+    STONE_M->addTexture(textures->get("environmentDiffuse"));
+    STONE_M->addTexture(textures->get("environmentSpecular"));
     // light
-    mgl::Material* WHITE_M = new mgl::BasicMaterial(mgl::COLOR_WHITE);
+    mgl::Material* LIGHT_1_M = new mgl::BasicMaterial(glm::vec3(0.912f, 0.824f, 0.856f));
+    mgl::Material* LIGHT_2_M = new mgl::BasicMaterial(LIGHT_COLOR_2);
     // wood
     mgl::Material* WOOD_M = (new mgl::PhongMaterial())
-        ->setAmbientColor(0.05f * mgl::COLOR_WHITE)
-        ->setDiffuseColor(0.6f * mgl::COLOR_WHITE)
-        ->setSpecularColor(0.6f * mgl::COLOR_WHITE)
+        ->setAmbientColor(0.8f * LIGHT_COLOR_3)
+        ->setDiffuseColor(0.6f * LIGHT_COLOR_3)
+        ->setSpecularColor(0.6f * LIGHT_COLOR_3)
         ->setShininess(17);
     WOOD_M->addTexture(textures->get("wood"));
+    WOOD_M->addTexture(textures->get("environmentDiffuse"));
+    WOOD_M->addTexture(textures->get("environmentSpecular"));
     // glass
     mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.1f)))
         ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.0f))
         ->setSpecularColor(glm::vec4(mgl::COLOR_WHITE, 0.9f))
-        ->setShininess(256);
+        ->setShininess(500);
 
     materials->add("stone", STONE_M);
-    materials->add("light", WHITE_M);
+    materials->add("light1", LIGHT_1_M);
+    materials->add("light2", LIGHT_2_M);
     materials->add("wood", WOOD_M);
     materials->add("glass", GLASS_M);
 }
@@ -123,42 +159,46 @@ void MyApp::createShaderPrograms() {
         });
 
     mgl::ShaderProgram* statueShaders = new mgl::ShaderProgram();
-    statueShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    statueShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
+    statueShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/vertexShader.glsl");
+    statueShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/statue.glsl");
     statueShaders->addUniforms<mgl::PhongMaterial>();
     statueShaders->addUniforms<mgl::Light>();
     statueShaders->addUniform(mgl::SKYBOX);
     statueShaders->addUniform("texture1");
     statueShaders->addUniform("whiteColor");
     statueShaders->addUniform("darkColor");
+    statueShaders->addUniform("DiffuseTexture");
+    statueShaders->addUniform("SpecularTexture");
 
     mgl::ShaderProgram* woodShaders = new mgl::ShaderProgram();
-    woodShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    woodShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/statue.glsl");
+    woodShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/vertexShader.glsl");
+    woodShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/statue.glsl");
     woodShaders->addUniforms<mgl::PhongMaterial>();
     woodShaders->addUniforms<mgl::Light>();
     woodShaders->addUniform(mgl::SKYBOX);
     woodShaders->addUniform("texture1");
     woodShaders->addUniform("whiteColor");
     woodShaders->addUniform("darkColor");
+    woodShaders->addUniform("DiffuseTexture");
+    woodShaders->addUniform("SpecularTexture");
 
     mgl::ShaderProgram* glassFrontShaders = new mgl::ShaderProgram();
-    glassFrontShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    glassFrontShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass-front.glsl");
+    glassFrontShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/vertexShader.glsl");
+    glassFrontShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/glass-front.glsl");
     glassFrontShaders->addUniforms<mgl::PhongMaterial>();
     glassFrontShaders->addUniforms<mgl::Light>();
     glassFrontShaders->addUniform(mgl::SKYBOX);
 
     mgl::ShaderProgram* glassBackShaders = new mgl::ShaderProgram();
-    glassBackShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    glassBackShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/glass-back.glsl");
+    glassBackShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/vertexShader.glsl");
+    glassBackShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/glass-back.glsl");
     glassBackShaders->addUniforms<mgl::PhongMaterial>();
     glassBackShaders->addUniforms<mgl::Light>();
     glassBackShaders->addUniform(mgl::SKYBOX);
 
     mgl::ShaderProgram* lightShaders = new mgl::ShaderProgram();
-    lightShaders->addShader(GL_VERTEX_SHADER, "src/shaders/vertexShader.glsl");
-    lightShaders->addShader(GL_FRAGMENT_SHADER, "src/shaders/light/basic-color-fs.glsl");
+    lightShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/vertexShader.glsl");
+    lightShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/basic-color-fs.glsl");
     lightShaders->addUniforms<mgl::BasicMaterial>();
 
     shaders->add("phong", statueShaders);
@@ -169,21 +209,28 @@ void MyApp::createShaderPrograms() {
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
-// Colors                     R       G       B       A 
-const glm::vec4 RED         (0.600f, 0.360f, 0.200f, 1.0f);
-const glm::vec3 lightColor(1, 1, 1);
-const glm::vec4 position(0, 2, 4, 0);
+
 
 void MyApp::createSceneGraph() {
      // light Object----------------------------------------------------
     mgl::SceneObject* light = new mgl::SceneObject(
         meshes->get("light"), 
-        materials->get("light"),
+        materials->get("light1"),
         shaders->get("light"));
     light->setTransform((new mgl::Transform())
         ->scale(0.03f)
-        ->translate(0, 2.5f, 2));
+        ->translate(0, 0.4f, 0.65f));
     lightObj = new mgl::SceneGraph(light); // created to ease rotation (we rotate the center of graph, not the light itself)
+
+
+    mgl::SceneObject* light2 = new mgl::SceneObject(
+        meshes->get("light"),
+        materials->get("light2"),
+        shaders->get("light"));
+    light2->setTransform((new mgl::Transform())
+        ->scale(0.03f)
+        ->translate(0, 0.8f, -0.65f));
+    lightObj2 = new mgl::SceneGraph(light2); // created to ease rotation (we rotate the center of graph, not the light itself)
 
     // statue ----------------------------------------------------
     mgl::SceneObject* statueObj = new mgl::SceneObject(
@@ -194,10 +241,9 @@ void MyApp::createSceneGraph() {
         ->scale(0.01f)
         ->rotate(-90.0f, mgl::XX)
         ->translate(0, 0.15f, 0));
-
     statueObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", glm::value_ptr(glm::vec4(0.949f, 0.902f, 0.769f, 1.0f)));
-        shaders->setUniformVec4f("darkColor", glm::value_ptr(glm::vec4(0.849f, 0.802f, 0.669f, 1.0f)));
+        shaders->setUniformVec4f("whiteColor", glm::value_ptr(STATUE_COLOR_1));
+        shaders->setUniformVec4f("darkColor", glm::value_ptr(STATUE_COLOR_2));
         });
 
     // wooden base ----------------------------------------------------
@@ -206,8 +252,8 @@ void MyApp::createSceneGraph() {
         materials->get("wood"),
         shaders->get("wood"));
     woodenBaseObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", glm::value_ptr(glm::vec4(0.549f, 0.309f, 0.114f, 1.0f)));
-        shaders->setUniformVec4f("darkColor", glm::value_ptr(glm::vec4(0.258f, 0.149f, 0.058f, 1.0f)));
+        shaders->setUniformVec4f("whiteColor", glm::value_ptr(WOOD_COLOR_1));
+        shaders->setUniformVec4f("darkColor", glm::value_ptr(WOOD_COLOR_2));
         });
 
     // Glass dome ----------------------------------------------------
@@ -217,9 +263,6 @@ void MyApp::createSceneGraph() {
         meshes->get("glass"),
         materials->get("glass"),
         shaders->get("glass-back"));
-    glassBackObj->setTransform((new mgl::Transform())
-        ->scale(0.9f)
-        ->translate(0, 0.1f, 0));
 
     glassBackObj->beforeAndAfterDraw( // enable blending
         []() { // before
@@ -233,9 +276,6 @@ void MyApp::createSceneGraph() {
         meshes->get("glass"),
         materials->get("glass"),
         shaders->get("glass-front"));
-    glassFrontObj->setTransform((new mgl::Transform())
-        ->scale(0.9f)
-        ->translate(0, 0.1f, 0));
 
     glassFrontObj->beforeAndAfterDraw( // enable blending
         []() { // before
@@ -246,57 +286,69 @@ void MyApp::createSceneGraph() {
             glDisable(GL_BLEND);
         });
 
+    mgl::SceneGraph* dome = new mgl::SceneGraph(glassBackObj);
+    dome->add(glassFrontObj);
+    mgl::Transform* dome_i = (new mgl::Transform())
+        ->scale(0.9f)
+        ->translate(0, 0.1f, 0);
+    mgl::Transform* dome_f = (new mgl::Transform(dome_i))
+        ->rotate(15.0f, dome_i->getRightV())
+        ->translate(0.0f, 3.0f, 0.0f);
+    dome->setTransform(dome_i);
+
     // scene graph
     mgl::SceneGraph* graph = new mgl::SceneGraph(woodenBaseObj);
     graph->add(lightObj);
+    graph->add(lightObj2);
     graph->add(statueObj);
-    graph->add(glassFrontObj);
-    graph->add(glassBackObj);
+    graph->add(dome);
 
     Scene = new mgl::Scene(meshes, shaders, textures);
     Scene->setScenegraph(graph);
     Scene->setSkybox("resources/textures/cubemaps/bedroom/", "png");
 
     // lights
-    mgl::PointLight* pointLight = new mgl::PointLight(light, mgl::COLOR_WHITE);
-    pointLight->setAttenuation(70);
+    mgl::PointLight* pointLight = new mgl::PointLight(light, LIGHT_COLOR_1 * 1.0f);
+    pointLight->setAmbient(LIGHT_COLOR_1 * 0.1f);
+    pointLight->setAttenuation(10);
+    mgl::SpotLight* spotLight = new mgl::SpotLight(light2, LIGHT_COLOR_2 * 1.0f, glm::vec3(0.0f, 2.0f, 0.0f));
+    spotLight->setAmbient(LIGHT_COLOR_2 * 0.0f);
+    spotLight->setInnerCutoffAngle(15.0f);
+    spotLight->setOuterCutoffAngle(17.0f);
+    mgl::DirectionalLight* dirLight = new mgl::DirectionalLight(glm::vec3(0, -1, -1), LIGHT_COLOR_3 * 1.0f);
+    dirLight->setSpecular(LIGHT_COLOR_3 * 0.55f); // since the environment has cloudy sun
+    dirLight->setAmbient(LIGHT_COLOR_3 * 0.4f);
 
-    //mgl::SpotLight* spotLight = new mgl::SpotLight(light, mgl::COLOR_WHITE, glm::vec3(0.0f, 1.4f, 0.0f));
-    //spotLight->setAmbient(mgl::COLOR_WHITE * 0.0f);
-    //spotLight->setInnerCutoffAngle(2.0f);
-    //spotLight->setOuterCutoffAngle(20.0f);
-
-    Scene->addCamera("main_camera", OrbitCam->getCamera());
-
+    Scene->addCamera("main_camera", OrbitCam->getCamera()); 
     Scene->addLight("light1", pointLight);
     Scene->assignLightToCamera("light1", "main_camera");
-    //Scene->addLight("spotLight", spotLight);
-    //Scene->assignLightToCamera("spotLight", "main_camera");
+    Scene->addLight("spotLight", spotLight);
+    Scene->assignLightToCamera("spotLight", "main_camera");
+    Scene->addLight("dirLight", dirLight);
+    Scene->assignLightToCamera("dirLight", "main_camera");
+
+
+    Animation = new mgl::Animation(dome, dome_f);
+
 }
 
 ///////////////////////////////////////////////////////////////////////// INPUT
 
-
 void MyApp::processInput(double elapsed) {
     // animation
     if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_RIGHT)) {
-        squareAnim->step(elapsed * 8);
+        Animation->step(elapsed * 16);
     }
     if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_LEFT)) {
-        squareAnim->step(-elapsed * 8);
+        Animation->step(-elapsed * 16);
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////// CAMERAS
 
 void MyApp::createCamera() {
-    mgl::PerspectiveCamera* camera = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
-    //FPSCamera = new mgl::FPSCamController(camera, 5, 0.1);
-    //FPSCamera->setPosition(0, 0, 5);
-    //FPSCamera->setActive();
-
-    OrbitCam = new mgl::OrbitCamController(camera, glm::vec3(0, 0, 0), 5.0f);
+    mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
+    OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
     OrbitCam->setActive();
 }
 
@@ -304,6 +356,7 @@ void MyApp::createCamera() {
 
 void MyApp::animateLights(double elapsed) {
     lightObj->rotate(elapsed * 15, mgl::YY);
+    lightObj2->rotate(elapsed * 15, mgl::YY);
 }
 
 
