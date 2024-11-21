@@ -1,18 +1,14 @@
-#ifndef MGL_DRAWABLE_HPP
-#define MGL_DRAWABLE_HPP
+#ifndef MGL_UPDATABLE_HPP
+#define MGL_UPDATABLE_HPP
 
 #include <vector>
 #include <functional>
 
 namespace mgl {
 
-	using IDrawableVoidCallback = std::function<void()>;
-
 	/// <summary>
-	/// Represents any entity that need to be drawn into the screen.
-	/// Allows to define before and after drawing logic, usually needed
-	/// to set different openGL state before drawing some object, and 
-	/// reseting it to default afterwards.
+	/// Represents any entity that needs per-frame logic updates.
+	/// These entities must always overwrite the Update method
 	/// </summary>
 	class IDrawable {
 	public:

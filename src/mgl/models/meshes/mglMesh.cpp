@@ -17,7 +17,6 @@ namespace mgl {
 Mesh::Mesh() {
   NormalsLoaded = false;
   TexcoordsLoaded = false;
-  TangentsAndBitangentsLoaded = false;
   VaoId = -1;
   AssimpFlags = aiProcess_Triangulate;
 }
@@ -38,17 +37,12 @@ void Mesh::generateSmoothNormals() {
 
 void Mesh::generateTexcoords() { AssimpFlags |= aiProcess_GenUVCoords; }
 
-void Mesh::calculateTangentSpace() {
-  AssimpFlags |= aiProcess_CalcTangentSpace;
-}
-
 void Mesh::flipUVs() { AssimpFlags |= aiProcess_FlipUVs; }
 
 bool Mesh::hasNormals() { return NormalsLoaded; }
 
 bool Mesh::hasTexcoords() { return TexcoordsLoaded; }
 
-bool Mesh::hasTangentsAndBitangents() { return TangentsAndBitangentsLoaded; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +50,6 @@ void Mesh::processMesh(const aiMesh *mesh) {
     util::Logger::LogDebug("Loading model");
   NormalsLoaded = mesh->HasNormals();
   TexcoordsLoaded = mesh->HasTextureCoords(0);
-  TangentsAndBitangentsLoaded = mesh->HasTangentsAndBitangents();
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     const aiVector3D &aiPosition = mesh->mVertices[i];
@@ -74,19 +67,6 @@ void Mesh::processMesh(const aiMesh *mesh) {
 #endif
       const aiVector3D &aiTexcoord = mesh->mTextureCoords[0][i];
       Texcoords.push_back(glm::vec2(aiTexcoord.x, aiTexcoord.y));
-    }
-    if (TangentsAndBitangentsLoaded) {
-#ifdef DEBUG
-        util::Logger::LogDebug("Model has tangents an dbitangents");
-#endif
-      const aiVector3D &aiTangent = mesh->mTangents[i];
-      Tangents.push_back(glm::vec3(aiTangent.x, aiTangent.y, aiTangent.z));
-
-#ifdef CREATE_BITANGENT
-      const aiVector3D &aiBitangent = mesh->mBitangents[i];
-      Bitangents.push_back(
-          glm::vec3(aiBitangent.x, aiBitangent.y, aiBitangent.z));
-#endif
     }
   }
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -174,22 +154,6 @@ void Mesh::createBufferObjects() {
       glVertexAttribPointer(TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
     }
 
-    if (TangentsAndBitangentsLoaded) {
-      glBindBuffer(GL_ARRAY_BUFFER, boId[TANGENT]);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(Tangents[0]) * Tangents.size(),
-                   &Tangents[0], GL_STATIC_DRAW);
-      glEnableVertexAttribArray(TANGENT);
-      glVertexAttribPointer(TANGENT, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-#ifdef CREATE_BITANGENT
-      glBindBuffer(GL_ARRAY_BUFFER, boId[BITANGENT]);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(Bitangents[0]) * Bitangents.size(),
-                   &Bitangents[0], GL_STATIC_DRAW);
-      glEnableVertexAttribArray(BITANGENT);
-      glVertexAttribPointer(BITANGENT, 3, GL_FLOAT, GL_FALSE, 0, 0);
-#endif
-    }
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, boId[INDEX]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices[0]) * Indices.size(),
                  &Indices[0], GL_STATIC_DRAW);
@@ -204,10 +168,6 @@ void Mesh::destroyBufferObjects() {
   glDisableVertexAttribArray(POSITION);
   glDisableVertexAttribArray(NORMAL);
   glDisableVertexAttribArray(TEXCOORD);
-  glDisableVertexAttribArray(TANGENT);
-#ifdef CREATE_BITANGENT
-  glDisableVertexAttribArray(BITANGENT);
-#endif
   glDeleteVertexArrays(1, &VaoId);
   glBindVertexArray(0);
 }

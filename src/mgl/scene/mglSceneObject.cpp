@@ -16,6 +16,7 @@ SceneObject::SceneObject(Mesh* mesh, Material* material, ShaderProgram* shaders)
 	: SceneObject(mesh, material) {
 	setShaders(shaders);
 }
+
 SceneObject::~SceneObject() {}
 
 

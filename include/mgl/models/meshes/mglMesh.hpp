@@ -24,68 +24,62 @@
 
 namespace mgl {
 
-class Mesh;
-
-#define CREATE_BITANGENT
+    class Mesh;
 
 /////////////////////////////////////////////////////////////////////////// Mesh
 
 class Mesh : public IDrawable {
 public:
-  static const GLuint INDEX = 0;
-  static const GLuint POSITION = 1;
-  static const GLuint NORMAL = 2;
-  static const GLuint TEXCOORD = 3;
-  static const GLuint TANGENT = 4;
-#ifdef CREATE_BITANGENT
-  static const GLuint BITANGENT = 5;
-#endif
+    // Specifies the id of the shaders ainput attribute 
+    // to which we mesh data.
+    // INDEX is sent to shader attribute 0
+    // POSITION is sent to shader attribute 1, and so on
+    static const GLuint INDEX = 0;
+    static const GLuint POSITION = 1;
+    static const GLuint NORMAL = 2;
+    static const GLuint TEXCOORD = 3;
 
-  Mesh();
-  ~Mesh();
+    Mesh();
+    ~Mesh();
 
-  void setAssimpFlags(unsigned int flags);
-  void joinIdenticalVertices();
-  void generateNormals();
-  void generateSmoothNormals();
-  void generateTexcoords();
-  void calculateTangentSpace();
-  void flipUVs();
+    void setAssimpFlags(unsigned int flags);
+    void joinIdenticalVertices();
+    void generateNormals();
+    void generateSmoothNormals();
+    void generateTexcoords();
+    void flipUVs();
 
-  void create(const std::string &filename);
+    void create(const std::string &filename);
 
-  bool hasNormals();
-  bool hasTexcoords();
-  bool hasTangentsAndBitangents();
+    bool hasNormals();
+    bool hasTexcoords();
 
 protected:
     void performDraw() override;
 
 private:
-  GLuint VaoId;
-  unsigned int AssimpFlags;
-  bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;
+    GLuint VaoId;
+    unsigned int AssimpFlags;
+    bool NormalsLoaded, TexcoordsLoaded;
 
-  struct MeshData {
-    unsigned int nIndices = 0;
-    unsigned int baseIndex = 0;
-    unsigned int baseVertex = 0;
-  };
-  std::vector<MeshData> Meshes;
+    struct MeshData {
+        unsigned int nIndices = 0;
+        unsigned int baseIndex = 0;
+        unsigned int baseVertex = 0;
+    };
 
-  std::vector<glm::vec3> Positions;
-  std::vector<glm::vec3> Normals;
-  std::vector<glm::vec2> Texcoords;
-  std::vector<glm::vec3> Tangents;
-#ifdef CREATE_BITANGENT
-  std::vector<glm::vec3> Bitangents;
-#endif
-  std::vector<unsigned int> Indices;
+    std::vector<MeshData> Meshes;
 
-  void processScene(const aiScene *scene);
-  void processMesh(const aiMesh *mesh);
-  void createBufferObjects();
-  void destroyBufferObjects();
+    std::vector<glm::vec3> Positions;
+    std::vector<glm::vec3> Normals;
+    std::vector<glm::vec2> Texcoords;
+
+    std::vector<unsigned int> Indices;
+
+    void processScene(const aiScene *scene);
+    void processMesh(const aiMesh *mesh);
+    void createBufferObjects();
+    void destroyBufferObjects();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

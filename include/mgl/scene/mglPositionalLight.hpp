@@ -50,7 +50,7 @@ namespace mgl {
 
 		// default attenuation parameters
 		static inline const GLuint attenuationDistances[] = { 7, 13, 20, 32, 50, 65, 100,
-			160, 200, 325, 600, 320 };
+			160, 200, 325, 600, 3250 };
 		// distance  parameters
 		static inline const std::map<GLuint, LightAttenuation> defaultAttenuations = {
 			{7,	   {1.0f, 0.7f,    1.8f}},

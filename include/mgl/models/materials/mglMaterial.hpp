@@ -26,8 +26,8 @@ public:
 	static inline const char MATERIAL_LIGHT_COLOR[] = "lightColor";
 
 	void addTexture(TextureInfo* texture);
-	virtual Material* setColor(const glm::vec3 &color) = 0;
-	virtual Material* setColor(const glm::vec4 &color) = 0;
+	virtual Material* setColor(const glm::vec3 &color) = 0; // without alpha
+	virtual Material* setColor(const glm::vec4 &color) = 0; // with alpha
 	void updateShaders(ShaderProgram* shaders) override;
 
 private:

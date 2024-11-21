@@ -11,7 +11,6 @@ namespace mgl {
 // callbacks
 using KeyCallBack = std::function<void()>;
 using MouseOffsetCallBack = std::function<void(GLfloat xOffset, GLfloat yOffset)>;
-using MouseOffsetCallBack = std::function<void(GLfloat xOffset, GLfloat yOffset)>;
 using WindowSizeCallBack = std::function<void(GLuint width, GLuint height)>;
 
 struct MouseMove {
@@ -27,10 +26,15 @@ struct MousePos {
 class InputManager {
 public:
     InputManager();
+    // prevent copies of this class
     InputManager(InputManager const&) = delete;
-    virtual ~InputManager();
+    // prevent assignments
     void operator=(InputManager const&) = delete;
+
+    virtual ~InputManager();
     static InputManager& getInstance();
+
+    void setupCallbacks(GLFWwindow *window);
     
 
     // keyboard
@@ -58,15 +62,13 @@ public:
     
 private:
     // keyboard
-    bool KEY_BUFFER[GLFW_KEY_LAST] = { false };
     bool KEY_PRESSED[GLFW_KEY_LAST] = { false };
     std::vector<KeyCallBack> KEY_CALLBACKS[GLFW_KEY_LAST]; // callbacks per key
 
 
     // mouse
     MouseMove   mouseMove; // records curent offsets
-    MousePos    position;
-    bool MOUSE_BUFFER[GLFW_MOUSE_BUTTON_LAST] = { false };
+    MousePos    mousePos;
     bool MOUSE_PRESSED[GLFW_MOUSE_BUTTON_LAST] = { false };
     std::vector<KeyCallBack> MOUSE_BTN_CALLBACKS[GLFW_MOUSE_BUTTON_LAST]; // callbacks per mouse btn
     std::vector<MouseOffsetCallBack> MOUSE_MOVE_CALLBACKS;

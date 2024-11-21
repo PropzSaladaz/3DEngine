@@ -17,7 +17,10 @@
 
 namespace mgl {
 
-
+	/// <summary>
+	/// Represents any manager that manages a set of items stored in a kay-value map
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	template<typename T>
 	class Manager {
 	public:

@@ -92,7 +92,7 @@ protected:
     glm::vec3 positionV = { 0, 0, 0 }; // represents the translation
     // transform matrix
     glm::mat4 transformMatrix = glm::mat4(1.0f);
-    // trageting
+    // targeting
     bool trackingEnabled = false;
     glm::vec3 targetPoint = { 0.0f, 0.0f, 0.0f };
     const Transform* targetTransform = nullptr;

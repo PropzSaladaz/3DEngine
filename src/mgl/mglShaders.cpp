@@ -14,7 +14,14 @@ void ShaderUpdator::declareShaderUniforms(ShaderProgram* shaders) {
 
 ////////////////////////////////////////////////////////////////// ShaderProgram
 
-ShaderProgram::ShaderProgram() : ProgramId(glCreateProgram()) {}
+/// <summary>
+/// Creates a shader program and assigns it an ID returned from calling 'glCreateProgram'
+/// </summary>
+ShaderProgram::ShaderProgram() : 
+    // glCreateProgram creates a program & returns the ID reference to the newly created 
+    // program object - this is will be used when attaching new shaders to this program
+    ProgramId(glCreateProgram()) 
+{}
 
 ShaderProgram::~ShaderProgram() {
   glUseProgram(0);
@@ -22,19 +29,32 @@ ShaderProgram::~ShaderProgram() {
 }
 
 void ShaderProgram::addShader(const GLenum shader_type,const std::string &filename) {
+    // try reading shader from file
     const std::string scode = file::readFile(filename);
     if (scode == FILE_DOESNT_EXIST) {
         util::Logger::LogError("File not found: " + filename);
         exit(EXIT_FAILURE);
     }
-
     const GLchar *code = scode.c_str();
+    
+    // specify type of shader we want to create
     const GLuint shader_id = glCreateShader(shader_type);
+
+    // set the shader code for the created shader with id = shader_id
     glShaderSource(shader_id, 1, &code, 0);
+
+    // compile the shader
     glCompileShader(shader_id);
+
+#ifdef DEBUG
     checkCompilation(shader_id, filename);
+#endif
+
+    // attack the shader to the current shader program
     glAttachShader(ProgramId, shader_id);
 
+    // update the link between the shader type and the coresponding shader id
+    // in current program. We can only have 1 shader for each different shader type
     Shaders[shader_type] = {shader_id};
 }
 
@@ -64,8 +84,15 @@ bool ShaderProgram::isUniformBlock(const std::string &name) {
 }
 
 void ShaderProgram::create() {
+    // Links all shaders
     glLinkProgram(ProgramId);
+
+#ifdef DEBUG
     checkLinkage();
+#endif
+
+    // individual shaders are not longer needed - they are already linked
+    // to the shader program - we can delete them
     for (auto &i : Shaders) {
         glDetachShader(ProgramId, i.second);
         glDeleteShader(i.second);
@@ -158,8 +185,8 @@ void ShaderProgram::assertUniform(const std::string &name) {
 #endif
 
 // PRIVATE
-const GLuint ShaderProgram::checkCompilation(const GLuint shader_id, const std::string &filename) {
-  GLint compiled;
+const void ShaderProgram::checkCompilation(const GLuint shader_id, const std::string &filename) {
+  GLint compiled; // stores if shader compiled successfully or not
   glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
   if (compiled == GL_FALSE) {
     GLint length;
@@ -170,7 +197,6 @@ const GLuint ShaderProgram::checkCompilation(const GLuint shader_id, const std::
     delete[] log;
     exit(EXIT_FAILURE);
   }
-  return compiled;
 }
 
 void ShaderProgram::checkLinkage() {

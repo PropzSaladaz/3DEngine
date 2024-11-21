@@ -12,6 +12,7 @@
 #include <mgl/models/meshes/mglMeshManager.hpp>
 #include <mgl/models/textures/mglTextureManager.hpp>
 #include <string>
+#include <world/mglChunkManager.hpp>
 
 namespace mgl {
 
@@ -19,6 +20,22 @@ namespace mgl {
 	class SceneNode;
 	class SceneGraph;
 
+	//////////////////////////////////////////////////////////////// Scene
+
+	/// <summary>
+	/// Represents the highest level of object hierarchy. A scene is responsible for
+	/// all underlying object's relationships, and is responsible for parsing all objects
+	/// drawing them along with their parent-son relationships.
+	/// 
+	/// A scene stores its set of meshes through a mesh manager - chunk meshes are stored separately
+	/// Scenes also manage shader programs used, lights, textures, cameras, and the skybox.
+	/// 
+	/// World generation itself is not kept in the Scene's scenegraph. Only objects that are expected to
+	/// be transformed regularly should be placed in the graph, as this introduces some indirection overhead 
+	/// due to being a pointer based tree structure.
+	/// 
+	/// Chunks, alongside their meshes are kept within their own ChunkManager class.
+	/// </summary>
 	class Scene : public IDrawable, public ShaderUpdator {
 	public:
 		Scene(MeshManager* meshes, ShaderManager* shaders, TextureManager* textures);
@@ -38,12 +55,16 @@ namespace mgl {
 		TextureManager* textures;
 		CameraManager* cameras;
 		SceneNode* skybox;
+
+		ChunkManager* chunks;
 	};
 
-	/*
-		Represents a generic abstract node in the scene graph
-		Has a parent node and an absolute transform
-	*/
+	//////////////////////////////////////////////////////////////// Scene Node
+
+	/// <summary>
+	/// Represents an abstract node in the SceneGraph. 
+	/// Stores a reference to its parent.
+	/// </summary>
 	class SceneNode : public IDrawable , public Transform {
 	public:
 		SceneGraph* Parent;
@@ -59,24 +80,43 @@ namespace mgl {
 		~SceneNode() = default;
 	};
 
+	//////////////////////////////////////////////////////////////// Scene Graph
 
-	/*
-		Represents a scene graph that may have children.
-		It can also be the child of another scene graph.
-	*/
+	/// <summary>
+	/// Represents a branchable scene node, allowing it to have several SceneNodes as children.
+	/// Children positions will be relative this SceneGraph.
+	/// 
+	/// Should only be used for objects that are expected to be modified during runtime.
+	/// 
+	/// When a SceneGraph is drawn, it starts at the highest parent, traversing through
+	/// all its children in a Depth First Search style
+	/// </summary>
 	class SceneGraph : public SceneNode {
 	public:
 		SceneGraph();
 		SceneGraph(SceneNode* child);
 		~SceneGraph();
 
-		void add(SceneNode* drawable);
-		void remove(SceneNode* drawable);
+		/// <summary>
+		/// Adds a child
+		/// </summary>
+		/// <param name="child">reference of the child to be added</param>
+		void add(SceneNode* child);
+
+		/// <summary>
+		/// Removes a child
+		/// </summary>
+		/// <param name="child">reference of the child to be removed</param>
+		void remove(SceneNode* child);
 
 		void setScene(Scene* scene) override;
 		void setSkybox(TextureInfo* skybox) override;
 
 	protected:
+		/// <summary>
+		/// Updates its absolute transform based on its parent's
+		/// and calls draw on all its children.
+		/// </summary>
 		void performDraw() override;
 
 	private:

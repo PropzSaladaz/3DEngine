@@ -8,12 +8,14 @@
 namespace mgl {
 
 //////////////////////////////////////////////////////////////// IDrawable
-
+	// TODO - should be in its own file
 void IDrawable::draw() {
 	for (auto& callback : beforeDrawCallbacks) {
 		callback();
 	}
+
 	performDraw();
+
 	for (auto& callback : afterDrawCallbacks) {
 		callback();
 	}
@@ -40,6 +42,16 @@ Scene::Scene(MeshManager *meshes, ShaderManager *shaders, TextureManager* textur
 	this->textures = textures;
 	this->lights = new LightManager();
 	this->cameras = new CameraManager();
+	this->chunks = new ChunkManager();
+}
+
+Scene::~Scene() {
+	delete this->meshes;
+	delete this->shaders;
+	delete this->textures;
+	delete this->lights;
+	delete this->cameras;
+	delete this->chunks;
 }
 
 void Scene::setScenegraph(SceneGraph* graph) {
@@ -115,6 +127,7 @@ void Scene::assignLightToCamera(const std::string& light, const std::string& cam
 }
 
 void Scene::performDraw() {
+	chunks->drawOpaque();
 	// usually draw skybox at end for performance
 	// but we draw it first because we have transparent objects
 	// and we need to draw the background first to see the transparency
