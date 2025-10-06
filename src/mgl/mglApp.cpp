@@ -33,7 +33,9 @@ Engine::Engine(void) {
     WindowTitle = "OpenGL App";
 }
 
-Engine::~Engine(void) {}
+Engine::~Engine(void) {
+    glfwTerminate();
+}
 
 Engine &Engine::getInstance(void) {
   static Engine instance;
@@ -103,7 +105,7 @@ void Engine::setupGLAD() {
     // want to initialize GLAD before we call any OpenGL function
     // We pass GLAD the function to load the address of the OpenGL function pointers which is
     // OS - specific.GLFW gives us glfwGetProcAddress that defines the correct function based on
-    // which OS we’re compiling for.
+    // which OS weï¿½re compiling for.
     if (!gladLoadGL() || !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cerr << "Failed to initialize GLAD" << std::endl;

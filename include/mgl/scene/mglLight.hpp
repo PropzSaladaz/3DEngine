@@ -18,7 +18,7 @@ class Light : public ShaderUpdator {
 public:
 	static inline char* LIGHT_UNIFORM(GLuint light_nr, const char* propertyName) {
 		std::string result = "Lights[" + std::to_string(light_nr) + "]." + propertyName;
-		return _strdup(result.c_str());
+		return strdup(result.c_str());
 	}
 
 

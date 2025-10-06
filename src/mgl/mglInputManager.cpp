@@ -42,11 +42,9 @@ static void window_size_callback(GLFWwindow* window, int width, int height) {
 
 static void joystick_callback(int jid, int event) {}
 
-/// <summary>
-/// Initializes all input callbacks within GLFW
-/// Must be called at the start of the engine to capture all input events
-/// </summary>
-/// <param name="window"> GLFW window which fires the events </param>
+// @brief Initializes all input callbacks within GLFW
+// Must be called at the start of the engine to capture all input events
+// @param name="window" GLFW window which fires the events
 void InputManager::setupCallbacks(GLFWwindow* window) {
     // cursor position
     glfwSetCursorPosCallback(window, cursor_pos_callback);

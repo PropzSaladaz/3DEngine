@@ -1,25 +1,19 @@
-﻿# CMakeList.txt : CMake project for lab_1, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+﻿cmake_minimum_required(VERSION 3.16)
+
+# ---- Project -----------------------------------------------------------------
+project(engine LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-set(PROJECT_NAME "engine")
-set(EXEC_NAME "engine")
-
-# Set the build type to Debug by default
+# Default to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
 
-project (${PROJECT_NAME})
-
-# SOURCE FILES
-set(SOURCES
-  # core
-  src/main.cpp
+# ---- Sources -----------------------------------------------------------------
+# Split: library = engine core; executable = just main.cpp
+set(ENGINE_SOURCES
+  # glad + core
   src/glad.c
   src/mgl/mglApp.cpp
   src/mgl/mglError.cpp
@@ -57,64 +51,88 @@ set(SOURCES
   src/mgl/camera/mglPerspectiveCamera.cpp
 )
 
-# INCLUDE
-set(INCLUDE_DIRS
-	include
-	include/mgl
-	include/mgl/camera
-	include/mgl/scene
-	include/mgl/models
-	include/utils
+set(EXEC_NAME engine)
+set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
+
+# Optional: output dirs (bin/lib per-config)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# ---- Include paths -----------------------------------------------------------
+set(PROJECT_INCLUDES
+  include
+  include/mgl
+  include/mgl/camera
+  include/mgl/scene
+  include/mgl/models
+  include/utils
 )
 
-# EXTERNAL LIBRARIES DIRECTORIES
-set(INCLUDE_LIBS_DIR
-	libs
+# ---- Dependencies ------------------------------------------------------------
+# GL loader = glad.c compiled above. GLFW gives context/window, Assimp loads models.
+
+# GLFW (package name is glfw3, target is usually 'glfw')
+find_package(glfw3 3.3 REQUIRED)
+
+# Assimp provides imported target 'assimp::assimp' on Linux/Windows when installed via package manager
+find_package(assimp REQUIRED)
+
+# Threads (for GLFW transitive needs on some platforms)
+find_package(Threads REQUIRED)
+
+# Linux: some distros require dl explicitly; add if available
+include(CheckLibraryExists)
+set(HAVE_LIBDL OFF)
+check_library_exists(dl dlopen "" HAVE_LIBDL)
+
+# ---- Library: engine_library -------------------------------------------------
+add_library(engine_library STATIC ${ENGINE_SOURCES})
+target_include_directories(engine_library
+  PUBLIC ${PROJECT_INCLUDES} 
+  ${CMAKE_CURRENT_SOURCE_DIR}/libs
 )
-
-set(INCLUDE_LIBS_NAME
-  glfw3
-  assimp-vc143-mt
+target_compile_definitions(engine_library
+  PRIVATE $<$<CONFIG:Debug>:DEBUG>
+          $<$<CONFIG:Release>:NDEBUG>
 )
-
-# DLLS
-set(DLLS
-	libs/assimp/assimp-vc143-mt.dll
+target_link_libraries(engine_library
+  PUBLIC
+    glfw                          # imported target from find_package(glfw3)
+    assimp::assimp                # imported target from find_package(assimp)
+    Threads::Threads
 )
-
-# RESOURCES
-set(RESOURCES resources)
-
-include_directories(${INCLUDE_DIRS})
-link_directories(${INCLUDE_LIBS_DIR})
-
-# used for the tests
-add_library(engine_library ${SOURCES})
-target_link_libraries(engine_library ${INCLUDE_LIBS_NAME})
-
-add_executable(       ${EXEC_NAME} ${SOURCES})
-include_directories(  ${EXEC_NAME} ${INCLUDE_LIBS_DIR})
-target_link_libraries(${EXEC_NAME} ${INCLUDE_LIBS_NAME})
-
-# Different build configs
-if(CMAKE_BUILD_TYPE STREQUAL "Debug") # DEBUG
-  message("Debug build configuration")
-  set(BUILD_DEST "out/build/x64-debug")
-  target_compile_definitions(${EXEC_NAME} PRIVATE DEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release") # RELEASE
-  message("Release build configuration")
-  set(BUILD_DEST "./release")
-  target_compile_definitions(${EXEC_NAME} PRIVATE RELEASE)
-  # Copy resources folder to release
-  file(COPY ${CMAKE_SOURCE_DIR}/${RESOURCES} 
-  DESTINATION ${CMAKE_SOURCE_DIR}/${BUILD_DEST}/)
+if(UNIX AND HAVE_LIBDL)
+  target_link_libraries(engine_library PUBLIC dl)
 endif()
 
-# copy all .dlls to build target where .exe is
-foreach(file ${DLLS})
-	configure_file(
-		${CMAKE_SOURCE_DIR}/${file}
-		${CMAKE_SOURCE_DIR}/${BUILD_DEST}/
-		COPYONLY
-	)
-endforeach()
+# ---- Executable: engine (only main.cpp) --------------------------------------
+add_executable(${EXEC_NAME} src/main.cpp)
+target_include_directories(${EXEC_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_link_libraries(${EXEC_NAME} PRIVATE engine_library)
+
+# ---- Post-build: copy resources next to the executable -----------------------
+add_custom_command(TARGET ${EXEC_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${RESOURCES_DIR}
+          $<TARGET_FILE_DIR:${EXEC_NAME}>/resources
+  COMMENT "Copying resources/ to output directory"
+  VERBATIM
+)
+
+# ---- Windows-only: copy required DLLs (if you vendor them) -------------------
+if(WIN32)
+  # Example: adjust paths if you actually ship local DLLs in repo
+  set(DLLS
+    ${CMAKE_SOURCE_DIR}/libs/assimp/assimp-vc143-mt.dll
+  )
+  foreach(dll ${DLLS})
+    if(EXISTS "${dll}")
+      add_custom_command(TARGET ${EXEC_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${dll}" $<TARGET_FILE_DIR:${EXEC_NAME}>
+        COMMENT "Copying ${dll} to output directory"
+      )
+    endif()
+  endforeach()
+endif()

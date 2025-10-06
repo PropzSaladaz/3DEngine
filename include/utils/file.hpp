@@ -1,5 +1,4 @@
-#ifndef FILE_HPP
-#define FILE_HPP
+#pragma once
 
 #include <filesystem>
 #include <fstream>
@@ -8,32 +7,30 @@
 
 #define FILE_DOESNT_EXIST "FILE_DOESNT_EXIST"
 
-namespace fs = std::filesystem;
-
 namespace file {
-    static inline std::string getFullPathFromRelative(const std::string& relativeFilePath) {
-        fs::path sourcePath;
-#ifdef DEBUG
-        sourcePath = fs::current_path().parent_path().parent_path().parent_path();
-#endif
-#ifdef RELEASE
-        sourcePath = fs::current_path();
-#endif
-        std::string fullPath = (sourcePath / relativeFilePath).string();
-        return fullPath;
+    namespace fs = std::filesystem;
+
+    inline fs::path exe_dir() {
+        // Linux: resolve the running executable, then take its directory
+        return fs::canonical("/proc/self/exe").parent_path();
     }
 
-    static inline std::string readFile(const std::string& relativeFilePath) {
-        std::string fullPath = getFullPathFromRelative(relativeFilePath);
-        std::cout << "reading from file: " << fullPath << std::endl;
-        std::ifstream file(fullPath);
-        if (!file.is_open()) return FILE_DOESNT_EXIST;
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        std::string fileContents = buffer.str();
-        file.close();
-        return fileContents;
+    // Builds "<exe_dir>/resources/<relativeFilePath>"
+    inline fs::path resource_path(const std::string& relativeFilePath) {
+        return exe_dir() / "resources" / fs::path(relativeFilePath);
+    }
+
+    // Reads a text file from resources/, returns contents or "FILE_DOESNT_EXIST"
+    inline std::string readFile(const std::string& relativeFilePath) {
+        const fs::path fullPath = resource_path(relativeFilePath);
+
+        std::cout << "reading from file: " << fullPath.string() << std::endl;
+
+        std::ifstream in(fullPath);
+        if (!in.is_open()) return "FILE_DOESNT_EXIST";
+
+        std::ostringstream buf;
+        buf << in.rdbuf();
+        return buf.str();
     }
 } // namespace file
-
-#endif

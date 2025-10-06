@@ -12,7 +12,6 @@
 #include <mgl/models/meshes/mglMeshManager.hpp>
 #include <mgl/models/textures/mglTextureManager.hpp>
 #include <string>
-#include <world/mglChunkManager.hpp>
 
 namespace mgl {
 
@@ -30,15 +29,12 @@ namespace mgl {
 	/// A scene stores its set of meshes through a mesh manager - chunk meshes are stored separately
 	/// Scenes also manage shader programs used, lights, textures, cameras, and the skybox.
 	/// 
-	/// World generation itself is not kept in the Scene's scenegraph. Only objects that are expected to
-	/// be transformed regularly should be placed in the graph, as this introduces some indirection overhead 
-	/// due to being a pointer based tree structure.
-	/// 
 	/// Chunks, alongside their meshes are kept within their own ChunkManager class.
 	/// </summary>
 	class Scene : public IDrawable, public ShaderUpdator {
 	public:
 		Scene(MeshManager* meshes, ShaderManager* shaders, TextureManager* textures);
+		~Scene();
 		void addLight(const std::string &name, Light* light);
 		void addCamera(const std::string& name, Camera* camera);
 		void setScenegraph(SceneGraph* graph);
@@ -56,7 +52,6 @@ namespace mgl {
 		CameraManager* cameras;
 		SceneNode* skybox;
 
-		ChunkManager* chunks;
 	};
 
 	//////////////////////////////////////////////////////////////// Scene Node

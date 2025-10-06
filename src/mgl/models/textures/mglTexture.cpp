@@ -89,7 +89,7 @@ void Texture2D::load(const std::string &filename) {
     util::Logger::LogDebug("Loading image: " + filename + "...");
     #endif
 
-    unsigned char *image = stbi_load(file::getFullPathFromRelative(filename).c_str(),
+    unsigned char *image = stbi_load(file::resource_path(filename).c_str(),
             &width, &height, &channels, 0);
     if (image == nullptr) {
         util::Logger::LogError("Could not load image");
@@ -190,7 +190,7 @@ void Texture3D::load(const std::string& filename) {
     util::Logger::LogDebug("Loading image: " + filename + "...");
     #endif
 
-    unsigned char* image = stbi_load(file::getFullPathFromRelative(filename).c_str(),
+    unsigned char* image = stbi_load(file::resource_path(filename).c_str(),
         &width, &height, &channels, 0);
     if (image == nullptr) {
         util::Logger::LogError("Could not load image");
@@ -271,7 +271,7 @@ void TextureCubeMap::loadCubeMap(const std::string& folder, const std::string &f
         util::Logger::LogDebug("Loading cubemap file " + filename + "...");
 #endif
 
-        unsigned char* image = stbi_load(file::getFullPathFromRelative(filename).c_str(), 
+        unsigned char* image = stbi_load(file::resource_path(filename).c_str(),
                 &width, &height, &channels, 0);
 
         channels =

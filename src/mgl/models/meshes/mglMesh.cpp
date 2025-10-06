@@ -108,7 +108,7 @@ void Mesh::processScene(const aiScene *scene) {
 void Mesh::create(const std::string &filename) {
   Assimp::Importer importer;
   const aiScene *scene = importer.ReadFile(
-      file::getFullPathFromRelative(filename), AssimpFlags);
+      file::resource_path(filename).string(), AssimpFlags);
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
       !scene->mRootNode) {
     std::cout << "Error while loading:" << importer.GetErrorString()

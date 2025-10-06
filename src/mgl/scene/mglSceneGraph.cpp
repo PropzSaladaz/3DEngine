@@ -42,7 +42,6 @@ Scene::Scene(MeshManager *meshes, ShaderManager *shaders, TextureManager* textur
 	this->textures = textures;
 	this->lights = new LightManager();
 	this->cameras = new CameraManager();
-	this->chunks = new ChunkManager();
 }
 
 Scene::~Scene() {
@@ -51,7 +50,6 @@ Scene::~Scene() {
 	delete this->textures;
 	delete this->lights;
 	delete this->cameras;
-	delete this->chunks;
 }
 
 void Scene::setScenegraph(SceneGraph* graph) {
@@ -69,11 +67,11 @@ void Scene::addCamera(const std::string& name, Camera* camera) {
 
 void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 	// import skybox mesh
-	meshes->import(SKYBOX, "resources/models/cube-vtn.obj");
+	meshes->import(SKYBOX, "models/cube-vtn.obj");
 	// create skybox shader
 	mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
-	skyboxShaders->addShader(GL_VERTEX_SHADER, "resources/shaders/skyboxVS.glsl");
-	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "resources/shaders/light/skybox.glsl");
+	skyboxShaders->addShader(GL_VERTEX_SHADER, "shaders/skyboxVS.glsl");
+	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "shaders/light/skybox.glsl");
 	skyboxShaders->addUniforms<mgl::BasicMaterial>();
 	skyboxShaders->addUniform(SKYBOX);
 	shaders->add(SKYBOX, skyboxShaders);
@@ -127,7 +125,7 @@ void Scene::assignLightToCamera(const std::string& light, const std::string& cam
 }
 
 void Scene::performDraw() {
-	chunks->drawOpaque();
+	//chunks->drawOpaque();
 	// usually draw skybox at end for performance
 	// but we draw it first because we have transparent objects
 	// and we need to draw the background first to see the transparency

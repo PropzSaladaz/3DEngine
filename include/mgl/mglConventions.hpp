@@ -15,7 +15,7 @@ namespace mgl {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const enum ATTRIB_POS { POSITION_IDX, COLOR_IDX };
+enum ATTRIB_POS { POSITION_IDX, COLOR_IDX };
 
 const char MODEL_MATRIX[] = "ModelMatrix";
 const char NORMAL_MATRIX[] = "NormalMatrix";
