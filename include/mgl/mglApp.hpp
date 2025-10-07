@@ -50,7 +50,29 @@ class Engine {
   int Vsync;
 
   void setupWindow();
+
+  /**
+   * @brief Initializes GLFW library and sets up OpenGL context configuration.
+   * 
+   * This function performs the essential GLFW initialization steps including:
+   * - Setting up error callback handling
+   * - Initializing the GLFW library
+   * - Configuring OpenGL version hints using GlMajor and GlMinor
+   * - Enabling debug context in DEBUG builds
+   * - Calling setupWindow() and setupCallbacks() to complete the setup
+   * 
+   * The function will terminate the program if GLFW initialization fails.
+   * 
+   * @note This function must be called before any other GLFW operations.
+   * @note Window hints are applied to subsequently created windows.
+   * 
+   * @throws Exits with EXIT_FAILURE if GLFW initialization fails.
+   */
   void setupGLFW();
+  void setupGLFWWindow();
+  void setupGLFWWindowHints();
+  void setupGLFWWindowCallbacks();
+
   void setupGLAD();
   void setupOpenGL();
   void setupCallbacks();

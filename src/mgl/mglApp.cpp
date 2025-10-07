@@ -33,9 +33,7 @@ Engine::Engine(void) {
     WindowTitle = "OpenGL App";
 }
 
-Engine::~Engine(void) {
-    glfwTerminate();
-}
+Engine::~Engine(void) {}
 
 Engine &Engine::getInstance(void) {
   static Engine instance;
@@ -62,12 +60,21 @@ void Engine::setWindow(int width, int height, const char *title, int fullscreen,
 
 /////////////////////////////////////////////////////////////////////////// INIT
 
+
 void Engine::setupGLFW() {
-    // GLFW specific -------------------------
+    // set callback for errors
     glfwSetErrorCallback(glfw_error_callback);
+
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
     }
+
+    setupGLFWWindowHints();
+    setupGLFWWindow();
+    setupGLFWWindowCallbacks();
+}
+
+void Engine::setupGLFWWindowHints() {
     // glfwWindowHints must be specified before window creation
     // specify OpenGL version to use
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GlMajor);
@@ -75,13 +82,10 @@ void Engine::setupGLFW() {
 #ifdef DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
-
-    // Engine ---------------------------------
-    setupWindow();
-    setupCallbacks();
 }
 
-void Engine::setupWindow() {
+void Engine::setupGLFWWindow() {
+    // Create Window
     GLFWmonitor* monitor = Fullscreen ? glfwGetPrimaryMonitor() : 0;
     Window = glfwCreateWindow(WindowWidth, WindowHeight, WindowTitle, monitor, 0);
     if (!Window) {
@@ -89,13 +93,18 @@ void Engine::setupWindow() {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+
+    // configure window
     glfwMakeContextCurrent(Window);
     //glfwSwapInterval(Vsync);
     glfwSwapInterval(0);
 }
 
-void Engine::setupCallbacks() {
+void Engine::setupGLFWWindowCallbacks() {
+    // Attach input callbacks to window
     InputManager::getInstance().setupCallbacks(Window);
+
+    // set global callbacks
     glfwSetWindowCloseCallback(Window, window_close_callback);
     glfwSetFramebufferSizeCallback(Window, window_resize_callback);
 }
@@ -156,18 +165,24 @@ void Engine::init() {
 
 void Engine::run() {
     double last_time = glfwGetTime();
+
+    // wait for window to be closed
     while (!glfwWindowShouldClose(Window)) { // render loop
+
         // update deltaTime
         double time = glfwGetTime();
         double elapsed_time = time - last_time;
         last_time = time;
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        //std::cout << "here" << std::endl;
+
         glfwSetWindowTitle(Window, std::to_string(static_cast<int>(1.0 / elapsed_time)).c_str());
         Simulation::getInstance().update(elapsed_time);
+
+        // Let App render / display
         GlApp->displayCallback(Window, elapsed_time);
 
+        // Swap buffers and poll events
         glfwSwapBuffers(Window);
         glfwPollEvents();
     }
