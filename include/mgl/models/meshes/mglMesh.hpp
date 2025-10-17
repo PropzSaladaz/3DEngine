@@ -1,13 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Mesh Loader Class
-//
-// Copyright (c)2022-23 by Carlos Martinho
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#ifndef MGL_MESH_HPP
-#define MGL_MESH_HPP
+#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,10 +14,6 @@
 #include <mgl/scene/mglDrawable.hpp>
 
 namespace mgl {
-
-    class Mesh;
-
-/////////////////////////////////////////////////////////////////////////// Mesh
 
 class Mesh : public IDrawable {
 public:
@@ -49,6 +36,9 @@ public:
     void generateTexcoords();
     void flipUVs();
 
+    /**
+     * @brief Loads a mesh from a file using Assimp library.
+     */
     void create(const std::string &filename);
 
     bool hasNormals();
@@ -82,7 +72,4 @@ private:
     void destroyBufferObjects();
 };
 
-////////////////////////////////////////////////////////////////////////////////
 }  // namespace mgl
-
-#endif /* MGL_MESH_HPP  */

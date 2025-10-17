@@ -14,9 +14,6 @@ void ShaderUpdator::declareShaderUniforms(ShaderProgram* shaders) {
 
 ////////////////////////////////////////////////////////////////// ShaderProgram
 
-/// <summary>
-/// Creates a shader program and assigns it an ID returned from calling 'glCreateProgram'
-/// </summary>
 ShaderProgram::ShaderProgram() : 
     // glCreateProgram creates a program & returns the ID reference to the newly created 
     // program object - this is will be used when attaching new shaders to this program
