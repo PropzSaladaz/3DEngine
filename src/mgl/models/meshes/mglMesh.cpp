@@ -15,9 +15,6 @@ namespace mgl {
 ////////////////////////////////////////////////////////////////////////////////
 
 Mesh::Mesh() {
-  NormalsLoaded = false;
-  TexcoordsLoaded = false;
-  VaoId = -1;
   AssimpFlags = aiProcess_Triangulate;
 }
 

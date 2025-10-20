@@ -48,9 +48,9 @@ protected:
     void performDraw() override;
 
 private:
-    GLuint VaoId;
-    unsigned int AssimpFlags;
-    bool NormalsLoaded, TexcoordsLoaded;
+    GLuint VaoId = 0;
+    unsigned int AssimpFlags = 0;
+    bool NormalsLoaded = false, TexcoordsLoaded = false;
 
     struct MeshData {
         unsigned int nIndices = 0;

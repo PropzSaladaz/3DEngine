@@ -8,19 +8,7 @@
 
 namespace mgl {
 
-    class ShaderUpdator {
-    public:
-        /** 
-         * @brief Called when creating a shader program to declare shader uniform's names
-         * 
-         */
-        static void declareShaderUniforms(ShaderProgram* shaders);
-
-        /**
-         * @brief Called at runtime to set the values on the predeclared shader uniform names
-         */
-        virtual void updateShaders(ShaderProgram* shaders) = 0;
-    };
+    class ShaderUpdator;
 
     /**
      * @brief A shader program object is the final linked version of multiple shaders combined. 
@@ -132,5 +120,20 @@ namespace mgl {
         T::declareShaderUniforms(this);
     }
 
+
+
+    class ShaderUpdator {
+    public:
+        /** 
+         * @brief Called when creating a shader program to declare shader uniform's names
+         * 
+         */
+        static void declareShaderUniforms(ShaderProgram* shaders);
+
+        /**
+         * @brief Called at runtime to set the values on the predeclared shader uniform names
+         */
+        virtual void updateShaders(ShaderProgram* shaders) = 0;
+    };
 
 } // namespace mgl
