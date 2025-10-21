@@ -4,7 +4,7 @@
 
 #include <mgl/mgl.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <logger.hpp>
+#include <utils/Logger.hpp>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
 

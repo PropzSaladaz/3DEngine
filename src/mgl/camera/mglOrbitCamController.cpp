@@ -1,6 +1,6 @@
 #include <mgl/camera/mglOrbitCamController.hpp>
 #include <mgl/mglInputManager.hpp>
-#include <logger.hpp>
+#include <utils/Logger.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 namespace mgl {

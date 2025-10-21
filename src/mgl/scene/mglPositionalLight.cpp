@@ -1,6 +1,6 @@
 #include <mgl/scene/mglPositionalLight.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <logger.hpp>
+#include <utils/Logger.hpp>
 
 namespace mgl {
 	const GLfloat PositionalLight::DEFAULT_ATTENUATION = 200.0f;
@@ -46,7 +46,7 @@ namespace mgl {
 		GLuint lower = attenuationDistances[0];
 
 		if (distance < lower) {
-			util::Logger::LogError("Attenuation distance must be >= " + lower);
+			MGL_ERROR("Attenuation distance must be >= " + lower);
 			exit(EXIT_FAILURE);
 		};
 

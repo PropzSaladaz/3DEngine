@@ -1,6 +1,6 @@
 #include <mgl/scene/mglLight.hpp>
 #include <mgl/camera/mglCamera.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 #include <cstring>
 namespace mgl {
 
@@ -44,7 +44,7 @@ namespace mgl {
 	Light::Light() {
 		enabled = true;
 		if (LIGHT_NR > MAX_NR_LIGHTS) {
-			util::Logger::LogError("Max number of lights reached");
+			MGL_ERROR("Max number of lights reached");
 			exit(EXIT_FAILURE);
 		}
 		// set uniform properties with the light number index

@@ -4,7 +4,7 @@
 
 #include <mgl/models/textures/mglTexture.hpp>
 #include <utils/stb_image.h>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 #include <utils/file.hpp>
 #include <utils/noise.hpp>
 
@@ -86,19 +86,19 @@ void Texture2D::load(const std::string &filename) {
     int width, height, channels;
 
     #ifdef DEBUG
-    util::Logger::LogDebug("Loading image: " + filename + "...");
+    MGL_DEBUG("Loading image: " + filename + "...");
     #endif
 
     unsigned char *image = stbi_load(file::resource_path(filename).c_str(),
             &width, &height, &channels, 0);
     if (image == nullptr) {
-        util::Logger::LogError("Could not load image");
+        MGL_ERROR("Could not load image");
         exit(EXIT_FAILURE);
     } 
 
     #ifdef DEBUG
     else {
-        util::Logger::LogDebug("Loaded successfully");
+        MGL_DEBUG("Loaded successfully");
     }
     #endif
 
@@ -187,19 +187,19 @@ void Texture3D::load(const std::string& filename) {
     int width, height, channels;
 
     #ifdef DEBUG
-    util::Logger::LogDebug("Loading image: " + filename + "...");
+    MGL_DEBUG("Loading image: " + filename + "...");
     #endif
 
     unsigned char* image = stbi_load(file::resource_path(filename).c_str(),
         &width, &height, &channels, 0);
     if (image == nullptr) {
-        util::Logger::LogError("Could not load image");
+        MGL_ERROR("Could not load image");
         exit(EXIT_FAILURE);
     }
 
     #ifdef DEBUG
     else {
-        util::Logger::LogDebug("Loaded successfully");
+        MGL_DEBUG("Loaded successfully");
     }
     #endif
 
@@ -268,7 +268,7 @@ void TextureCubeMap::loadCubeMap(const std::string& folder, const std::string &f
         int width, height, channels;
 
 #ifdef DEBUG // DEBUG
-        util::Logger::LogDebug("Loading cubemap file " + filename + "...");
+        MGL_DEBUG("Loading cubemap file " + filename + "...");
 #endif
 
         unsigned char* image = stbi_load(file::resource_path(filename).c_str(),
@@ -281,13 +281,13 @@ void TextureCubeMap::loadCubeMap(const std::string& folder, const std::string &f
             : GL_R;
 
         if (image == nullptr) {
-            util::Logger::LogError("Could not load image: " + filename);
+            MGL_ERROR("Could not load image: " + filename);
             exit(EXIT_FAILURE);
         }
 
 #ifdef DEBUG
         else {
-            util::Logger::LogDebug("Successfully loaded image");
+            MGL_DEBUG("Successfully loaded image");
         }
 #endif
 

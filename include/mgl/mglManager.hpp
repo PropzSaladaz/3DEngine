@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include <mgl/models/meshes/mglMesh.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 
 #include <iostream>
 #include <string>
@@ -64,7 +64,7 @@ namespace mgl {
 			return it->second;
 		}
 		else {
-			util::Logger::LogError("No item found with name " + name + " in manager of " + typeid(T).name());
+			MGL_ERROR("No item found with name " + name + " in manager of " + typeid(T).name());
 			exit(EXIT_FAILURE);
 		}
 	}

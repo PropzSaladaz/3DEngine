@@ -1,6 +1,6 @@
 #include <mgl/camera/mglCameraController.hpp>
 #include <mgl/mglSimulation.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 
 namespace mgl {
 	ICameraController::ICameraController(Camera* camera) {
@@ -22,7 +22,7 @@ namespace mgl {
 	void ICameraController::setActive() {
 #ifdef DEBUG
 		if (camera == nullptr) {
-			util::Logger::LogError("Camera is null");
+			MGL_ERROR("Camera is null");
 			exit(EXIT_FAILURE);
 		}
 #endif
@@ -34,7 +34,7 @@ namespace mgl {
 	void ICameraController::setPosition(GLfloat x, GLfloat y, GLfloat z) {
 #ifdef DEBUG
 		if (camera == nullptr) {
-			util::Logger::LogError("Camera is null");
+			MGL_ERROR("Camera is null");
 			exit(EXIT_FAILURE);
 		}
 #endif

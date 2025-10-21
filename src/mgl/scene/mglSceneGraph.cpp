@@ -3,7 +3,7 @@
 #include <mgl/models/materials/mglBasicMaterial.hpp>
 #include <mgl/models/textures/mglTexture.hpp>
 #include <mgl/scene/mglSceneObject.hpp>
-#include <logger.hpp>
+#include <utils/Logger.hpp>
 
 namespace mgl {
 
@@ -110,16 +110,14 @@ void Scene::assignLightToCamera(const std::string& light, const std::string& cam
 	Light* lightObj = lights->get(light);
 	Camera* cam = cameras->get(camera);
 
-	#ifdef DEBUG
-		if (!lightObj) {
-			util::Logger::LogError("No light with name " + light + " exists in current scene");
-			exit(EXIT_FAILURE);
-		}
-		else if (!cam) {
-			util::Logger::LogError("No camera with name " + camera + " exists in current scene");
-			exit(EXIT_FAILURE);
-		}
-	#endif
+	if (!lightObj) {
+		MGL_ERROR("No light with name " + light + " exists in current scene");
+		exit(EXIT_FAILURE);
+	}
+	else if (!cam) {
+		MGL_ERROR("No camera with name " + camera + " exists in current scene");
+		exit(EXIT_FAILURE);
+	}
 
 	lightObj->assignCamera(cam);
 }

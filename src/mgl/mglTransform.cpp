@@ -5,7 +5,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/vector_angle.inl>
 #include <iostream>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 #include <string>
 
 namespace mgl {
@@ -317,9 +317,9 @@ void Transform::update(GLfloat deltaTime) {
 
 void Transform::trackTarget(const Transform* target) {
     if (target->getPosition() == positionV) {
-        std::cout << "TRANSFORM::TRACK_TARGET::WARNING" << std::endl;
-        std::cout << "Tracking transforms with the exact same position" <<
-            "as the tracker results in undefined behavior" << std::endl;
+        MGL_WARN("TRANSFORM::TRACK_TARGET::WARNING");
+        MGL_WARN("Tracking transforms with the exact same position"
+            "as the tracker results in undefined behavior");
         exit(EXIT_FAILURE);
     }
     targetTransform = target;

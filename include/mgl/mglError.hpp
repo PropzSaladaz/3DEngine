@@ -1,13 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// OpenGL Error Handling
-//
-// Copyright (c)2022-23 by Carlos Martinho
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#ifndef MGL_ERROR_HPP
-#define MGL_ERROR_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -27,11 +18,8 @@ void checkOpenGLError(const std::string &function, const std::string &file,
 
 void setupDebugOutput();
 
-#ifdef DEBUG
-#define MGL_DEBUG setupDebugOutput();
-#else
-#define MGL_DEBUG
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-#endif /* MGL_ERROR_HPP */
+// #ifdef DEBUG
+// #define MGL_DEBUG setupDebugOutput();
+// #else
+// #define MGL_DEBUG
+// #endif

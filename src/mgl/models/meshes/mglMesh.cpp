@@ -1,6 +1,6 @@
 #include <mgl/models/meshes/mglMesh.hpp>
 #include <utils/file.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 
 namespace mgl {
 
@@ -36,7 +36,7 @@ bool Mesh::hasTexcoords() { return TexcoordsLoaded; }
 ////////////////////////////////////////////////////////////////////////////////
 
 void Mesh::processMesh(const aiMesh *mesh) {
-    util::Logger::LogDebug("Loading model");
+  MGL_DEBUG("Loading model");
   NormalsLoaded = mesh->HasNormals();
   TexcoordsLoaded = mesh->HasTextureCoords(0);
 
@@ -44,16 +44,12 @@ void Mesh::processMesh(const aiMesh *mesh) {
     const aiVector3D &aiPosition = mesh->mVertices[i];
     Positions.push_back(glm::vec3(aiPosition.x, aiPosition.y, aiPosition.z));
     if (NormalsLoaded) {
-#ifdef DEBUG
-        util::Logger::LogDebug("Model has normals");
-#endif
+      MGL_DEBUG("Model has normals");
       const aiVector3D &aiNormal = mesh->mNormals[i];
       Normals.push_back(glm::vec3(aiNormal.x, aiNormal.y, aiNormal.z));
     }
     if (TexcoordsLoaded) {
-#ifdef DEBUG
-        util::Logger::LogDebug("Model has texture coordinates");
-#endif
+      MGL_DEBUG("Model has texture coordinates");
       const aiVector3D &aiTexcoord = mesh->mTextureCoords[0][i];
       Texcoords.push_back(glm::vec2(aiTexcoord.x, aiTexcoord.y));
     }
@@ -87,11 +83,9 @@ void Mesh::processScene(const aiScene *scene) {
     processMesh(scene->mMeshes[i]);
   }
 
-#ifdef DEBUG
-  std::cout << "Loaded " << Meshes.size() << " mesh(es) [" << n_vertices
-            << " vertices, " << n_indices << " indices, " << n_indices / 3
-            << " triangles]" << std::endl;
-#endif
+
+  MGL_DEBUG("Loaded {} mesh(es) [{} vertices, {} indices, {} triangles]",
+            Meshes.size(), n_vertices, n_indices, n_indices / 3);
 }
 
 void Mesh::createFromFile(const std::string &filename) {
@@ -100,14 +94,11 @@ void Mesh::createFromFile(const std::string &filename) {
       file::resource_path(filename).string(), AssimpFlags);
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
       !scene->mRootNode) {
-    std::cout << "Error while loading:" << importer.GetErrorString()
-              << std::endl;
+    MGL_ERROR("Error while loading: {}", importer.GetErrorString());
     exit(EXIT_FAILURE);
   }
 
-#ifdef DEBUG
-  std::cout << "Processing [" << filename << "]" << std::endl;
-#endif
+  MGL_DEBUG("Processing [{}]", filename);
 
   processScene(scene);
   createBufferObjects();

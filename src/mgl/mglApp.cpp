@@ -2,7 +2,7 @@
 #include <mgl/mglSimulation.hpp>
 #include "mgl/mglError.hpp"
 #include <mgl/mglInputManager.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 
 #include <iostream>
 
@@ -150,12 +150,12 @@ void displayInfo() {
 }
 
 void Engine::init() {
+    mgl::log::init();
     setupGLFW();
     setupGLAD();
     setupOpenGL();
     GlApp->initCallback(Window);
 #ifdef DEBUG
-    util::Logger::SetDebugActive();
     displayInfo();
     setupDebugOutput();
 #endif

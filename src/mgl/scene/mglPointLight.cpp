@@ -1,7 +1,5 @@
 #include <mgl/scene/mglPointLight.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <logger.hpp>
-
 namespace mgl {
 	/////////////////////////////////////////////////////////////////// Constructor
 	PointLight::PointLight(const SceneObject* position) : 

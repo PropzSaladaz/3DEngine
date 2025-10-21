@@ -1,6 +1,6 @@
 #include <mgl/mglShaders.hpp>
 #include <utils/file.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 #include <string>
 
 namespace mgl {
@@ -8,7 +8,7 @@ namespace mgl {
 ////////////////////////////////////////////////////////////////// ShaderUpdator
 
 void ShaderUpdator::declareShaderUniforms(ShaderProgram* shaders) {
-    util::Logger::LogError("DeclareShaderUniforms is not defined!");
+    MGL_ERROR("DeclareShaderUniforms is not defined!");
     exit(EXIT_FAILURE);
 }
 
@@ -29,7 +29,7 @@ void ShaderProgram::addShader(const GLenum shader_type,const std::string &filena
     // try reading shader from file
     const std::string scode = file::readFile(filename);
     if (scode == FILE_DOESNT_EXIST) {
-        util::Logger::LogError("File not found: " + filename);
+        MGL_ERROR("File not found: " + filename);
         exit(EXIT_FAILURE);
     }
     const GLchar *code = scode.c_str();
@@ -98,12 +98,12 @@ void ShaderProgram::create() {
     for (auto &i : Uniforms) {
         i.second.index = glGetUniformLocation(ProgramId, i.first.c_str());
         if (i.second.index < 0)
-            util::Logger::LogWarning("Uniform " + i.first + " not found");
+            MGL_WARN("Uniform " + i.first + " not found");
     }
     for (auto &i : Ubos) {
         i.second.index = glGetUniformBlockIndex(ProgramId, i.first.c_str());
         if (i.second.index < 0)
-            util::Logger::LogWarning("UBO " + i.first + " not found");
+            MGL_WARN("UBO " + i.first + " not found");
         glUniformBlockBinding(ProgramId, i.second.index, i.second.binding_point);
     }
     glLinkProgram(0);
@@ -174,7 +174,7 @@ void ShaderProgram::setUniformMatrix(const std::string &name, const GLfloat * ma
 #ifdef DEBUG
 void ShaderProgram::assertUniform(const std::string &name) {
     if (!isUniform(name)) {
-        util::Logger::LogError("Uniform with name " + name + 
+        MGL_ERROR("Uniform with name " + name + 
             " doesn't exist in the shader program " + std::to_string(ProgramId));
         exit(EXIT_FAILURE);
     }
@@ -190,7 +190,7 @@ const void ShaderProgram::checkCompilation(const GLuint shader_id, const std::st
     glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
     GLchar *const log = new char[length];
     glGetShaderInfoLog(shader_id, length, &length, log);
-    util::Logger::LogError("Shader compilation check failed:  " + filename + "\n" + log);
+    MGL_ERROR("Shader compilation check failed:  " + filename + "\n" + log);
     delete[] log;
     exit(EXIT_FAILURE);
   }
@@ -204,7 +204,7 @@ void ShaderProgram::checkLinkage() {
     glGetProgramiv(ProgramId, GL_INFO_LOG_LENGTH, &length);
     GLchar *const log = new char[length];
     glGetProgramInfoLog(ProgramId, length, &length, log);
-    util::Logger::LogError(std::string("Shader link check failed:  ") + log);
+    MGL_ERROR("Shader link check failed:  " + std::string(log));
     delete[] log;
     exit(EXIT_FAILURE);
   }

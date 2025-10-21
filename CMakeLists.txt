@@ -24,7 +24,6 @@ set(ENGINE_SOURCES
   src/mgl/mglInputManager.cpp
   src/mgl/mglShaderManager.cpp
   # utils
-  src/utils/logger.cpp
   src/utils/stb_image.cpp
   # models
   src/mgl/models/materials/mglMaterial.cpp
@@ -70,6 +69,15 @@ set(PROJECT_INCLUDES
 )
 
 # ---- Dependencies ------------------------------------------------------------
+# spdlog (header-only logging library)
+include(FetchContent)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.13.0
+)
+FetchContent_MakeAvailable(spdlog)
+
 # GL loader = glad.c compiled above. GLFW gives context/window, Assimp loads models.
 
 # GLFW (package name is glfw3, target is usually 'glfw')
@@ -106,6 +114,7 @@ target_link_libraries(engine_library
     glfw                          # imported target from find_package(glfw3)
     assimp::assimp                # imported target from find_package(assimp)
     Threads::Threads
+    spdlog::spdlog                 # imported target from FetchContent
 )
 if(UNIX AND HAVE_LIBDL)
   target_link_libraries(engine_library PUBLIC dl)

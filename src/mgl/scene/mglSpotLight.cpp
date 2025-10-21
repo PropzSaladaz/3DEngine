@@ -1,6 +1,6 @@
 #include <mgl/scene/mglSpotLight.hpp>
 #include <mgl/scene/mglLight.hpp>
-#include <utils/logger.hpp>
+#include <utils/Logger.hpp>
 
 namespace mgl {
 	/////////////////////////////////////////////////////////////////////////////// Constant definition
@@ -49,14 +49,14 @@ namespace mgl {
 
 	void SpotLight::setInnerCutoffAngle(GLfloat angleDegrees) {
 		if (angleDegrees >= 90.0f || angleDegrees <= 0.0f) {
-			util::Logger::LogError("Inner angle must be in [0, 90]");
+			MGL_ERROR("Inner angle must be in [0, 90]");
 			exit(EXIT_FAILURE);
 		}
 		spotInnerCosCutoff = glm::cos(glm::radians(angleDegrees));
 	}
 	void SpotLight::setOuterCutoffAngle(GLfloat angleDegrees) {
 		if (angleDegrees >= 90.0f || angleDegrees <= 0.0f) {
-			util::Logger::LogError("Outer angle must be in [0, 90] - Angle received: " 
+			MGL_ERROR("Outer angle must be in [0, 90] - Angle received: " 
 				+ std::to_string(angleDegrees));
 			exit(EXIT_FAILURE);
 		}
@@ -64,7 +64,7 @@ namespace mgl {
 		GLfloat cosCutoff = glm::cos(glm::radians(angleDegrees));
 		
 		if (cosCutoff > spotInnerCosCutoff) {
-			util::Logger::LogError("Outer angle must be larger than inner angle.");
+			MGL_ERROR("Outer angle must be larger than inner angle.");
 			exit(EXIT_FAILURE);
 		}
 
