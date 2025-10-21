@@ -104,19 +104,15 @@ namespace mgl {
          */
         void checkLinkage();
 
-#ifdef DEBUG
         void assertUniform(const std::string& name);
         void assertAttribute(const std::string& name);
-#endif
     };
 
     // template methods
     template <typename T>
     void ShaderProgram::addUniforms() {
-#ifdef DEBUG
-            static_assert(std::is_base_of<ShaderUpdator, T>::value, 
-                "T must be a subclass of ShaderUpdator");
-#endif
+        static_assert(std::is_base_of<ShaderUpdator, T>::value, 
+            "T must be a subclass of ShaderUpdator");
         T::declareShaderUniforms(this);
     }
 

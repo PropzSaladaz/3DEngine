@@ -117,23 +117,17 @@ void ShaderProgram::unbind() { glUseProgram(0); }
 ////////////////////////////////////////////////////////////// Set Uniforms
 
 void ShaderProgram::setUniformBool(const std::string &name, bool value) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     glUniform1i(Uniforms[name].index, (int)value);
 }
 
 void ShaderProgram::setUniformInt(const std::string &name, int value) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     glUniform1i(Uniforms[name].index, value);
 }
 
 void ShaderProgram::setUniformFloat(const std::string &name, float value) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     glUniform1f(Uniforms[name].index, value);
 }
 
@@ -142,9 +136,7 @@ void ShaderProgram::setUniformVec4f(GLint varID, const GLfloat * vec) {
 }
 
 void ShaderProgram::setUniformVec4f(const std::string& name, const GLfloat* vec) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     setUniformVec4f(Uniforms[name].index, vec);
 }
 void ShaderProgram::setUniformVec3f(GLint varID, const GLfloat* vec) {
@@ -152,9 +144,7 @@ void ShaderProgram::setUniformVec3f(GLint varID, const GLfloat* vec) {
 }
 
 void ShaderProgram::setUniformVec3f(const std::string& name, const GLfloat* vec) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     setUniformVec3f(Uniforms[name].index, vec);
 }
 
@@ -163,15 +153,10 @@ void ShaderProgram::setUniformMatrix(GLint varID, const GLfloat* matrix) {
 }
 
 void ShaderProgram::setUniformMatrix(const std::string &name, const GLfloat * matrix) {
-#ifdef DEBUG
     assertUniform(name);
-#endif
     setUniformMatrix(Uniforms[name].index, matrix);
 }
 
-
-
-#ifdef DEBUG
 void ShaderProgram::assertUniform(const std::string &name) {
     if (!isUniform(name)) {
         MGL_ERROR("Uniform with name " + name + 
@@ -179,7 +164,6 @@ void ShaderProgram::assertUniform(const std::string &name) {
         exit(EXIT_FAILURE);
     }
 }
-#endif
 
 // PRIVATE
 const void ShaderProgram::checkCompilation(const GLuint shader_id, const std::string &filename) {

@@ -79,6 +79,11 @@ void MyApp::createMaterials() {
 
 void MyApp::createShaderPrograms() {
     shaders = new mgl::ShaderManager();
+    shaders->beforeBuild([this](mgl::ShaderProgram* shader) {
+        shader->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+        shader->addUniform(mgl::MODEL_MATRIX);
+        shader->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+    });
 
     mgl::ShaderProgram* simpleShaders = new mgl::ShaderProgram();
     simpleShaders->addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/vert.glsl");
@@ -102,7 +107,7 @@ void MyApp::createSceneGraph() {
 
     Scene = new mgl::Scene(meshes, shaders, textures);
     Scene->setScenegraph(triangle);
-    Scene->addCamera("mainCamera", OrbitCam->getCamera());
+    // Scene->addCamera("mainCamera", OrbitCam->getCamera());
 }
 
 ///////////////////////////////////////////////////////////////////////// INPUT
@@ -114,9 +119,9 @@ void MyApp::processInput(double elapsed) {
 ///////////////////////////////////////////////////////////////////////// CAMERAS
 
 void MyApp::createCamera() {
-    mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
-    OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
-    OrbitCam->setActive();
+    // mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
+    // OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
+    // OrbitCam->setActive();
 }
 
 /////////////////////////////////////////////////////////////////////////// DRAW
@@ -149,7 +154,7 @@ void MyApp::windowSizeCallback(GLFWwindow* window, int winx, int winy) {
 void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
     //processInput(elapsed);
     //animateLights(elapsed);
-    //drawScene();
+    drawScene();
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN
