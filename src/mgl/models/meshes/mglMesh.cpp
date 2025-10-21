@@ -1,11 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Mesh Loader Class
-//
-// Copyright (c)2022-23 by Carlos Martinho
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mgl/models/meshes/mglMesh.hpp>
 #include <utils/file.hpp>
 #include <utils/logger.hpp>
@@ -102,7 +94,7 @@ void Mesh::processScene(const aiScene *scene) {
 #endif
 }
 
-void Mesh::create(const std::string &filename) {
+void Mesh::createFromFile(const std::string &filename) {
   Assimp::Importer importer;
   const aiScene *scene = importer.ReadFile(
       file::resource_path(filename).string(), AssimpFlags);
@@ -120,6 +112,56 @@ void Mesh::create(const std::string &filename) {
   processScene(scene);
   createBufferObjects();
 }
+
+void Mesh::createFromData(std::vector<glm::vec3> positions,
+                          std::vector<unsigned int> indices,
+                          std::vector<glm::vec3> normals,
+                          std::vector<glm::vec2> texcoords) {
+    // --- Basic validation ---
+    if (positions.empty())
+        throw std::invalid_argument("createFromData: positions is empty");
+    for (unsigned int idx : indices)
+        if (idx >= positions.size())
+            throw std::out_of_range("createFromData: index out of range");
+
+    // Optional attributes must match vertex count if provided
+    const bool hasNormals   = !normals.empty();
+    const bool hasTexcoords = !texcoords.empty();
+    if (hasNormals && normals.size() != positions.size())
+        throw std::invalid_argument("createFromData: normals.size() != positions.size()");
+    if (hasTexcoords && texcoords.size() != positions.size())
+        throw std::invalid_argument("createFromData: texcoords.size() != positions.size()");
+
+    // --- Take ownership (moves) ---
+    Positions = std::move(positions);
+    Indices   = std::move(indices);
+
+    if (hasNormals) {
+        Normals       = std::move(normals);
+        NormalsLoaded = true;
+    } else {
+        Normals.clear();
+        NormalsLoaded = false;
+    }
+
+    if (hasTexcoords) {
+        Texcoords       = std::move(texcoords);
+        TexcoordsLoaded = true;
+    } else {
+        Texcoords.clear();
+        TexcoordsLoaded = false;
+    }
+
+    // --- Single-submesh layout ---
+    Meshes.resize(1);
+    Meshes[0].nIndices   = static_cast<unsigned int>(Indices.size());
+    Meshes[0].baseIndex  = 0;
+    Meshes[0].baseVertex = 0;
+
+    // --- GPU upload ---
+    createBufferObjects();
+}
+
 
 void Mesh::createBufferObjects() {
   GLuint boId[6];

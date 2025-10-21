@@ -21,16 +21,15 @@ namespace mgl {
 
 	//////////////////////////////////////////////////////////////// Scene
 
-	/// <summary>
-	/// Represents the highest level of object hierarchy. A scene is responsible for
-	/// all underlying object's relationships, and is responsible for parsing all objects
-	/// drawing them along with their parent-son relationships.
-	/// 
-	/// A scene stores its set of meshes through a mesh manager - chunk meshes are stored separately
-	/// Scenes also manage shader programs used, lights, textures, cameras, and the skybox.
-	/// 
-	/// Chunks, alongside their meshes are kept within their own ChunkManager class.
-	/// </summary>
+	/**
+	 * Represents the highest level of object hierarchy. A scene is responsible for
+	 * all underlying object's relationships, and is responsible for parsing all objects
+	 * drawing them along with their parent-son relationships.
+	 *
+	 * A scene stores its set of meshes through a mesh manager
+	 * Scenes also manage shader programs used, lights, textures, cameras, and the skybox.
+	 *
+	 */
 	class Scene : public IDrawable, public ShaderUpdator {
 	public:
 		Scene(MeshManager* meshes, ShaderManager* shaders, TextureManager* textures);
@@ -56,10 +55,9 @@ namespace mgl {
 
 	//////////////////////////////////////////////////////////////// Scene Node
 
-	/// <summary>
-	/// Represents an abstract node in the SceneGraph. 
-	/// Stores a reference to its parent.
-	/// </summary>
+	/** Represents an abstract node in the SceneGraph.
+	 * Stores a reference to its parent.
+	 */
 	class SceneNode : public IDrawable , public Transform {
 	public:
 		SceneGraph* Parent;
@@ -77,15 +75,14 @@ namespace mgl {
 
 	//////////////////////////////////////////////////////////////// Scene Graph
 
-	/// <summary>
-	/// Represents a branchable scene node, allowing it to have several SceneNodes as children.
-	/// Children positions will be relative this SceneGraph.
-	/// 
-	/// Should only be used for objects that are expected to be modified during runtime.
-	/// 
-	/// When a SceneGraph is drawn, it starts at the highest parent, traversing through
-	/// all its children in a Depth First Search style
-	/// </summary>
+	/** Represents a branchable scene node, allowing it to have several SceneNodes as children.
+	 * Children positions will be relative this SceneGraph.
+	 *
+	 * Should only be used for objects that are expected to be modified during runtime.
+	 *
+	 * When a SceneGraph is drawn, it starts at the highest parent, traversing through
+	 * all its children in a Depth First Search style
+	 */
 	class SceneGraph : public SceneNode {
 	public:
 		SceneGraph();

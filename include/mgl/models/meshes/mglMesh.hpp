@@ -39,7 +39,15 @@ public:
     /**
      * @brief Loads a mesh from a file using Assimp library.
      */
-    void create(const std::string &filename);
+    void createFromFile(const std::string &filename);
+
+    /**
+     * @brief Creates a mesh from raw vertex data.
+     */
+    void createFromData(std::vector<glm::vec3> positions,
+                        std::vector<unsigned int> indices,
+                        std::vector<glm::vec3> normals,
+                        std::vector<glm::vec2> texcoords);
 
     bool hasNormals();
     bool hasTexcoords();

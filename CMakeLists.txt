@@ -88,6 +88,11 @@ check_library_exists(dl dlopen "" HAVE_LIBDL)
 
 # ---- Library: engine_library -------------------------------------------------
 add_library(engine_library STATIC ${ENGINE_SOURCES})
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(engine_library PRIVATE DEBUG)
+endif()
+
 target_include_directories(engine_library
   PUBLIC ${PROJECT_INCLUDES} 
   ${CMAKE_CURRENT_SOURCE_DIR}/libs

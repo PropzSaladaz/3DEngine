@@ -1,86 +1,167 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "iostream"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 
-int main() {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#include <mgl/mgl.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <logger.hpp>
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "window", 0, 0);
+////////////////////////////////////////////////////////////////////////// MYAPP
 
-	glfwMakeContextCurrent(window);
+class MyApp : public mgl::App {
+public:
+    void initCallback(GLFWwindow* win) override;
+    void displayCallback(GLFWwindow* win, double elapsed) override;
+    void windowSizeCallback(GLFWwindow* window, int width, int height) override;
 
-	if (!gladLoadGL() || !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cerr << "Failed to initialize GLAD" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+private:
+    const float initialScreenRatio = 800.0f / 600.0f;
+    const GLuint UBO_BP = 0;
+    mgl::Scene* Scene = nullptr;
+    mgl::SceneGraph* lightObj, * lightObj2;
+    mgl::MeshManager* meshes;
+    mgl::ShaderManager* shaders;
+    mgl::TextureManager* textures;
+    mgl::MaterialManager* materials;
+    // cameras
+    mgl::FPSCamController* FPSCamera;
+    mgl::OrbitCamController* OrbitCam;
+    GLuint cam = 0;
+    mgl::PerspectiveParams perspectiveP = { 45.0f, 800.0f / 600.0f, 0.1f, 100.0f };
+    // input
+    void processInput(double elapsed);
+    void animateLights(double elapsed);
+    // scene
+    void createMeshes();
+    void createShaderPrograms();
+    void createTextures();
+    void createMaterials();
+    void createSceneGraph();
+    void createCamera();
+    void drawScene();
+};
 
-	glViewport(0, 0, 800, 600);
+///////////////////////////////////////////////////////////////////////// MESHES
 
-	// shader creation
-	const char* vertex = "#version 460 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}";
+void MyApp::createMeshes() {
+    meshes = new mgl::MeshManager();
+    mgl::Mesh* mesh1 = new mgl::Mesh();
+    mesh1->createFromData(
+        {
+            glm::vec3(-0.5f, -0.5f, 0.0f),
+            glm::vec3(0.5f, -0.5f, 0.0f),
+            glm::vec3(0.0f, 0.5f, 0.0f)
+        },
+        {
+            0, 1, 2
+        },
+        {},
+        {}
+    );
 
-	const char* fragment = "#version 460 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
-		"}";
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource(vertexShader, 1, &vertex, NULL);
-	glShaderSource(fragmentShader, 1, &fragment, NULL);
-	glCompileShader(vertexShader);
-	glCompileShader(fragmentShader);
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f,
-	};
-
-	int elements[] = {0, 1, 2};
-
-	unsigned int VBO, EBO, VAO;
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-
-
-
-	while (!glfwWindowShouldClose(window)) {
-		glUseProgram(shaderProgram);
-
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+    meshes->add("triangle", mesh1);
 }
+
+///////////////////////////////////////////////////////////////////////// TEXTURES
+
+void MyApp::createTextures() {
+    textures = new mgl::TextureManager();
+
+}
+
+///////////////////////////////////////////////////////////////////////// MATERIALS
+
+void MyApp::createMaterials() {
+    materials = new mgl::MaterialManager();
+}
+
+///////////////////////////////////////////////////////////////////////// SHADER
+
+void MyApp::createShaderPrograms() {
+    shaders = new mgl::ShaderManager();
+
+    mgl::ShaderProgram* simpleShaders = new mgl::ShaderProgram();
+    simpleShaders->addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/vert.glsl");
+    simpleShaders->addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/frag.glsl");
+
+    shaders->add("simple", simpleShaders);
+
+}
+
+///////////////////////////////////////////////////////////////////////// SCENE
+
+
+void MyApp::createSceneGraph() {
+    mgl::SceneObject* triangleObj = new mgl::SceneObject(
+        meshes->get("triangle"));
+
+    triangleObj->setShaders(shaders->get("simple"));
+    
+    mgl::SceneGraph* triangle = new mgl::SceneGraph();
+    triangle->add(triangleObj);
+
+    Scene = new mgl::Scene(meshes, shaders, textures);
+    Scene->setScenegraph(triangle);
+    Scene->addCamera("mainCamera", OrbitCam->getCamera());
+}
+
+///////////////////////////////////////////////////////////////////////// INPUT
+
+void MyApp::processInput(double elapsed) {
+
+}
+
+///////////////////////////////////////////////////////////////////////// CAMERAS
+
+void MyApp::createCamera() {
+    mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
+    OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
+    OrbitCam->setActive();
+}
+
+/////////////////////////////////////////////////////////////////////////// DRAW
+
+void MyApp::animateLights(double elapsed) {
+ 
+}
+
+
+void MyApp::drawScene() {
+    Scene->draw();
+}
+
+////////////////////////////////////////////////////////////////////// CALLBACKS
+
+void MyApp::initCallback(GLFWwindow* win) {
+    //glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    createMeshes();
+    createTextures();
+    createMaterials();
+    createShaderPrograms();  // after mesh;
+    createCamera();
+    createSceneGraph();
+}
+
+void MyApp::windowSizeCallback(GLFWwindow* window, int winx, int winy) {
+    glViewport(0, 0, winx, winy);
+}
+
+void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
+    //processInput(elapsed);
+    //animateLights(elapsed);
+    //drawScene();
+}
+
+/////////////////////////////////////////////////////////////////////////// MAIN
+
+int main(int argc, char* argv[]) {
+    mgl::Engine& engine = mgl::Engine::getInstance();
+    engine.setApp(new MyApp());
+    engine.setOpenGL(4, 6);
+    engine.setWindow(800, 600, "Mesh Loader", 0, 1);
+    engine.init();
+    engine.run();
+    exit(EXIT_SUCCESS);
+}
+
+////////////////////////////////////////////////////////////////////////////////

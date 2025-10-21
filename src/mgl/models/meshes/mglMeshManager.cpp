@@ -12,7 +12,7 @@ void MeshManager::import(const std::string& name, const std::string& filePath) {
 		itemCallback(mesh);
 	}
 
-	mesh->create(filePath);
+	mesh->createFromFile(filePath);
 	add(name, mesh);
 }
 

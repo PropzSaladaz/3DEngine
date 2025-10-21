@@ -15,14 +15,14 @@ namespace mgl {
 
 	using SetShaderUniformCallback = std::function<void(ShaderProgram* shaders)>;
 
-	/// <summary>
-	/// Defines an object to be drawn within the scene it is on.
-	/// Every object must have a mesh, a material, and a shader program associated.
-	/// 
-	/// It is then drawn following the SceneGraph tree it belongs to, applying
-	/// the parent-son matrix transformations, and setting all shader
-	/// information through default & custom uniforms. 
-	/// </summary>
+	/**
+	 * Defines an object to be drawn within the scene it is on.
+	 * Every object must have a mesh, a material, and a shader program associated.
+	 * 
+	 * It is then drawn following the SceneGraph tree it belongs to, applying
+	 * the parent-son matrix transformations, and setting all shader
+	 * information through default & custom uniforms. 
+	 */
 	class SceneObject : public SceneNode {
 	public:
 		SceneObject();
