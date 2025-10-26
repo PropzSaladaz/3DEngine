@@ -1,3 +1,4 @@
 2025-10-21 22:54:12.786 [error] [t:51048] mglShaders.cpp:177 assertUniform | Uniform with name ModelMatrix doesn't exist in the shader program 1
 2025-10-21 22:55:43.372 [error] [t:53117] mglShaders.cpp:177 assertUniform | Uniform with name ModelMatrix doesn't exist in the shader program 1
 2025-10-21 23:00:36.926 [warning] [t:59538] mglShaders.cpp:101 create | Uniform ModelMatrix not found
+2025-10-23 20:40:39.498 [warning] [t:259246] mglShaders.cpp:101 create | Uniform ModelMatrix not found

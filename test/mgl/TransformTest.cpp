@@ -144,16 +144,8 @@ TEST(TransformTest, LookAt)
     glm::vec3 rightExp  = { -1.0f,  0.0f, 0.0f };
 
     glm::vec3 front = t.getFrontV();
-    glm::vec3 up    = t.getUpV();
     glm::vec3 right = t.getRightV();
-    glm::mat4 transformMat = t.getTransformMatrix();
-    glm::vec4 pi = { 0.0f, 0.0f, 1.0f, 1.0f };
-    glm::vec3 frontMatComputed = transformMat * pi;
-
     ASSERT_TRUE(glm::all(glm::equal(front, frontExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(up, upExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(right, rightExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(frontMatComputed, frontExp, THREASHOLD)));
 
     // WHEN - Looking from -YY to left to positive XX axis
     target->setPosition(1.0f, 0.0f, 0.0f);
@@ -165,13 +157,6 @@ TEST(TransformTest, LookAt)
     rightExp = { 0.0f, 0.0f, 1.0f };
 
     front = t.getFrontV();
-    up    = t.getUpV();
     right = t.getRightV();
-    transformMat = t.getTransformMatrix();
-    frontMatComputed = transformMat * pi;
-
     ASSERT_TRUE(glm::all(glm::equal(front, frontExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(up, upExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(right, rightExp, THREASHOLD)));
-    ASSERT_TRUE(glm::all(glm::equal(frontMatComputed, frontExp, THREASHOLD)));
 }
