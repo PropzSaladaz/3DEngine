@@ -124,8 +124,8 @@ constexpr mat<R,C,std::common_type_t<T1,T2>> operator-(const mat<R,C,T1>& A, con
 
 // approximate equality for matrices (element-wise, abs + relative tolerance)
 template<int R, int C, typename T>
-inline bool approx_equal(const mat<R,C,T>& a, const mat<R,C,T>& b,
-                         T abs_eps = T(1e-6), T rel_eps = T(1e-5)) noexcept
+inline bool approxEqual(const mat<R,C,T>& a, const mat<R,C,T>& b,
+                         T abs_eps = mgl::math::abs_eps, T rel_eps = mgl::math::rel_eps) noexcept
 {
     for (int r = 0; r < R; ++r) {
         for (int c = 0; c < C; ++c) {

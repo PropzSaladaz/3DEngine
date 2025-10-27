@@ -81,7 +81,7 @@ TEST(MatrixTest, Transpose_Square) {
                          2,5,8);
 
     const auto T = transpose(A);
-    EXPECT_TRUE(approx_equal(T, expected));
+    EXPECT_TRUE(approxEqual(T, expected));
     EXPECT_TRUE(transpose(T) == A); // double transpose
 }
 
@@ -93,7 +93,7 @@ TEST(MatrixTest, Transpose_Rectangular) {
                            3,6);
 
     const auto T = transpose(A);
-    EXPECT_TRUE(approx_equal(T, expected));
+    EXPECT_TRUE(approxEqual(T, expected));
     EXPECT_TRUE(transpose(T) == A);
 }
 
@@ -112,7 +112,7 @@ TEST(MatrixTest, Multiply_Square3x3) {
                           8, 5,12);
 
     const auto M = A * B;
-    EXPECT_TRUE(approx_equal(M, expected));
+    EXPECT_TRUE(approxEqual(M, expected));
 }
 
 TEST(MatrixTest, Multiply_Rectangular_3x2_2x4_To_3x4) {
@@ -126,7 +126,7 @@ TEST(MatrixTest, Multiply_Rectangular_3x2_2x4_To_3x4) {
                             8,28,32,12);
 
     const auto M = A * B;
-    EXPECT_TRUE(approx_equal(M, expected));
+    EXPECT_TRUE(approxEqual(M, expected));
 }
 
 TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
@@ -307,7 +307,7 @@ TEST(MatrixTest, ApproxEqualBehavior) {
 
     // exact fails, approx passes
     EXPECT_FALSE(I == J);
-    EXPECT_TRUE(approx_equal(I, J, 1e-6f, 1e-5f));
+    EXPECT_TRUE(approxEqual(I, J, 1e-6f, 1e-5f));
 }
 
 // ------------------------------ mixed scalar types ------------------------------

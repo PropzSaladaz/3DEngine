@@ -5,8 +5,6 @@
 namespace mgl::test {
 
 // default tolerances for approximate comparisons
-constexpr float kAbsEps = 1e-6f;
-constexpr float kRelEps = 1e-5f;
 
 // utility to compare vectors for approximate equality
 template<int N, typename T, template<int, typename> class VecT>
