@@ -41,7 +41,7 @@ public:
     // N-scalar constructor (row order)
     template<typename... Args>
     requires (sizeof...(Args) == N) && (std::is_convertible_v<Args,T> && ...)
-    constexpr vec_t(Args... vals) : v( static_cast<T>(vals)... ) {}
+    explicit constexpr vec_t(Args... vals) : v( static_cast<T>(vals)... ) {}
 
     // from array
     explicit constexpr vec_t(const std::array<T,N>& a) : v(0) {
@@ -81,6 +81,7 @@ public:
     friend constexpr vec_t operator-(const vec_t& a, const vec_t& b) noexcept {
         vec_t r; for (int i=0;i<N;++i) r[i] = a[i] - b[i]; return r;
     }
+    // TODO add *= operator
     friend constexpr vec_t operator*(const vec_t& a, const vec_t& b) noexcept {
         vec_t r; for (int i=0;i<N;++i) r[i] = a[i] * b[i]; return r;
     }

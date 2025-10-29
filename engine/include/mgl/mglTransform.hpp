@@ -3,22 +3,18 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
 #include <mgl/mglSimulation.hpp>
+#include "math/math.hpp"
 
 namespace mgl {
 
-const glm::mat4 I(1.0f);
+const math::mat4 I = math::mat4::identity();
 
-const glm::vec3 XX = glm::vec3(1.0f, 0.0f, 0.0f);
-const glm::vec3 YY = glm::vec3(0.0f, 1.0f, 0.0f);
-const glm::vec3 ZZ = glm::vec3(0.0f, 0.0f, 1.0f);
+const math::vec3 XX = math::vec3(1.0f, 0.0f, 0.0f);
+const math::vec3 YY = math::vec3(0.0f, 1.0f, 0.0f);
+const math::vec3 ZZ = math::vec3(0.0f, 0.0f, 1.0f);
 
-const glm::vec3 ORIGIN = glm::vec3(0.0f, 0.0f, 0.0f);
+const math::vec3 ORIGIN = math::vec3(0.0f, 0.0f, 0.0f);
 
 class Transform;
 
@@ -33,25 +29,25 @@ public:
     Transform();
     Transform(const Transform* t);
     Transform(GLfloat x, GLfloat y, GLfloat z);
-    Transform(const glm::vec3 &center);
-    Transform(const glm::vec3 &up, const  glm::vec3 &right, const  glm::vec3 &front);
+    Transform(const math::vec3 &center);
+    Transform(const math::vec3 &up, const  math::vec3 &right, const  math::vec3 &front);
     ~Transform();
     Transform* rotate2D(GLfloat angleDegree);
-    Transform* rotate(GLfloat angleDegrees, glm::vec3 rotationAxis);
-    Transform* setRotationQuat(const glm::quat& rot);
+    Transform* rotate(GLfloat angleDegrees, math::vec3 rotationAxis);
+    Transform* setRotationQuat(const math::quat& rot);
 
     Transform* scale2D(GLfloat scale);
-    Transform* scale2D(glm::vec2 scale_v);
+    Transform* scale2D(math::vec2 scale_v);
     Transform* scale(GLfloat scale);
-    Transform* scale(const glm::vec3 &scale_v);
-    Transform* setScale(const glm::vec3 &scale);
+    Transform* scale(const math::vec3 &scale_v);
+    Transform* setScale(const math::vec3 &scale);
 
     Transform* translate2D(GLfloat x, GLfloat y);
     Transform* translate(GLfloat x, GLfloat y, GLfloat z);
-    Transform* translate(const glm::vec3& translateDir);
+    Transform* translate(const math::vec3& translateDir);
 
     Transform* setPosition(GLfloat x, GLfloat y, GLfloat z);
-    Transform* setPosition(const glm::vec3& newPos);
+    Transform* setPosition(const math::vec3& newPos);
 
     Transform* lookAt(const Transform* target);
     Transform* lookAtFrom(const Transform* target, const Transform* source);
@@ -63,38 +59,38 @@ public:
 
     void setTransform(const Transform* t);
 
-    const glm::quat getRotationQuat() const;
+    const math::quat getRotationQuat() const;
 
     void update(GLfloat deltaTime) override;
 
     const GLfloat* getTransformMatrixPtr() const;
-    const glm::mat4 getTransformMatrix() const;
-    const glm::vec3 getPosition() const;
-    const glm::vec3 getScale() const;
-    const glm::vec3 getUpV() const;
-    const glm::vec3 getRightV() const;
-    const glm::vec3 getFrontV() const;
-    const glm::vec3 getTargetPoint() const;
+    const math::mat4 getTransformMatrix() const;
+    const math::vec3 getPosition() const;
+    const math::vec3 getScale() const;
+    const math::vec3 getUpV() const;
+    const math::vec3 getRightV() const;
+    const math::vec3 getFrontV() const;
+    const math::vec3 getTargetPoint() const;
 
     // TODO should have a lookAt method here
 private:
     void computeTransformMatrix();
-    Transform* rotateRad(GLfloat angleRads, glm::vec3 rotationAxis);
+    Transform* rotateRad(GLfloat angleRads, math::vec3 rotationAxis);
 
 protected:
-    // basic orientation parameters
-    glm::vec3 up    = YY;
-    glm::vec3 right = -XX;
-    glm::vec3 front = ZZ;
+    // basic orientation parameters - facing us
+    math::vec3 up    = YY;
+    math::vec3 right = -XX;
+    math::vec3 front = ZZ;
     // basic transform parameters
-    glm::quat rotation = glm::angleAxis(glm::radians(0.0f), YY);
-    glm::vec3 scaleV    = { 1, 1, 1 };
-    glm::vec3 positionV = { 0, 0, 0 }; // represents the translation
+    math::quat rotation = math::quat::fromY(0.0f);
+    math::vec3 scaleV{ 1, 1, 1 };
+    math::vec3 positionV{ 0, 0, 0 }; // represents the translation
     // transform matrix
-    glm::mat4 transformMatrix = glm::mat4(1.0f);
+    math::mat4 transformMatrix = I;
     // targeting
     bool trackingEnabled = false;
-    glm::vec3 targetPoint = { 0.0f, 0.0f, 0.0f };
+    math::vec3 targetPoint{ 0.0f, 0.0f, 0.0f };
     const Transform* targetTransform = nullptr;
 
     void updateTransform();

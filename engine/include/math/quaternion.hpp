@@ -114,8 +114,8 @@ public:
         return quat_t(glm::inverse(q_));
     }
 
-    inline mat4<T> toMat4() const noexcept {
-        return mat4<T>(glm::toMat4(q_));
+    inline mat_t<4,4,T> toMat4() const noexcept {
+        return mat_t<4,4,T>(glm::toMat4(q_));
     }
 
     // Dot
