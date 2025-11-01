@@ -1,9 +1,5 @@
-#include <mgl/mglTransform.hpp>
-#include <glm/glm.hpp>
+#include <mgl/mgl.hpp>
 #include <gtest/gtest.h>
-#include <glm/gtx/string_cast.hpp> 
-
-#define THREASHOLD static_cast<float>(1.0e-5)
 
 TEST(TransformTest, Id)
 {
@@ -21,91 +17,91 @@ TEST(TransformTest, SetPosition)
 
     t->setPosition(1.0f, 0.0f, 0.0f);
 
-    const glm::mat4 transformMat = t->getTransformMatrix();
+    const mgl::mat4 transformMat = t->getTransformMatrix();
 
-    glm::vec4 pi = { 0.0f, 0.0f, 0.0f, 1.0f };
-    glm::vec3 exp = { 1.0f, 0.0f, 0.0f };
+    mgl::vec4 pi { 0.0f, 0.0f, 0.0f, 1.0f };
+    mgl::vec3 exp { 1.0f, 0.0f, 0.0f };
 
-    glm::vec3 pos = t->getPosition();
-    ASSERT_TRUE(glm::all(glm::equal(pos, exp, THREASHOLD)));
+    mgl::vec3 pos = t->getPosition();
+    ASSERT_TRUE(mgl::equal(pos, exp));
 
-    glm::vec3 computed = transformMat * pi;
-    ASSERT_TRUE(glm::all(glm::equal(computed, exp, THREASHOLD)));
+    mgl::vec3 computed = transformMat * pi;
+    ASSERT_TRUE(mgl::equal(computed, exp));
 }
 
 TEST(TransformTest, UpVector)
 {
     mgl::Transform t = mgl::Transform();
-    glm::vec3 up = t.getUpV();
+    mgl::vec3 up = t.getUpV();
 
-    glm::vec3 exp = { 0.0f, 1.0f, 0.0f };
-    ASSERT_TRUE(glm::all(glm::equal(up, exp, THREASHOLD)));
+    mgl::vec3 exp { 0.0f, 1.0f, 0.0f };
+    ASSERT_TRUE(mgl::equal(up, exp));
 
     t.rotate(90.0f, mgl::XX);
     up = t.getUpV();
-    exp = { 0.0f, 0.0f, 1.0f };
-    ASSERT_TRUE(glm::all(glm::equal(up, exp, THREASHOLD)));
+    exp = mgl::vec3(0.0f, 0.0f, 1.0f);
+    ASSERT_TRUE(mgl::equal(up, exp));
 
     t.scale(5.0f);
     up = t.getUpV();
-    ASSERT_TRUE(glm::all(glm::equal(up, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(up, exp));
 
-    t.translate({1.0f, 5.0f, 3.0f});
+    t.translate(mgl::vec3(1.0f, 5.0f, 3.0f));
     up = t.getUpV();
-    ASSERT_TRUE(glm::all(glm::equal(up, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(up, exp));
 
-    float unit = glm::length(up);
-    ASSERT_NEAR(unit, 1.0f, THREASHOLD);
+    float unit = up.length();
+    ASSERT_NEAR(unit, 1.0f, mgl::epsilon<float>());
 }
 
 TEST(TransformTest, RightVector)
 {
     mgl::Transform t = mgl::Transform();
-    glm::vec3 right = t.getRightV();
+    mgl::vec3 right = t.getRightV();
 
-    glm::vec3 exp = { -1.0f, 0.0f, 0.0f };
-    ASSERT_TRUE(glm::all(glm::equal(right, exp, THREASHOLD)));
+    mgl::vec3 exp { -1.0f, 0.0f, 0.0f };
+    ASSERT_TRUE(mgl::equal(right, exp));
 
     t.rotate(90.0f, mgl::YY);
     right = t.getRightV();
-    exp = { 0.0f, 0.0f, 1.0f };
-    ASSERT_TRUE(glm::all(glm::equal(right, exp, THREASHOLD)));
+    exp = mgl::vec3(0.0f, 0.0f, 1.0f);
+    ASSERT_TRUE(mgl::equal(right, exp));
 
     t.scale(5.0f);
     right = t.getRightV();
-    ASSERT_TRUE(glm::all(glm::equal(right, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(right, exp));
 
-    t.translate({ 1.0f, 5.0f, 3.0f });
+    t.translate(mgl::vec3(1.0f, 5.0f, 3.0f));
     right = t.getRightV();
-    ASSERT_TRUE(glm::all(glm::equal(right, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(right, exp));
 
-    float unit = glm::length(right);
-    ASSERT_NEAR(unit, 1.0f, THREASHOLD);
+    float unit = right.length();
+    ASSERT_NEAR(unit, 1.0f, mgl::epsilon<float>());
 }
 
 TEST(TransformTest, FrontVector)
 {
     mgl::Transform t = mgl::Transform();
-    glm::vec3 front = t.getFrontV();
+    mgl::vec3 front = t.getFrontV();
 
-    glm::vec3 exp = { 0.0f, 0.0f, 1.0f };
-    ASSERT_TRUE(glm::all(glm::equal(front, exp, THREASHOLD)));
+    mgl::vec3 exp { 0.0f, 0.0f, 1.0f };
+    ASSERT_TRUE(mgl::equal(front, exp));
 
     t.rotate(90.0f, mgl::XX);
     front = t.getFrontV();
-    exp = { 0.0f, -1.0f, 0.0f };
-    ASSERT_TRUE(glm::all(glm::equal(front, exp, THREASHOLD)));
+    exp = mgl::vec3(0.0f, -1.0f, 0.0f);
+    ASSERT_TRUE(mgl::equal(front, exp));
 
     t.scale(5.0f);
     front = t.getFrontV();
-    ASSERT_TRUE(glm::all(glm::equal(front, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(front, exp));
 
-    t.translate({ 1.0f, 5.0f, 3.0f });
+    t.translate(mgl::vec3(1.0f, 5.0f, 3.0f));
     front = t.getFrontV();
-    ASSERT_TRUE(glm::all(glm::equal(front, exp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(front, exp));
 
-    float unit = glm::length(front);
-    ASSERT_NEAR(unit, 1.0f, THREASHOLD);
+    float unit = front.length();
+    ASSERT_NEAR(unit, 1.0f, mgl::epsilon<float>());
 }
 
 TEST(TransformTest, RotateTranslate)
@@ -114,16 +110,16 @@ TEST(TransformTest, RotateTranslate)
         ->rotate(90.0f, mgl::YY)
         ->translate(1.0f, 1.0f, 1.0f);
 
-    const glm::mat4 transformMat = t->getTransformMatrix();
-    glm::vec4 pi = { 1.0f, 0.0f, 0.0f, 1.0f };
-    glm::vec3 exp = { 1.0f, 1.0f, 0.0f };
+    const mgl::mat4 transformMat = t->getTransformMatrix();
+    mgl::vec4 pi { 1.0f, 0.0f, 0.0f, 1.0f };
+    mgl::vec3 exp { 1.0f, 1.0f, 0.0f };
 
-    glm::vec3 computed = transformMat * pi;
-    ASSERT_TRUE(glm::all(glm::equal(computed, exp, THREASHOLD)));
+    mgl::vec3 computed = transformMat * pi;
+    ASSERT_TRUE(mgl::equal(computed, exp));
 
-    glm::vec3 pos = t->getPosition();
-    glm::vec3 exp_pos = { 1.0f, 1.0f, 1.0f };
-    ASSERT_TRUE(glm::all(glm::equal(pos, exp_pos, THREASHOLD)));
+    mgl::vec3 pos = t->getPosition();
+    mgl::vec3 exp_pos { 1.0f, 1.0f, 1.0f };
+    ASSERT_TRUE(mgl::equal(pos, exp_pos));
 }
 
 
@@ -139,24 +135,24 @@ TEST(TransformTest, LookAt)
     t.lookAt(target);
 
     // THEN
-    glm::vec3 frontExp  = { 0.0f, -1.0f, 0.0f };
-    glm::vec3 upExp     = { 0.0f,  0.0f, 1.0f };
-    glm::vec3 rightExp  = { -1.0f,  0.0f, 0.0f };
+    mgl::vec3 frontExp  { 0.0f, -1.0f, 0.0f };
+    mgl::vec3 upExp     { 0.0f,  0.0f, 1.0f };
+    mgl::vec3 rightExp  { -1.0f,  0.0f, 0.0f };
 
-    glm::vec3 front = t.getFrontV();
-    glm::vec3 right = t.getRightV();
-    ASSERT_TRUE(glm::all(glm::equal(front, frontExp, THREASHOLD)));
+    mgl::vec3 front = t.getFrontV();
+    mgl::vec3 right = t.getRightV();
+    ASSERT_TRUE(mgl::equal(front, frontExp));
 
     // WHEN - Looking from -YY to left to positive XX axis
     target->setPosition(1.0f, 0.0f, 0.0f);
     t.lookAt(target);
 
     // THEN
-    frontExp = { 1.0f, 0.0f, 0.0f };
-    upExp    = { 0.0f, 1.0f, 0.0f };
-    rightExp = { 0.0f, 0.0f, 1.0f };
+    frontExp = mgl::vec3{ 1.0f, 0.0f, 0.0f };
+    upExp    = mgl::vec3{ 0.0f, 1.0f, 0.0f };
+    rightExp = mgl::vec3{ 0.0f, 0.0f, 1.0f };
 
     front = t.getFrontV();
     right = t.getRightV();
-    ASSERT_TRUE(glm::all(glm::equal(front, frontExp, THREASHOLD)));
+    ASSERT_TRUE(mgl::equal(front, frontExp));
 }

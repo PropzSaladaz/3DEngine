@@ -1,7 +1,4 @@
 #include <mgl/mglAnimation.hpp>
-#include <iostream>
-
-#define THRESHOLD_FLOAT static_cast<float>(1.0e-5)
 
 namespace mgl {
 
@@ -12,42 +9,42 @@ Animation::Animation(Transform* origin, const Transform* target) {
 	targetTransform = target;
 
 	// check which transform dimensions will need to be updated
-	interpolatePos = !glm::all(glm::equal(
+	interpolatePos = !math::equal(
 		originTransform->getPosition(),
 		targetTransform->getPosition(),
-		THRESHOLD_FLOAT));
+		mgl::math::epsilon<float>());
 
-	interpolateScale = !glm::all(glm::equal(
+	interpolateScale = !math::equal(
 		originTransform->getScale(),
 		targetTransform->getScale(),
-		THRESHOLD_FLOAT));
+		mgl::math::epsilon<float>());
 
-	interpolateRot = !glm::all(glm::equal(
+	interpolateRot = !math::equal(
 		originTransform->getRotationQuat(),
 		targetTransform->getRotationQuat(),
-		THRESHOLD_FLOAT));
+		mgl::math::epsilon<float>());
 }
 
-void Animation::step(GLfloat step) {
+void Animation::step(f32 step) {
 	if (currentStep >= 0 && currentStep <= 1) currentStep += step * interpolationSpeed;
 
 	if (currentStep < 0) currentStep = 0.0f;
 	else if (currentStep > 1) currentStep = 1.0f;
 
 	if (interpolatePos) {
-		currentTransform->setPosition(glm::mix(
+		currentTransform->setPosition(math::lerp(
 			originTransform->getPosition(),
 			targetTransform->getPosition(),
 			currentStep));
 	}
 	if (interpolateScale) {
-		currentTransform->setScale(glm::mix(
+		currentTransform->setScale(math::lerp(
 			originTransform->getScale(),
 			targetTransform->getScale(),
 			currentStep));
 	}
 	if (interpolateRot) {
-		currentTransform->setRotationQuat(glm::slerp(
+		currentTransform->setRotationQuat(math::slerp(
 			originTransform->getRotationQuat(),
 			targetTransform->getRotationQuat(),
 			currentStep));

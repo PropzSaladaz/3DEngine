@@ -1,81 +1,27 @@
 #include <mgl/mglTransform.hpp>
 #include <mgl/mglConventions.hpp>
 #include <mgl/mglSimulation.hpp>
-#include <iostream>
 #include <utils/Logger.hpp>
-#include <string>
+#include "math/math.hpp"
 
 namespace mgl {
 
-// deal with length 0 vectors
-math::vec3 normalize(const math::vec3& vec) {
-    if (math::length(vec) > math::epsilon<float>()) {
-        return math::normalize(vec);
-    }
-    return {0.0f, 0.0f, 0.0f};
-}
-
-math::vec2 normalize(const math::vec2& vec) {
-    if (math::length(vec) > math::epsilon<float>()) {
-        return math::normalize(vec);
-    }
-    return { 0.0f, 0.0f };
-}
-
 // deal with length 0 vectors & make it order-dependent
-GLfloat angle(const math::vec2& vec, const math::vec2& vec2) {
-    if (math::length(vec) < math::epsilon<float>() || 
-        math::length(vec2) < math::epsilon<float>()) {
+f32 angle(const math::vec2& vec, const math::vec2& vec2) {
+    if (vec.length() < math::epsilon<float>() || 
+        vec2.length() < math::epsilon<float>()) {
         return 0;
     }
     math::vec3 cross = math::cross(math::vec3(vec, 0.0f), math::vec3(vec2, 0.0f));
-    return cross.z > 0 ? math::angle(vec, vec2) : -math::angle(vec, vec2);
+    return cross.z() > 0 ? math::angle(vec, vec2) : -math::angle(vec, vec2);
 }
 
-GLfloat angle(const math::vec3& vec, const math::vec3& vec2) {
-    if (math::length(vec) < math::epsilon<float>() ||
-        math::length(vec2) < math::epsilon<float>()) {
+f32 angle(const math::vec3& vec, const math::vec3& vec2) {
+    if (vec.length() < math::epsilon<float>() ||
+        vec2.length() < math::epsilon<float>()) {
         return 0;
     }
     return math::angle(vec, vec2);
-}
-
-
-//  implementation taken from:
-// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
-math::quat rotationBetweenVectors(math::vec3 start, math::vec3 dest) {
-    start = normalize(start);
-    dest = normalize(dest);
-
-    float cosTheta = math::dot(start, dest);
-    math::vec3 rotationAxis;
-
-    if (cosTheta < -1 + 0.001f) {
-        // special case when vectors in opposite directions :
-        // there is no "ideal" rotation axis
-        // So guess one; any will do as long as it's perpendicular to start
-        // This implementation favors a rotation around the Up axis,
-        // since it's often what you want to do.
-        rotationAxis = math::cross(math::vec3(0.0f, 0.0f, 1.0f), start);
-        if (math::length(rotationAxis) < 0.01) // bad luck, they were parallel, try again!
-            rotationAxis = math::cross(math::vec3(1.0f, 0.0f, 0.0f), start);
-
-        rotationAxis = normalize(rotationAxis);
-        return angleAxis(math::radians(180.0f), rotationAxis);
-    }
-
-    // Implementation from Stan Melax's Game Programming Gems 1 article
-    rotationAxis = math::cross(start, dest);
-
-    float s = sqrt((1 + cosTheta) * 2);
-    float invs = 1 / s;
-
-    return math::quat(
-        s * 0.5f,
-        rotationAxis.x() * invs,
-        rotationAxis.y() * invs,
-        rotationAxis.z() * invs
-    );
 }
 
 ////////////////////////////////////////////////////////////////// Transform
@@ -91,7 +37,7 @@ Transform::Transform(const math::vec3& _up, const  math::vec3& _right,
     targetPoint = positionV + front; // look at front
 }
 
-Transform::Transform(GLfloat x, GLfloat y, GLfloat z) 
+Transform::Transform(f32 x, f32 y, f32 z) 
     : Transform(math::vec3(x, y, z)) {}
 
 Transform::Transform(const math::vec3 &center) : Transform() {
@@ -132,8 +78,8 @@ void Transform::setTransform(const Transform* t) {
 }
 
 ////////////////////////////////////////////////////////////////// Getters
-const GLfloat* Transform::getTransformMatrixPtr() const {
-    return math::value_ptr(transformMatrix);
+const f32* Transform::getTransformMatrixPtr() const {
+    return transformMatrix.data();
 }
 
 const math::mat4 Transform::getTransformMatrix() const {
@@ -169,7 +115,7 @@ const math::quat Transform::getRotationQuat() const {
 
 Transform* Transform::lookAt(const Transform* target) {
     math::vec3 newFront = math::normalize(target->getPosition() - positionV);
-    math::quat rot = rotationBetweenVectors(front, newFront);
+    math::quat rot = math::rotationUnit(front, newFront);
 
     // check if we are heads down or not
     math::vec3 desiredUp = YY;
@@ -181,7 +127,7 @@ Transform* Transform::lookAt(const Transform* target) {
     targetPoint = target->getPosition();
 
     math::vec3 newUp = rot * up;
-    math::quat rot2 = rotationBetweenVectors(newUp, desiredUp);
+    math::quat rot2 = math::rotationUnit(newUp, desiredUp);
 
     rotation = rot2 * rot * rotation;
     computeTransformMatrix();
@@ -199,8 +145,8 @@ Transform* Transform::lookAtFrom(const Transform* target, const Transform* sourc
 
 void Transform::computeTransformMatrix() {
     math::mat4 scaleM     = math::scale(I, scaleV);
-    math::mat4 translateM = math::translate(I, positionV);
-    math::mat4 rotationM  = math::toMat4(rotation);
+    math::mat4 translateM =  math::translate(I, positionV);
+    math::mat4 rotationM  = rotation.toMat4();
     transformMatrix = translateM * rotationM * scaleM;
 }
 
@@ -211,11 +157,11 @@ void Transform::normalizeTransform() {
 }
 
 //////////////////////////////////////////////////////////////////////////// Rotation
-Transform* Transform::rotate2D(GLfloat angleDegree) {
+Transform* Transform::rotate2D(f32 angleDegree) {
     return rotate(angleDegree, ZZ);
 }
 
-Transform* Transform::rotate(GLfloat angleDegrees, math::vec3 rotationAxis) {
+Transform* Transform::rotate(f32 angleDegrees, math::vec3 rotationAxis) {
     // needed to force CC rotation, else it represents the rotation
     // with a clockwise rot quaternion
     if (angleDegrees == 180.0f) angleDegrees -= FLOAT_THREASHOLD;
@@ -224,31 +170,31 @@ Transform* Transform::rotate(GLfloat angleDegrees, math::vec3 rotationAxis) {
 
 Transform* Transform::setRotationQuat(const math::quat& rot) {
     rotation = rot;
-    math::quat newUp = rot * math::quat(0.0f, YY) * math::conjugate(rot);
-    math::quat newRight = rot * math::quat(0.0f, -XX) * math::conjugate(rot);
-    math::quat newFront = rot * math::quat(0.0f, ZZ) * math::conjugate(rot);
+    math::quat newUp = rot * math::quat(YY, 0.0f) * rot.conjugate();
+    math::quat newRight = rot * math::quat(-XX, 0.0f) * rot.conjugate();
+    math::quat newFront = rot * math::quat(ZZ, 0.0f) * rot.conjugate();
     // TODO store initial XX, YY, ZZ - if camera is initialized with -ZZ, then on new setrotation, the ZZ will not be good
     computeTransformMatrix();
     return this;
 }
 
 // used internally for efficiency
-Transform* Transform::rotateRad(GLfloat angleRads, math::vec3 rotationAxis) {
+Transform* Transform::rotateRad(f32 angleRads, math::vec3 rotationAxis) {
     if (angleRads == 0) return this;
     
-    math::quat rot = math::angleAxis(angleRads, rotationAxis);
+    math::quat rot = math::quat::fromAxisAngle(rotationAxis, angleRads);
 
     // update directional vectors
-    math::quat newUp = rot * math::quat(0.0f, up) * math::conjugate(rot);
-    math::quat newRight = rot * math::quat(0.0f, right) * math::conjugate(rot);
-    math::quat newFront = rot * math::quat(0.0f, front) * math::conjugate(rot);
-    up = math::vec3(newUp.x, newUp.y, newUp.z);
-    right = math::vec3(newRight.x, newRight.y, newRight.z);
-    front = math::vec3(newFront.x, newFront.y, newFront.z);
+    math::quat newUp = rot * math::quat(up, 0.0f) * rot.conjugate();
+    math::quat newRight = rot * math::quat(right, 0.0f) * rot.conjugate();
+    math::quat newFront = rot * math::quat(front, 0.0f) * rot.conjugate();
+    up = math::vec3(newUp.x(), newUp.y(), newUp.z());
+    right = math::vec3(newRight.x(), newRight.y(), newRight.z());
+    front = math::vec3(newFront.x(), newFront.y(), newFront.z());
     // convert target point to directional vector
-    math::quat newTargetPoint = rot * math::quat(0.0f, targetPoint - positionV) * math::conjugate(rot);
+    math::quat newTargetPoint = rot * math::quat(targetPoint - positionV, 0.0f) * rot.conjugate();
     // add the directional vector to position to get the target
-    targetPoint = math::vec3(newTargetPoint.x, newTargetPoint.y, newTargetPoint.z) + positionV;
+    targetPoint = math::vec3(newTargetPoint.x(), newTargetPoint.y(), newTargetPoint.z()) + positionV;
     // update rotation quat & transformMatrix
     rotation = rot * rotation;
     computeTransformMatrix();
@@ -258,14 +204,14 @@ Transform* Transform::rotateRad(GLfloat angleRads, math::vec3 rotationAxis) {
 
 
 //////////////////////////////////////////////////////////////////////////// Scaling
-Transform* Transform::scale2D(GLfloat scale) {
+Transform* Transform::scale2D(f32 scale) {
     return scale2D(math::vec2(scale));
 }
 
 Transform* Transform::scale2D(math::vec2 scale_v) {
     return scale(math::vec3(scale_v, 1.0f));
 }
-Transform* Transform::scale(GLfloat scale_factor) {
+Transform* Transform::scale(f32 scale_factor) {
     return scale(math::vec3(scale_factor));
 }
 Transform* Transform::setScale(const math::vec3& scale) {
@@ -281,18 +227,18 @@ Transform* Transform::scale(const math::vec3 &scale_v) {
 
 //////////////////////////////////////////////////////////////////////////// Translating
 
-Transform* Transform::setPosition(GLfloat x, GLfloat y, GLfloat z) {
+Transform* Transform::setPosition(f32 x, f32 y, f32 z) {
     return setPosition(math::vec3(x, y, z));
 }
 Transform* Transform::setPosition(const math::vec3& newPos) {
     return translate(newPos - positionV);
 }
 
-Transform* Transform::translate2D(GLfloat x, GLfloat y){
+Transform* Transform::translate2D(f32 x, f32 y){
     return translate(math::vec3(x, y, 0.0f));
 }
 
-Transform* Transform::translate(GLfloat x, GLfloat y, GLfloat z) {
+Transform* Transform::translate(f32 x, f32 y, f32 z) {
     return translate(math::vec3(x, y, z));
 }
 
@@ -309,7 +255,7 @@ Transform* Transform::translate(const math::vec3& translateVec) {
 
 /////////////////////////////////////////////////////////////////// TimeUpdateable
 
-void Transform::update(GLfloat deltaTime) {
+void Transform::update(f32 deltaTime) {
     lookAt(targetTransform);
 }
 

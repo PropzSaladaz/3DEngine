@@ -2,30 +2,30 @@
 
 namespace mgl {
 
-	DirectionalLight::DirectionalLight(const glm::vec3& direction) : Light() {
+	DirectionalLight::DirectionalLight(const math::vec3& direction) : Light() {
 		setDirection(direction);
 	}
 
-	DirectionalLight::DirectionalLight(const glm::vec3& direction, 
-		const glm::vec3& color) : DirectionalLight(direction) {
+	DirectionalLight::DirectionalLight(const math::vec3& direction, 
+		const math::vec3& color) : DirectionalLight(direction) {
 		setColor(color);
 	}
 
-	void DirectionalLight::setDirection(const glm::vec3& direction) {
+	void DirectionalLight::setDirection(const math::vec3& direction) {
 		this->direction = direction;
 	}
-	glm::vec3 DirectionalLight::getDirection() const {
+	math::vec3 DirectionalLight::getDirection() const {
 		return direction;
 	}
 
 	void DirectionalLight::updateShaders(ShaderProgram* shader) {
-		glm::vec3 WorldSpaceDirection = glm::vec4(direction , 0.0);
+		math::vec3 WorldSpaceDirection = direction;
 		shader->setUniformBool(LIGHT_IS_ENABLED, enabled);
 		shader->setUniformInt  (LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
-		shader->setUniformVec3f(LIGHT_DIRECTION,  glm::value_ptr(WorldSpaceDirection));
-		shader->setUniformVec4f(LIGHT_AMBIENT, glm::value_ptr(ambientColor));
-		shader->setUniformVec4f(LIGHT_DIFFUSE, glm::value_ptr(diffuseColor));
-		shader->setUniformVec4f(LIGHT_SPECULAR, glm::value_ptr(specularColor));
+		shader->setUniformVec3f(LIGHT_DIRECTION,  WorldSpaceDirection.data());
+		shader->setUniformVec4f(LIGHT_AMBIENT, ambientColor.data());
+		shader->setUniformVec4f(LIGHT_DIFFUSE, diffuseColor.data());
+		shader->setUniformVec4f(LIGHT_SPECULAR, specularColor.data());
 	}
 
 }

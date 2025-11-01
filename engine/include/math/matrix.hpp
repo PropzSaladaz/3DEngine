@@ -47,6 +47,8 @@ struct mat_t {
     // access (row-major)
     // --------------------------------
 
+    constexpr const backend_t& backend() const noexcept { return m; }
+
     constexpr       T& operator()(int r, int c)       noexcept { return m[c][r]; }
     constexpr const T& operator()(int r, int c) const noexcept { return m[c][r]; }
 

@@ -194,7 +194,7 @@ TEST(VecAliases, SizesAndTypes) {
 // ----------------------- mat × vec smoke test ------------------------
 // Keep this if your mat<> is available and constructed row-major.
 TEST(VecMatMul, MatVecMultiplicationProducesExpected) {
-    using mat3f = mat<3,3,float>;
+    using mat3f = mat_t<3,3,float>;
     // Assuming your mat<3,3,T> supports a 9-scalar row-major constructor:
     const mat3f A( 1.0f, 2.0f, 3.0f,
                    4.0f, 5.0f, 6.0f,

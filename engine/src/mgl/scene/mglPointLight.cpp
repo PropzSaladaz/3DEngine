@@ -1,16 +1,15 @@
 #include <mgl/scene/mglPointLight.hpp>
-#include <glm/gtx/string_cast.hpp>
 namespace mgl {
 	/////////////////////////////////////////////////////////////////// Constructor
 	PointLight::PointLight(const SceneObject* position) : 
 		PositionalLight(position) {}
 
-	PointLight::PointLight(const glm::vec3& position) : PositionalLight(position) {}
+	PointLight::PointLight(const math::vec3& position) : PositionalLight(position) {}
 
-	PointLight::PointLight(const glm::vec3& position, const glm::vec3& color) : 
+	PointLight::PointLight(const math::vec3& position, const math::vec3& color) : 
 		PositionalLight(position, color) {}
 
-	PointLight::PointLight(const SceneObject* position, const glm::vec3& color) :
+	PointLight::PointLight(const SceneObject* position, const math::vec3& color) :
 		PositionalLight(position, color) {}
 
 	/////////////////////////////////////////////////////////////////// Shaders

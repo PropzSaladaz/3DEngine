@@ -1,5 +1,4 @@
-#ifndef MGL_BASIC_MATERIAL_HPP
-#define MGL_BASIC_MATERIAL_HPP
+#pragma once
 
 #include <mgl/models/materials/mglMaterial.hpp>
 
@@ -10,19 +9,17 @@ namespace mgl {
 		static void declareShaderUniforms(ShaderProgram* shaders);
 
 		BasicMaterial();
-		BasicMaterial(const glm::vec3& color);
-		BasicMaterial(const glm::vec4& color);
+		BasicMaterial(const math::vec3& color);
+		BasicMaterial(const math::vec4& color);
 
-		mgl::Material* setColor(const glm::vec3& color) override;
-		mgl::Material* setColor(const glm::vec4& color) override;
+		mgl::Material* setColor(const math::vec3& color) override;
+		mgl::Material* setColor(const math::vec4& color) override;
 
-		glm::vec3 getColor();
+		math::vec3 getColor();
 	private:
-		glm::vec4 color = glm::vec4(COLOR_WHITE, 1.0f);
+		math::vec4 color = math::vec4(COLOR_WHITE, 1.0f);
 
 		void setMaterialUniforms(ShaderProgram* shaders) override;
 	};
 
 }
-
-#endif

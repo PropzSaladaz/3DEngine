@@ -5,13 +5,14 @@
 #include <GLFW/glfw3.h>
 #include <functional>
 #include <vector>
+#include "types.hpp"
 
 namespace mgl {
 
 // callbacks
 using KeyCallBack = std::function<void()>;
-using MouseOffsetCallBack = std::function<void(GLfloat xOffset, GLfloat yOffset)>;
-using WindowSizeCallBack = std::function<void(GLuint width, GLuint height)>;
+using MouseOffsetCallBack = std::function<void(f32 xOffset, f32 yOffset)>;
+using WindowSizeCallBack = std::function<void(ui32 width, ui32 height)>;
 
 struct MouseMove {
     double xOffset;
@@ -40,7 +41,7 @@ public:
     // keyboard
     bool isKeyPressed(int key);
     void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    void registerKeyCallBack(GLuint key, const KeyCallBack callBack);
+    void registerKeyCallBack(ui32 key, const KeyCallBack callBack);
 
     // mouse
     MousePos getMousePos();
@@ -51,7 +52,7 @@ public:
     void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
     void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-    void registerMouseBtnCallBack(GLuint key, const KeyCallBack callback);
+    void registerMouseBtnCallBack(ui32 key, const KeyCallBack callback);
     void registerMouseOffsetCallBack(const MouseOffsetCallBack callback);
     void registerMouseScrollCallBack(const MouseOffsetCallBack callback);
 

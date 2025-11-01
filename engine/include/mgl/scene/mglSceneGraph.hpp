@@ -61,9 +61,9 @@ namespace mgl {
 	class SceneNode : public IDrawable , public Transform {
 	public:
 		SceneGraph* Parent;
-		glm::mat4 AbsoluteTransform;
+		math::mat4 AbsoluteTransform;
 
-		glm::vec3 getAbsolutePosition() const;
+		math::vec3 getAbsolutePosition() const;
 		virtual void setScene(Scene* scene) = 0;
 		virtual void setSkybox(TextureInfo* skybox) = 0;
 
@@ -112,7 +112,7 @@ namespace mgl {
 		void performDraw() override;
 
 	private:
-		std::map<GLuint, SceneNode*> children;
+		std::map<ui32, SceneNode*> children;
 	};
 
 }

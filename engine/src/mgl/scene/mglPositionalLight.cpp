@@ -1,5 +1,4 @@
 #include <mgl/scene/mglPositionalLight.hpp>
-#include <glm/gtx/string_cast.hpp>
 #include <utils/Logger.hpp>
 
 namespace mgl {
@@ -15,24 +14,24 @@ namespace mgl {
 		setPosition(position);
 	}
 
-	PositionalLight::PositionalLight(const glm::vec3& position) 
+	PositionalLight::PositionalLight(const math::vec3& position) 
 		: PositionalLight() {
 		setPosition(position);
 	}
 
-	PositionalLight::PositionalLight(const glm::vec3& position, 
-		const glm::vec3& color) : PositionalLight(position) {
+	PositionalLight::PositionalLight(const math::vec3& position, 
+		const math::vec3& color) : PositionalLight(position) {
 		setColor(color);
 	}
 
 	PositionalLight::PositionalLight(const SceneObject* position, 
-		const glm::vec3& color) : PositionalLight(position) {
+		const math::vec3& color) : PositionalLight(position) {
 		setColor(color);
 	}
 
 	/////////////////////////////////////////////////////////////////// Setters
 
-	void PositionalLight::setPosition(const glm::vec3& position) {
+	void PositionalLight::setPosition(const math::vec3& position) {
 		mgl::SceneObject* lightPos = new SceneObject();
 		lightPos->setPosition(position);
 		this->position = lightPos;
@@ -42,15 +41,15 @@ namespace mgl {
 		this->position = position;
 	}
 
-	void PositionalLight::setAttenuation(GLuint distance) {
-		GLuint lower = attenuationDistances[0];
+	void PositionalLight::setAttenuation(ui32 distance) {
+		ui32 lower = attenuationDistances[0];
 
 		if (distance < lower) {
-			MGL_ERROR("Attenuation distance must be >= " + lower);
+			MGL_ERROR("Attenuation distance must be >= " + std::to_string(lower));
 			exit(EXIT_FAILURE);
 		};
 
-		for (GLuint attDist : attenuationDistances) {
+		for (ui32 attDist : attenuationDistances) {
 			if (distance > attDist) {
 				lower = attDist;
 			}
@@ -66,7 +65,7 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////////////////// Getters
 
-	glm::vec3 PositionalLight::getPosition() const {
+	math::vec3 PositionalLight::getPosition() const {
 		return position->getAbsolutePosition();
 	}
 
@@ -76,12 +75,12 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////////////////// Shaders
 	void PositionalLight::updateShaders(ShaderProgram* shader) {
-		glm::vec3 WorldSpaceAbsolutePos = glm::vec4(position->getAbsolutePosition(), 1.0);
+		math::vec3 WorldSpaceAbsolutePos = position->getAbsolutePosition();
 		shader->setUniformBool (LIGHT_IS_ENABLED,	enabled);
-		shader->setUniformVec3f(LIGHT_POSITION,		glm::value_ptr(WorldSpaceAbsolutePos));
-		shader->setUniformVec4f(LIGHT_AMBIENT,		glm::value_ptr(ambientColor));
-		shader->setUniformVec4f(LIGHT_DIFFUSE,		glm::value_ptr(diffuseColor));
-		shader->setUniformVec4f(LIGHT_SPECULAR,		glm::value_ptr(specularColor));
+		shader->setUniformVec3f(LIGHT_POSITION,		WorldSpaceAbsolutePos.data());
+		shader->setUniformVec4f(LIGHT_AMBIENT,		ambientColor.data());
+		shader->setUniformVec4f(LIGHT_DIFFUSE,		diffuseColor.data());
+		shader->setUniformVec4f(LIGHT_SPECULAR,		specularColor.data());
 		shader->setUniformFloat(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
 		shader->setUniformFloat(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
 		shader->setUniformFloat(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);

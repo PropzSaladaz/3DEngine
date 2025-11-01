@@ -1,7 +1,6 @@
 #include <mgl/camera/mglOrbitCamController.hpp>
 #include <mgl/mglInputManager.hpp>
 #include <utils/Logger.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 namespace mgl {
 	OrbitCamController::OrbitCamController(Camera* camera) 
@@ -9,32 +8,32 @@ namespace mgl {
 		registerDiscreteInputHandler();
 	}
 
-	OrbitCamController::OrbitCamController(Camera* camera, const glm::vec3& centerP,
-		GLfloat _radius) : OrbitCamController(camera) {
+	OrbitCamController::OrbitCamController(Camera* camera, const math::vec3& centerP,
+		f32 _radius) : OrbitCamController(camera) {
 		setRadius(_radius);
 		center = new Transform(centerP);
 	}
 
-	void OrbitCamController::setCenter(const glm::vec3& centerP) {
-		glm::vec3 translation = centerP - center->getPosition();
+	void OrbitCamController::setCenter(const math::vec3& centerP) {
+		math::vec3 translation = centerP - center->getPosition();
 		center->setPosition(centerP);
 		camera->translate(translation);
 	}
 
-	void OrbitCamController::setRadius(GLfloat radius) {
-		GLfloat radiusDelta = this->radius - radius;
+	void OrbitCamController::setRadius(f32 radius) {
+		f32 radiusDelta = this->radius - radius;
 		camera->translate(camera->getFrontV() * radiusDelta);
 		this->radius = radius;
 
 	}
 
-	void OrbitCamController::setMouseSensitivity(GLfloat sensitivity) {
+	void OrbitCamController::setMouseSensitivity(f32 sensitivity) {
 		mouseSensitivity = sensitivity;
 	}
 
 	//////////////////////////////////////////////////////////////////////// Input
 	// rotation on drag
-	void OrbitCamController::handleContinuousInput(GLfloat deltatime) {
+	void OrbitCamController::handleContinuousInput(f32 deltatime) {
 		if (InputManager::getInstance().isMouseBtnPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			MouseMove movement = InputManager::getInstance().getMouseMovement();
 			float valX = -movement.xOffset * deltatime * mouseSensitivity;
@@ -42,9 +41,9 @@ namespace mgl {
 
 			if (InputManager::getInstance().isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
 				float sense = 0.02;
-				glm::vec3 translationXZ = camera->getRightV() * valX * sense;
+				math::vec3 translationXZ = camera->getRightV() * valX * sense;
 				setCenter(center->getPosition() + 
-					glm::vec3(translationXZ.x, -valY * sense, translationXZ.z));
+					math::vec3(translationXZ.x(), -valY * sense, translationXZ.z()));
 			}
 			else {
 				rotateCamera(valX, YY);
@@ -57,7 +56,7 @@ namespace mgl {
 	 // zoom
 	void OrbitCamController::registerDiscreteInputHandler() {
 		InputManager::getInstance().registerMouseScrollCallBack(
-			[this](GLfloat xOffset, GLfloat yOffset) {
+			[this](f32 xOffset, f32 yOffset) {
 				radius -= yOffset;
 			    if (radius < 1.0f) radius = 1.0f;
 				else {
@@ -67,12 +66,12 @@ namespace mgl {
 	}
 	//////////////////////////////////////////////////////////////////////// Private
 
-	void OrbitCamController::rotateCamera(float degrees, const glm::vec3& axis) {
-		glm::quat rot = glm::angleAxis(glm::radians(degrees), axis);
-		rotation = glm::normalize(rot * rotation);
-		glm::vec3 prevPos = camera->getPosition() - center->getPosition(); // move it back to origin
-		glm::quat newPosQ = rot * glm::quat(0, prevPos) * glm::inverse(rot);
-		glm::vec3 newPos = glm::vec3(newPosQ.x, newPosQ.y, newPosQ.z) + center->getPosition(); // move back to centerP
+	void OrbitCamController::rotateCamera(f32 degrees, const math::vec3& axis) {
+		math::quat rot = math::quat::fromAxisAngle(axis, math::radians(degrees));
+		rotation = math::normalize(rot * rotation);
+		math::vec3 prevPos = camera->getPosition() - center->getPosition(); // move it back to origin
+		math::quat newPosQ = rot * math::quat(prevPos, 0) * rot.inverse(); // TODO should it be inverse or conjugate?
+		math::vec3 newPos = math::vec3(newPosQ.x(), newPosQ.y(), newPosQ.z()) + center->getPosition(); // move back to centerP
 		camera->lookAtFrom(center, newPos);
 	}
 }

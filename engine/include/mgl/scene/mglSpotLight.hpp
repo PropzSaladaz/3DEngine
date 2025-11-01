@@ -1,5 +1,4 @@
-#ifndef MGL_SPOT_LIGHT_HPP
-#define MGL_SPOT_LIGHT_HPP
+#pragma once
 
 #include <mgl/scene/mglPositionalLight.hpp>
 
@@ -8,36 +7,34 @@ namespace mgl {
 class SpotLight : public PositionalLight {
 
 public:
-	static const GLfloat DEFAULT_INNER_COS_CUTOFF;
-	static const GLfloat DEFAULT_OUTER_COS_CUTOFF;
-	static const GLfloat DEFAULT_EPSILON;
+	static const f32 DEFAULT_INNER_COS_CUTOFF;
+	static const f32 DEFAULT_OUTER_COS_CUTOFF;
+	static const f32 DEFAULT_EPSILON;
 
 	SpotLight();
-	SpotLight(const glm::vec3 &position);
+	SpotLight(const math::vec3 &position);
 	SpotLight(const SceneObject* position);
-	SpotLight(const glm::vec3 &position, const glm::vec3 &color);
-	SpotLight(const SceneObject* position, const glm::vec3 &color);
-	SpotLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &target);
-	SpotLight(const glm::vec3 &position, const glm::vec3 &color, const SceneObject* target);
-	SpotLight(const SceneObject* position, const glm::vec3 &color, const glm::vec3 & target);
-	SpotLight(const SceneObject* position, const glm::vec3 &color, const SceneObject* target);
+	SpotLight(const math::vec3 &position, const math::vec3 &color);
+	SpotLight(const SceneObject* position, const math::vec3 &color);
+	SpotLight(const math::vec3 &position, const math::vec3 &color, const math::vec3 &target);
+	SpotLight(const math::vec3 &position, const math::vec3 &color, const SceneObject* target);
+	SpotLight(const SceneObject* position, const math::vec3 &color, const math::vec3 & target);
+	SpotLight(const SceneObject* position, const math::vec3 &color, const SceneObject* target);
 
-	void setTarget(const glm::vec3 &target);
+	void setTarget(const math::vec3 &target);
 	void setTarget(const SceneObject* target);
-	void setInnerCutoffAngle(GLfloat angleDegrees);
-	void setOuterCutoffAngle(GLfloat angleDegrees);
+	void setInnerCutoffAngle(f32 angleDegrees);
+	void setOuterCutoffAngle(f32 angleDegrees);
 
-	glm::vec3 getDirection();
+	math::vec3 getDirection();
 
 	void updateShaders(ShaderProgram* shader) override;
 
 private:
 	const SceneObject* target = nullptr;
-	GLfloat spotOuterCosCutoff = DEFAULT_OUTER_COS_CUTOFF;
-	GLfloat spotInnerCosCutoff = DEFAULT_INNER_COS_CUTOFF;
-	GLfloat epsilon = DEFAULT_EPSILON;
+	f32 spotOuterCosCutoff = DEFAULT_OUTER_COS_CUTOFF;
+	f32 spotInnerCosCutoff = DEFAULT_INNER_COS_CUTOFF;
+	f32 epsilon = DEFAULT_EPSILON;
 };
 
 }
-
-#endif

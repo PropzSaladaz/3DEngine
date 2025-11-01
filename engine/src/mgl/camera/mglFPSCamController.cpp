@@ -7,25 +7,25 @@ namespace mgl {
 		registerDiscreteInputHandler();
 	}
 
-	FPSCamController::FPSCamController(Camera* camera, GLfloat speed,
-		GLfloat sensitivity) : FPSCamController(camera) {
+	FPSCamController::FPSCamController(Camera* camera, f32 speed,
+		f32 sensitivity) : FPSCamController(camera) {
 		setMovementSpeed(speed);
 		setMouseSensitivity(sensitivity);
 	}
 
-	void FPSCamController::setMovementSpeed(GLfloat speed) {
+	void FPSCamController::setMovementSpeed(f32 speed) {
 		movementSpeed = speed;
 	}
 
-	void FPSCamController::setMouseSensitivity(GLfloat sensitivity) {
+	void FPSCamController::setMouseSensitivity(f32 sensitivity) {
 		mouseSensitivity = sensitivity;
 	}
 
 ////////////////////////////////////////////////////////////// input
 
-	void FPSCamController::handleContinuousInput(GLfloat deltatime) {
-		GLfloat moveAmount = deltatime * movementSpeed;
-		glm::vec3 movementDir = { 0, 0, 0 };
+	void FPSCamController::handleContinuousInput(f32 deltatime) {
+		f32 moveAmount = deltatime * movementSpeed;
+		math::vec3 movementDir { 0, 0, 0 };
 		if (mgl::InputManager::getInstance().isKeyPressed(GLFW_KEY_W)) {
 			movementDir += moveAmount * camera->getFrontV();
 		}
@@ -43,13 +43,13 @@ namespace mgl {
 
 	void FPSCamController::registerDiscreteInputHandler() {
 		InputManager::getInstance().registerMouseOffsetCallBack(
-			[this](GLfloat xOffset, GLfloat yOffset) {
+			[this](f32 xOffset, f32 yOffset) {
 				handleMouseOffset(xOffset, yOffset);
 			});
 	}
 
-	void FPSCamController::handleMouseOffset(GLfloat xOffset, 
-											GLfloat yOffset) {
+	void FPSCamController::handleMouseOffset(f32 xOffset, 
+											f32 yOffset) {
 		camera->yaw(-xOffset * mouseSensitivity);
 		camera->pitch(-yOffset * mouseSensitivity);
 	}

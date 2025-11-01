@@ -8,17 +8,17 @@ using namespace mgl::math;
 // ------------------------------ basics ------------------------------
 
 TEST(MatrixTest, StaticShapeTraits) {
-    static_assert(mat2f::rows == 2 && mat2f::cols == 2);
-    static_assert(mat3f::rows == 3 && mat3f::cols == 3);
-    static_assert(mat4f::rows == 4 && mat4f::cols == 4);
-    static_assert(mat2x3f::rows == 2 && mat2x3f::cols == 3);
-    static_assert(mat3x2f::rows == 3 && mat3x2f::cols == 2);
+    static_assert(mat2::rows == 2 && mat2::cols == 2);
+    static_assert(mat3::rows == 3 && mat3::cols == 3);
+    static_assert(mat4::rows == 4 && mat4::cols == 4);
+    static_assert(mat2x3::rows == 2 && mat2x3::cols == 3);
+    static_assert(mat3x2::rows == 3 && mat3x2::cols == 2);
 }
 
 TEST(MatrixTest, DefaultConstructorProducesIdentity_Float) {
-    const mat2f I2;
-    const mat3f I3;
-    const mat4f I4;
+    const mat2 I2;
+    const mat3 I3;
+    const mat4 I4;
 
     for (int r = 0; r < 2; ++r)
         for (int c = 0; c < 2; ++c)
@@ -47,7 +47,7 @@ TEST(MatrixTest, DefaultConstructorProducesIdentity_Int) {
 }
 
 TEST(MatrixTest, RowMajorConstruction3x3) {
-    const mat3f A(1,2,3,
+    const mat3 A(1,2,3,
                   4,5,6,
                   7,8,9);
 
@@ -57,13 +57,13 @@ TEST(MatrixTest, RowMajorConstruction3x3) {
 }
 
 TEST(MatrixTest, RowMajorConstruction_Rectangular) {
-    const mat2x3f A(1,2,3,
+    const mat2x3 A(1,2,3,
                     4,5,6);
     EXPECT_FLOAT_EQ(A(0,0), 1.0f);
     EXPECT_FLOAT_EQ(A(0,2), 3.0f);
     EXPECT_FLOAT_EQ(A(1,1), 5.0f);
 
-    const mat3x2f B(7,8,
+    const mat3x2 B(7,8,
                     9,10,
                     11,12);
     EXPECT_FLOAT_EQ(B(0,0), 7.0f);
@@ -73,10 +73,10 @@ TEST(MatrixTest, RowMajorConstruction_Rectangular) {
 // ------------------------------ transpose ------------------------------
 
 TEST(MatrixTest, Transpose_Square) {
-    const mat3f A(0,1,2,
+    const mat3 A(0,1,2,
                   3,4,5,
                   6,7,8);
-    const mat3f expected(0,3,6,
+    const mat3 expected(0,3,6,
                          1,4,7,
                          2,5,8);
 
@@ -86,9 +86,9 @@ TEST(MatrixTest, Transpose_Square) {
 }
 
 TEST(MatrixTest, Transpose_Rectangular) {
-    const mat2x3f A(1,2,3,
+    const mat2x3 A(1,2,3,
                     4,5,6);
-    const mat3x2f expected(1,4,
+    const mat3x2 expected(1,4,
                            2,5,
                            3,6);
 
@@ -100,14 +100,14 @@ TEST(MatrixTest, Transpose_Rectangular) {
 // ------------------------------ multiplication ------------------------------
 
 TEST(MatrixTest, Multiply_Square3x3) {
-    const mat3f A(1,2,3,
+    const mat3 A(1,2,3,
                   0,1,4,
                   5,6,0);
-    const mat3f B(-2,1,0,
+    const mat3 B(-2,1,0,
                   3,0,2,
                   4,-1,5);
 
-    const mat3f expected(16,-2,19,
+    const mat3 expected(16,-2,19,
                          19,-4,22,
                           8, 5,12);
 
@@ -116,12 +116,12 @@ TEST(MatrixTest, Multiply_Square3x3) {
 }
 
 TEST(MatrixTest, Multiply_Rectangular_3x2_2x4_To_3x4) {
-    const mat3x2f A(1,3,
+    const mat3x2 A(1,3,
                     5,2,
                     0,4);
-    const mat2x4f B(3,6,9,4,
+    const mat2x4 B(3,6,9,4,
                     2,7,8,3);
-    const mat3x4f expected( 9,27,33,13,
+    const mat3x4 expected( 9,27,33,13,
                            19,44,61,26,
                             8,28,32,12);
 
@@ -130,47 +130,47 @@ TEST(MatrixTest, Multiply_Rectangular_3x2_2x4_To_3x4) {
 }
 
 TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
-    const mat2x3f A23(1,2,3, 
+    const mat2x3 A23(1,2,3, 
                       4,5,6);
 
-    const mat3x2f B32(7,8, 
+    const mat3x2 B32(7,8, 
                       9,10, 
                       11,12);
 
-    const mat2x4f A24(1,2,3,4, 
+    const mat2x4 A24(1,2,3,4, 
                       5,6,7,8);
 
-    const mat4x2f B42(1,2, 
+    const mat4x2 B42(1,2, 
                       3,4, 
                       5,6, 
                       7,8);
 
-    const mat3x4f A34( 1, 2, 3, 4,
+    const mat3x4 A34( 1, 2, 3, 4,
                        5, 6, 7, 8,
                        9,10,11,12 );
 
-    const mat4x3f B43( 1, 2, 3,
+    const mat4x3 B43( 1, 2, 3,
                        4, 5, 6,
                        7, 8, 9,
                       10,11,12 );
 
     // (2x3)*(3x2)->(2x2)
     {
-        const mat2f expected(58,64,
+        const mat2 expected(58,64,
                              139,154);
         EXPECT_TRUE(A23 * B32 == expected);
     }
 
     // (2x3)*(3x4)->(2x4)
     {
-        const mat2x4f expected(38,44,50,56,
+        const mat2x4 expected(38,44,50,56,
                                83,98,113,128);
         EXPECT_TRUE(A23 * A34 == expected);
     }
 
     // (3x2)*(2x3)->(3x3)
     {
-        const mat3f expected(39,54,69,
+        const mat3 expected(39,54,69,
                              49,68,87,
                              59,82,105);
         EXPECT_TRUE(B32 * A23 == expected);
@@ -178,7 +178,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (3x2)*(2x4)->(3x4)
     {
-        const mat3x4f expected(47,62,77,92,
+        const mat3x4 expected(47,62,77,92,
                                59,78,97,116,
                                71,94,117,140);
         EXPECT_TRUE(B32 * A24 == expected);
@@ -186,7 +186,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (3x4)*(4x2)->(3x2)
     {
-        const mat3x2f expected(50,60,
+        const mat3x2 expected(50,60,
                                114,140,
                                178,220);
         EXPECT_TRUE(A34 * B42 == expected);
@@ -194,7 +194,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (3x4)*(4x3)->(3x3)
     {
-        const mat3f expected(70,80,90,
+        const mat3 expected(70,80,90,
                              158,184,210,
                              246,288,330);
         EXPECT_TRUE(A34 * B43 == expected);
@@ -202,7 +202,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (4x2)*(2x3)->(4x3)
     {
-        const mat4x3f expected(9,12,15,
+        const mat4x3 expected(9,12,15,
                                19,26,33,
                                29,40,51,
                                39,54,69);
@@ -211,7 +211,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (4x2)*(2x4)->(4x4)
     {
-        const mat4f expected(11,14,17,20,
+        const mat4 expected(11,14,17,20,
                              23,30,37,44,
                              35,46,57,68,
                              47,62,77,92);
@@ -220,7 +220,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (4x3)*(3x2)->(4x2)
     {
-        const mat4x2f expected(58,64,
+        const mat4x2 expected(58,64,
                                139,154,
                                220,244,
                                301,334);
@@ -229,7 +229,7 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (4x3)*(3x4)->(4x4)
     {
-        const mat4f expected(38,44,50,56,
+        const mat4 expected(38,44,50,56,
                              83,98,113,128,
                              128,152,176,200,
                              173,206,239,272);
@@ -238,14 +238,14 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 
     // (2x4)*(4x2)->(2x2)
     {
-        const mat2f expected(50,60,
+        const mat2 expected(50,60,
                              114,140);
         EXPECT_TRUE(A24 * B42 == expected);
     }
 
     // (2x4)*(4x3)->(2x3)
     {
-        const mat2x3f expected(70,80,90,
+        const mat2x3 expected(70,80,90,
                                158,184,210);
         EXPECT_TRUE(A24 * B43 == expected);
     }
@@ -254,13 +254,13 @@ TEST(MatrixTest, Multiply_AllCoreRectangularCombos) {
 // ------------------------------ algebraic properties ------------------------------
 
 TEST(MatrixTest, AlgebraicProperties_2x2) {
-    const mat2f A(1,3,
+    const mat2 A(1,3,
                   0,4);
 
-    const mat2f B(3,6,
+    const mat2 B(3,6,
                   2,7);
 
-    const mat2f C(-1,0,
+    const mat2 C(-1,0,
                    5,3);
 
     // Non-commutativity
@@ -277,10 +277,10 @@ TEST(MatrixTest, AlgebraicProperties_2x2) {
 // ------------------------------ transpose product rule ------------------------------
 
 TEST(MatrixTest, TransposeOfProduct) {
-    const mat2x3f A(1,3,5,
+    const mat2x3 A(1,3,5,
                     2,4,6);
 
-    const mat3x2f B( 2, 1,
+    const mat3x2 B( 2, 1,
                     -1, 0,
                      3, 2);
 
@@ -297,11 +297,11 @@ TEST(MatrixTest, TransposeOfProduct) {
 // ------------------------------ approx equal behavior ------------------------------
 
 TEST(MatrixTest, ApproxEqualBehavior) {
-    const mat3f I(1,0,0,
+    const mat3 I(1,0,0,
                   0,1,0,
                   0,0,1);
 
-    const mat3f J(1 + 1e-7f, 0, 0,
+    const mat3 J(1 + 1e-7f, 0, 0,
                   0, 1 - 1e-7f, 0,
                   0, 0, 1 + 5e-7f);
 

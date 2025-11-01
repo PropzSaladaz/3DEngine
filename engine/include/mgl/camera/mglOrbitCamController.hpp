@@ -9,25 +9,25 @@ class OrbitCamController : public ICameraController {
 public:
 
     OrbitCamController(Camera* camera);
-    OrbitCamController(Camera* camera, const glm::vec3& centerP, GLfloat _radius);
+    OrbitCamController(Camera* camera, const math::vec3& centerP, f32 _radius);
     
-    void setCenter(const glm::vec3& centerP);
-    void setRadius(GLfloat radius);
-    void setMouseSensitivity(GLfloat sensitivity);
+    void setCenter(const math::vec3& centerP);
+    void setRadius(f32 radius);
+    void setMouseSensitivity(f32 sensitivity);
 
     //void zoom(float step) {
 
     //}
 protected:
-    void handleContinuousInput(GLfloat deltatime) override;
+    void handleContinuousInput(f32 deltatime) override;
     void registerDiscreteInputHandler() override;
 private:
-    glm::quat rotation = glm::angleAxis(0.0f, mgl::YY);
-    GLfloat radius = 1.0f;
+    math::quat rotation = math::quat::fromAxisAngle(mgl::YY, 0.0f);
+    f32 radius = 1.0f;
     Transform* center;
-    GLfloat mouseSensitivity = 4.0f;
+    f32 mouseSensitivity = 4.0f;
 
-    void rotateCamera(float degrees, const glm::vec3& axis);
+    void rotateCamera(f32 degrees, const math::vec3& axis);
 };
 
 }

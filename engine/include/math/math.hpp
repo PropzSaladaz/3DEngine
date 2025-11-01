@@ -1,4 +1,9 @@
 #pragma once
-#include "vector.hpp"
-#include "matrix.hpp"
-#include "quaternion.hpp"
+#include "math/config.hpp"
+#include "math/vector.hpp"
+#include "math/matrix.hpp"
+#include "math/quaternion.hpp"
+#include "math/trigonometry.hpp"
+#include "math/transform/vector.hpp"
+#include "math/transform/matrix.hpp"
+#include "math/transform/quaternion.hpp"

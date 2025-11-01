@@ -23,16 +23,17 @@ struct quat_t {
 private:
     backend_t q_; // GLM stores (w,x,y,z). Accessors will present (x,y,z,w).
 
-    constexpr quat_t(const backend_t& g) noexcept : q_(g) {} // private backend ctor
-
 public:
     // ----------------------------- constructors -----------------------------
+
+    constexpr quat_t(const backend_t& g) noexcept : q_(g) {} // backend ctor
 
     // Identity (unit) quaternion
     constexpr quat_t() noexcept : q_(T(1), T(0), T(0), T(0)) {}
 
     // Raw constructor (x,y,z,w) — different from GLM ordering (w,x,y,z) - matches to it internally
     explicit constexpr quat_t(T x, T y, T z, T w) noexcept : q_(w, x, y, z) {}
+    explicit constexpr quat_t(const vec_t<3,T>& v, T w) noexcept : q_(w, v[0], v[1], v[2]) {}
 
     // Copy/move
     constexpr quat_t(const quat_t&) noexcept = default;
@@ -66,15 +67,13 @@ public:
     static quat_t fromY(T radians) noexcept { return quat_t(backend_t(glm::angleAxis(radians, glm::vec<3,T,glm::defaultp>(T(0),T(1),T(0))))); }
     static quat_t fromZ(T radians) noexcept { return quat_t(backend_t(glm::angleAxis(radians, glm::vec<3,T,glm::defaultp>(T(0),T(0),T(1))))); }
 
-    // Fast path: expects a and b are unit-length (|a|=|b|=1).
-    // Returns a unit quaternion rotating a -> b (shortest arc).
-    template<int N = 3>
-    static quat_t<T> fromRotationBetweenUnit(const vec_t<N,T>& a, const vec_t<N,T>& b) noexcept {
-        static_assert(N == 3, "fromRotationBetweenUnit expects vec3");
-        return quat_t(glm::rotation(a.v, b.v));
-    }
-
     // -------------------------- accessors (xyzw) ----------------------------
+
+    constexpr const backend_t& backend() const noexcept { return q_; }
+
+    // access
+    constexpr       T& operator[](int i)       noexcept { return q_[i]; }
+    constexpr const T& operator[](int i) const noexcept { return q_[i]; }
 
     // Public accessor order: x,y,z,w (vector first, scalar last)
     constexpr       T& x()       noexcept { return q_.x; } // GLM provides .x component directly
@@ -133,17 +132,16 @@ public:
         return *this;
     }
 
-    inline friend vec_t<3,T> operator*(const quat_t<T>& q, const vec_t<3, T>& v ) {
-        return q.rotate(v);
+    inline friend vec_t<3,T> operator*(const quat_t<T>& q, const vec_t<3, T>& v ) noexcept {
+        glm::vec<3,T,glm::defaultp> gv(v[0], v[1], v[2]);
+        glm::vec<3,T,glm::defaultp> gr = q.q_ * gv; // GLM overload does the sandwich internally
+        return vec_t<3,T>(gr.x, gr.y, gr.z);
     }
 
-    // Rotate a vec3 (pure rotation). Equivalent to q * v * q_conjugate.
-    template<int N = 3>
-    vec_t<N,T> rotate(const vec_t<N,T>& v) const noexcept {
-        glm::vec<3,T,glm::defaultp> gv(v[0], v[1], v[2]);
-        glm::vec<3,T,glm::defaultp> gr = q_ * gv; // GLM overload does the sandwich internally
-        return vec_t<N,T>(gr.x, gr.y, gr.z);
+    inline vec_t<3,T> rotate(const vec_t<3,T>& v) const noexcept {
+        return (*this) * v; // use operator*
     }
+
 
     // Spherical linear interpolation
     friend quat_t slerp(const quat_t& a, const quat_t& b, T t) noexcept {
@@ -152,6 +150,14 @@ public:
 };
 
 // ----------------------- approx equality helper (quat_t) ----------------------
+
+template<typename T>
+inline bool equal(const quat_t<T>& a, const quat_t<T>& b, T threshold = math::epsilon<T>()) noexcept {
+    for (int i=0;i<4;++i) {
+        if (std::abs(a[i] - b[i]) > threshold) return false;
+    }
+    return true;
+}
 
 template<typename T>
 inline bool approxEqual(const quat_t<T>& a, const quat_t<T>& b,

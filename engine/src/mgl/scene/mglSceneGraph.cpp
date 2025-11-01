@@ -144,8 +144,8 @@ SceneGraph* SceneNode::NO_PARENT = nullptr;
 SceneNode::SceneNode() : IDrawable(), Transform(), 
 	Parent(NO_PARENT), AbsoluteTransform(I) {}
 
-glm::vec3 SceneNode::getAbsolutePosition() const {
-	return glm::vec3(AbsoluteTransform * glm::vec4(getPosition(), 1.0f));
+math::vec3 SceneNode::getAbsolutePosition() const {
+	return math::vec3(AbsoluteTransform * math::vec4(getPosition(), 1.0f));
 }
 
 ////////////////////////////////////////////////////////////////// SceneGraph

@@ -4,10 +4,10 @@
 #include <cstring>
 namespace mgl {
 
-	const GLuint Light::MAX_NR_LIGHTS = 10;
-	const GLint Light::LIGHT_TYPE = -1;
+	const ui32 Light::MAX_NR_LIGHTS = 10;
+	const i32 Light::LIGHT_TYPE = -1;
 
-	GLuint Light::LIGHT_NR = 0; // current light number
+	ui32 Light::LIGHT_NR = 0; // current light number
 
 	// fixed property names
 	const char Light::LIGHT_IS_ENABLED_PROP[]	= "isEnabled";
@@ -61,9 +61,9 @@ namespace mgl {
 		LIGHT_ATTENUATION_LINEAR	= LIGHT_UNIFORM(LIGHT_NR, LIGHT_ATTENUATION_LINEAR_PROP);
 		LIGHT_ATTENUATION_QUADRATIC = LIGHT_UNIFORM(LIGHT_NR, LIGHT_ATTENUATION_QUADRATIC_PROP);
 
-		setAmbient(glm::vec3(1.0f));
-		setDiffuse(glm::vec3(1.0f));
-		setSpecular(glm::vec3(1.0f));
+		setAmbient(math::vec3(1.0f));
+		setDiffuse(math::vec3(1.0f));
+		setSpecular(math::vec3(1.0f));
 
 		LIGHT_NR++;
 	}
@@ -83,29 +83,29 @@ namespace mgl {
 	}
 
 	///////////////////////////////////////////////// Setters
-	void Light::setColor(const glm::vec3& color) {
+	void Light::setColor(const math::vec3& color) {
 		setAmbient(color);
 		setDiffuse(color);
 		setSpecular(color);
 	}
-	void Light::setAmbient(const glm::vec3& ambient) {
-		ambientColor = glm::vec4(ambient, 1.0f);
+	void Light::setAmbient(const math::vec3& ambient) {
+		ambientColor = math::vec4(ambient, 1.0f);
 	}
-	void Light::setDiffuse(const glm::vec3& diffuse) {
-		diffuseColor = glm::vec4(diffuse, 1.0f);
+	void Light::setDiffuse(const math::vec3& diffuse) {
+		diffuseColor = math::vec4(diffuse, 1.0f);
 	}
-	void Light::setSpecular(const glm::vec3& specular) {
-		specularColor = glm::vec4(specular, 1.0f);
+	void Light::setSpecular(const math::vec3& specular) {
+		specularColor = math::vec4(specular, 1.0f);
 	}
 
 	////////////////////////////////////////////////// Getters
-	glm::vec3 Light::getAmbient() const {
+	math::vec3 Light::getAmbient() const {
 		return ambientColor;
 	}
-	glm::vec3 Light::getDiffuse() const {
+	math::vec3 Light::getDiffuse() const {
 		return diffuseColor;
 	}
-	glm::vec3 Light::getSpecular() const {
+	math::vec3 Light::getSpecular() const {
 		return specularColor;
 	}
 }

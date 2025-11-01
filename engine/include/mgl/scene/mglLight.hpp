@@ -1,7 +1,7 @@
 #ifndef MGL_LIGHT_HPP
 #define MGL_LIGHT_HPP
 
-#include <glm/glm.hpp>
+#include <cstring>
 #include <mgl/mglShaders.hpp>
 #include <mgl/camera/mglCamera.hpp>
 
@@ -16,7 +16,7 @@ class PointLight;
 */
 class Light : public ShaderUpdator {
 public:
-	static inline char* LIGHT_UNIFORM(GLuint light_nr, const char* propertyName) {
+	static inline char* LIGHT_UNIFORM(ui32 light_nr, const char* propertyName) {
 		std::string result = "Lights[" + std::to_string(light_nr) + "]." + propertyName;
 		return strdup(result.c_str());
 	}
@@ -24,10 +24,10 @@ public:
 
 	enum LightTtypes { DIRECTIONAL_LIGHT, POINT_LIGHT, SPOT_LIGHT };
 
-	static const GLuint MAX_NR_LIGHTS;
-	static const GLint LIGHT_TYPE;
+	static const ui32 MAX_NR_LIGHTS;
+	static const i32 LIGHT_TYPE;
 
-	static GLuint LIGHT_NR;
+	static ui32 LIGHT_NR;
 
 	// property name only
 	static const char LIGHT_IS_ENABLED_PROP[];
@@ -67,20 +67,20 @@ public:
 
 	void assignCamera(const Camera* camera);
 
-	void setColor(const glm::vec3& color);
-	void setAmbient(const glm::vec3& ambient);
-	void setDiffuse(const glm::vec3& diffuse);
-	void setSpecular(const glm::vec3& specular);
+	void setColor(const math::vec3& color);
+	void setAmbient(const math::vec3& ambient);
+	void setDiffuse(const math::vec3& diffuse);
+	void setSpecular(const math::vec3& specular);
 
-	glm::vec3 getAmbient() const;
-	glm::vec3 getDiffuse() const;
-	glm::vec3 getSpecular() const;
+	math::vec3 getAmbient() const;
+	math::vec3 getDiffuse() const;
+	math::vec3 getSpecular() const;
 
 protected:
 	bool enabled;
-	glm::vec4 ambientColor;
-	glm::vec4 diffuseColor;
-	glm::vec4 specularColor;
+	math::vec4 ambientColor;
+	math::vec4 diffuseColor;
+	math::vec4 specularColor;
 	const Camera* camera;
 };
 

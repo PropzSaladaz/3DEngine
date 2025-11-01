@@ -2,6 +2,7 @@
 #include <utils/file.hpp>
 #include <utils/Logger.hpp>
 #include <string>
+#include "types.hpp"
 
 namespace mgl {
 
@@ -131,28 +132,28 @@ void ShaderProgram::setUniformFloat(const std::string &name, float value) {
     glUniform1f(Uniforms[name].index, value);
 }
 
-void ShaderProgram::setUniformVec4f(GLint varID, const GLfloat * vec) {
+void ShaderProgram::setUniformVec4f(i32 varID, const f32 * vec) {
     glUniform4fv(varID, 1, vec);
 }
 
-void ShaderProgram::setUniformVec4f(const std::string& name, const GLfloat* vec) {
+void ShaderProgram::setUniformVec4f(const std::string& name, const f32* vec) {
     assertUniform(name);
     setUniformVec4f(Uniforms[name].index, vec);
 }
-void ShaderProgram::setUniformVec3f(GLint varID, const GLfloat* vec) {
+void ShaderProgram::setUniformVec3f(i32 varID, const f32* vec) {
     glUniform3fv(varID, 1, vec);
 }
 
-void ShaderProgram::setUniformVec3f(const std::string& name, const GLfloat* vec) {
+void ShaderProgram::setUniformVec3f(const std::string& name, const f32* vec) {
     assertUniform(name);
     setUniformVec3f(Uniforms[name].index, vec);
 }
 
-void ShaderProgram::setUniformMatrix(GLint varID, const GLfloat* matrix) {
+void ShaderProgram::setUniformMatrix(i32 varID, const f32* matrix) {
     glUniformMatrix4fv(varID, 1, GL_FALSE, matrix);
 }
 
-void ShaderProgram::setUniformMatrix(const std::string &name, const GLfloat * matrix) {
+void ShaderProgram::setUniformMatrix(const std::string &name, const f32 * matrix) {
     assertUniform(name);
     setUniformMatrix(Uniforms[name].index, matrix);
 }
@@ -167,10 +168,10 @@ void ShaderProgram::assertUniform(const std::string &name) {
 
 // PRIVATE
 const void ShaderProgram::checkCompilation(const GLuint shader_id, const std::string &filename) {
-  GLint compiled; // stores if shader compiled successfully or not
+  i32 compiled; // stores if shader compiled successfully or not
   glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
   if (compiled == GL_FALSE) {
-    GLint length;
+    i32 length;
     glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
     GLchar *const log = new char[length];
     glGetShaderInfoLog(shader_id, length, &length, log);
@@ -181,10 +182,10 @@ const void ShaderProgram::checkCompilation(const GLuint shader_id, const std::st
 }
 
 void ShaderProgram::checkLinkage() {
-  GLint linked;
+  i32 linked;
   glGetProgramiv(ProgramId, GL_LINK_STATUS, &linked);
   if (linked == GL_FALSE) {
-    GLint length;
+    i32 length;
     glGetProgramiv(ProgramId, GL_INFO_LOG_LENGTH, &length);
     GLchar *const log = new char[length];
     glGetProgramInfoLog(ProgramId, length, &length, log);

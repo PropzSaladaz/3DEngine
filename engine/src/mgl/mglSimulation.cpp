@@ -1,10 +1,10 @@
 #include <mgl/mglSimulation.hpp>
-
+#include "types.hpp"
 namespace mgl {
 
-	GLuint Identifiable::idCounter = 0;
+	ui32 Identifiable::idCounter = 0;
 	Identifiable::Identifiable() : id(++idCounter) {}
-	GLuint Identifiable::getId() {
+	ui32 Identifiable::getId() {
 		return id;
 	}
 
@@ -19,15 +19,15 @@ namespace mgl {
 		return instance;
 	}
 
-	void Simulation::trackUpdateable(GLuint id, ITimeUpdateable* updateable) {
+	void Simulation::trackUpdateable(ui32 id, ITimeUpdateable* updateable) {
 		updateables.insert(std::make_pair(id, updateable));
 	}
 
-	void Simulation::stopTracking(GLuint id) {
+	void Simulation::stopTracking(ui32 id) {
 		updateables.erase(id);
 	}
 
-	void Simulation::update(GLfloat deltaTime) {
+	void Simulation::update(f32 deltaTime) {
 		for (const auto& pair : updateables) {
 			pair.second->update(deltaTime);
 		}

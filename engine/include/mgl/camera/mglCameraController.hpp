@@ -1,5 +1,4 @@
-#ifndef MGL_CAMERA_CONTROLLER_HPP
-#define MGL_CAMERA_CONTROLLER_HPP
+#pragma once
 
 #include <mgl/mglSimulation.hpp>
 #include <mgl/camera/mglCamera.hpp>
@@ -9,20 +8,18 @@ namespace mgl {
 	class ICameraController : ITimeUpdateable {
 	public:
 		ICameraController(Camera* camera);
-		void update(GLfloat deltaTime) override;
+		void update(f32 deltaTime) override;
 		void setCamera(Camera* camera);
 		Camera* getCamera();
 
 		void setActive();
 		void unset();
-		void setPosition(GLfloat x, GLfloat y, GLfloat z);
+		void setPosition(f32 x, f32 y, f32 z);
 
 	protected:
 		bool isActive = false;
 		Camera* camera;
-		void virtual handleContinuousInput(GLfloat deltatime) = 0;
+		void virtual handleContinuousInput(f32 deltatime) = 0;
 		void virtual registerDiscreteInputHandler() = 0;
 	};
 }
-
-#endif

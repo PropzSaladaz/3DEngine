@@ -1,12 +1,6 @@
-#ifndef MGL_POINT_LIGHT_HPP
-#define MGL_POINT_LIGHT_HPP
+#pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <math/math.hpp>
 
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglTransform.hpp>
@@ -16,18 +10,14 @@
 
 namespace mgl {
 
-	///////////////////////////////////////////////////////////////// Light
 	class PointLight : public PositionalLight {
 	public:
-		PointLight(const glm::vec3 &position);
+		PointLight(const math::vec3 &position);
 		PointLight(const SceneObject* position);
-		PointLight(const glm::vec3 &position, const glm::vec3 &color);
-		PointLight(const SceneObject* position, const glm::vec3 &color);
+		PointLight(const math::vec3 &position, const math::vec3 &color);
+		PointLight(const SceneObject* position, const math::vec3 &color);
 
 		void updateShaders(ShaderProgram* shader) override;
 	};
 
-	////////////////////////////////////////////////////////////////////////////////
 }  // namespace mgl
-
-#endif /* MGL_MATERIAL_HPP  */

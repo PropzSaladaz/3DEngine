@@ -1,9 +1,4 @@
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
 #include <mgl/mgl.hpp>
-#include <glm/gtx/string_cast.hpp>
 #include <utils/Logger.hpp>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
@@ -98,15 +93,15 @@ void MyApp::createTextures() {
 }
 
 // Colors                          R       G       B      
-const glm::vec3 LIGHT_COLOR_1   (0.912f, 0.224f, 0.256f);
-const glm::vec3 LIGHT_COLOR_2   (0.955f, 0.943f, 0.555f);
-const glm::vec3 LIGHT_COLOR_3   (1, 1, 1);
+const mgl::vec3 LIGHT_COLOR_1   (0.912f, 0.224f, 0.256f);
+const mgl::vec3 LIGHT_COLOR_2   (0.955f, 0.943f, 0.555f);
+const mgl::vec3 LIGHT_COLOR_3   (1, 1, 1);
 
-const glm::vec4 STATUE_COLOR_1(0.949f, 0.902f, 0.769f, 1.0f);
-const glm::vec4 STATUE_COLOR_2(0.849f, 0.802f, 0.669f, 1.0f);
+const mgl::vec4 STATUE_COLOR_1(0.949f, 0.902f, 0.769f, 1.0f);
+const mgl::vec4 STATUE_COLOR_2(0.849f, 0.802f, 0.669f, 1.0f);
 
-const glm::vec4 WOOD_COLOR_1(0.549f, 0.309f, 0.114f, 1.0f);
-const glm::vec4 WOOD_COLOR_2(0.258f, 0.149f, 0.058f, 1.0f);
+const mgl::vec4 WOOD_COLOR_1(0.549f, 0.309f, 0.114f, 1.0f);
+const mgl::vec4 WOOD_COLOR_2(0.258f, 0.149f, 0.058f, 1.0f);
 
 ///////////////////////////////////////////////////////////////////////// MATERIALS
 
@@ -122,7 +117,7 @@ void MyApp::createMaterials() {
     STONE_M->addTexture(textures->get("environmentDiffuse"));
     STONE_M->addTexture(textures->get("environmentSpecular"));
     // light
-    mgl::Material* LIGHT_1_M = new mgl::BasicMaterial(glm::vec3(0.912f, 0.824f, 0.856f));
+    mgl::Material* LIGHT_1_M = new mgl::BasicMaterial(mgl::vec3(0.912f, 0.824f, 0.856f));
     mgl::Material* LIGHT_2_M = new mgl::BasicMaterial(LIGHT_COLOR_2);
     // wood
     mgl::Material* WOOD_M = (new mgl::PhongMaterial())
@@ -134,9 +129,9 @@ void MyApp::createMaterials() {
     WOOD_M->addTexture(textures->get("environmentDiffuse"));
     WOOD_M->addTexture(textures->get("environmentSpecular"));
     // glass
-    mgl::Material* GLASS_M = (new mgl::PhongMaterial(glm::vec4(mgl::COLOR_WHITE, 0.1f)))
-        ->setDiffuseColor(glm::vec4(mgl::COLOR_WHITE, 0.0f))
-        ->setSpecularColor(glm::vec4(mgl::COLOR_WHITE, 0.9f))
+    mgl::Material* GLASS_M = (new mgl::PhongMaterial(mgl::vec4(mgl::COLOR_WHITE, 0.1f)))
+        ->setDiffuseColor(mgl::vec4(mgl::COLOR_WHITE, 0.0f))
+        ->setSpecularColor(mgl::vec4(mgl::COLOR_WHITE, 0.9f))
         ->setShininess(500);
 
     materials->add("stone", STONE_M);
@@ -242,8 +237,8 @@ void MyApp::createSceneGraph() {
         ->rotate(-90.0f, mgl::XX)
         ->translate(0, 0.15f, 0));
     statueObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", glm::value_ptr(STATUE_COLOR_1));
-        shaders->setUniformVec4f("darkColor", glm::value_ptr(STATUE_COLOR_2));
+        shaders->setUniformVec4f("whiteColor", STATUE_COLOR_1.data());
+        shaders->setUniformVec4f("darkColor", STATUE_COLOR_2.data());
         });
 
     // wooden base ----------------------------------------------------
@@ -252,8 +247,8 @@ void MyApp::createSceneGraph() {
         materials->get("wood"),
         shaders->get("wood"));
     woodenBaseObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", glm::value_ptr(WOOD_COLOR_1));
-        shaders->setUniformVec4f("darkColor", glm::value_ptr(WOOD_COLOR_2));
+        shaders->setUniformVec4f("whiteColor", WOOD_COLOR_1.data());
+        shaders->setUniformVec4f("darkColor", WOOD_COLOR_2.data());
         });
 
     // Glass dome ----------------------------------------------------
@@ -311,11 +306,11 @@ void MyApp::createSceneGraph() {
     mgl::PointLight* pointLight = new mgl::PointLight(light, LIGHT_COLOR_1 * 1.0f);
     pointLight->setAmbient(LIGHT_COLOR_1 * 0.1f);
     pointLight->setAttenuation(10);
-    mgl::SpotLight* spotLight = new mgl::SpotLight(light2, LIGHT_COLOR_2 * 1.0f, glm::vec3(0.0f, 2.0f, 0.0f));
+    mgl::SpotLight* spotLight = new mgl::SpotLight(light2, LIGHT_COLOR_2 * 1.0f, mgl::vec3(0.0f, 2.0f, 0.0f));
     spotLight->setAmbient(LIGHT_COLOR_2 * 0.0f);
     spotLight->setInnerCutoffAngle(15.0f);
     spotLight->setOuterCutoffAngle(17.0f);
-    mgl::DirectionalLight* dirLight = new mgl::DirectionalLight(glm::vec3(0, -1, -1), LIGHT_COLOR_3 * 1.0f);
+    mgl::DirectionalLight* dirLight = new mgl::DirectionalLight(mgl::vec3(0, -1, -1), LIGHT_COLOR_3 * 1.0f);
     dirLight->setSpecular(LIGHT_COLOR_3 * 0.55f); // since the environment has cloudy sun
     dirLight->setAmbient(LIGHT_COLOR_3 * 0.4f);
 
@@ -348,7 +343,7 @@ void MyApp::processInput(double elapsed) {
 
 void MyApp::createCamera() {
     mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
-    OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
+    OrbitCam = new mgl::OrbitCamController(camera2, mgl::vec3(0, 0, 0), 5.0f);
     OrbitCam->setActive();
 }
 

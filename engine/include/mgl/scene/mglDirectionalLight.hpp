@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <math/math.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,16 +22,16 @@ namespace mgl {
 	*/
 	class DirectionalLight : public Light {
 	public:
-		DirectionalLight(const glm::vec3& direction);
-		DirectionalLight(const glm::vec3& direction, const glm::vec3& color);
+		DirectionalLight(const math::vec3& direction);
+		DirectionalLight(const math::vec3& direction, const math::vec3& color);
 
-		void setDirection(const glm::vec3 &direction);
-		glm::vec3 getDirection() const;
+		void setDirection(const math::vec3 &direction);
+		math::vec3 getDirection() const;
 
 		void updateShaders(ShaderProgram* shader) override;
 
 	private:
-		glm::vec3 direction;
+		math::vec3 direction;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////

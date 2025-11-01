@@ -3,10 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <math/math.hpp>
 
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglTransform.hpp>
@@ -16,7 +13,6 @@
 
 namespace mgl {
 
-	///////////////////////////////////////////////////////////////// Light
 	class PositionalLight : public Light {
 	public:
 		static const GLfloat DEFAULT_ATTENUATION;
@@ -27,17 +23,17 @@ namespace mgl {
 		};
 
 		PositionalLight();
-		PositionalLight(const glm::vec3& position);
+		PositionalLight(const math::vec3& position);
 		PositionalLight(const SceneObject* position);
-		PositionalLight(const glm::vec3& position, const glm::vec3& color);
-		PositionalLight(const SceneObject* position, const glm::vec3& color);
+		PositionalLight(const math::vec3& position, const math::vec3& color);
+		PositionalLight(const SceneObject* position, const math::vec3& color);
 
-		void setPosition(const glm::vec3& position);
+		void setPosition(const math::vec3& position);
 		void setPosition(const SceneObject* position);
-		void setAttenuation(GLuint distance);
+		void setAttenuation(ui32 distance);
 		void setAttenuation(const LightAttenuation& attenuation);
 
-		glm::vec3 getPosition() const;
+		math::vec3 getPosition() const;
 		LightAttenuation getAttenuation() const;
 
 		virtual void updateShaders(ShaderProgram* shader) override;
@@ -49,10 +45,10 @@ namespace mgl {
 		LightAttenuation attenuation;
 
 		// default attenuation parameters
-		static inline const GLuint attenuationDistances[] = { 7, 13, 20, 32, 50, 65, 100,
+		static inline const ui32 attenuationDistances[] = { 7, 13, 20, 32, 50, 65, 100,
 			160, 200, 325, 600, 3250 };
 		// distance  parameters
-		static inline const std::map<GLuint, LightAttenuation> defaultAttenuations = {
+		static inline const std::map<ui32, LightAttenuation> defaultAttenuations = {
 			{7,	   {1.0f, 0.7f,    1.8f}},
 			{13,   {1.0f, 0.35f,   0.44f}},
 			{20,   {1.0f, 0.22f,   0.20f}},

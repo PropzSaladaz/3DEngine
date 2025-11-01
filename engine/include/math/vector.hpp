@@ -1,6 +1,7 @@
 // vec_t.hpp — fixed-size row-style vectors with GLM backend hidden
 #pragma once
 #include "config.hpp"
+#include "glm/gtx/vector_angle.hpp"
 #include <glm/glm.hpp>
 #include <type_traits>
 #include <array>
@@ -10,7 +11,7 @@
 namespace mgl::math {
 
 // Forward-declare matrix to enable mat*vec_t / vec_t*mat
-template<int R, int C, typename T> struct mat;
+template<int R, int C, typename T> struct mat_t;
 template<typename T> struct quat_t;
 
 // ==================================================
@@ -31,12 +32,16 @@ private:
     template<typename U> friend struct quat_t;
 
 public:
-    // --- ctors ---
+    // -----------------------------------------------
+    //                  constructors
+    // -----------------------------------------------
+
     constexpr vec_t() : v(0) {}                // zero initialize
     explicit constexpr vec_t(const backend_t& g) : v(g) {}
 
     // splat
     explicit constexpr vec_t(T s) : v(s) {}
+
 
     // N-scalar constructor (row order)
     template<typename... Args>
@@ -47,6 +52,27 @@ public:
     explicit constexpr vec_t(const std::array<T,N>& a) : v(0) {
         for (int i=0;i<N;++i) v[i] = a[i];
     }
+
+    // Construct from smaller vec + extra component
+    template<int M>
+    requires (M == N-1)
+    constexpr vec_t(vec_t<M,T> const& src, T lastVal) : v(0) {
+        for (int i=0;i<M;++i) v[i] = src[i];
+        v[M] = lastVal;
+    }
+
+    // Construct from larger vec - drop extra components
+    template<int M>
+    requires (M == N+1)
+    constexpr vec_t(vec_t<M,T> const& src) : v(0) {
+        for (int i=0;i<N;++i) v[i] = src[i];
+    }
+
+    // -----------------------------------------------
+    //                    accessors
+    // -----------------------------------------------
+
+    constexpr const backend_t& backend() const noexcept { return v; }
 
     // access
     constexpr       T& operator[](int i)       noexcept { return v[i]; }
@@ -118,13 +144,12 @@ public:
         return s;
     }
 
-    T length() const noexcept { using std::sqrt; return sqrt(length2()); }
+    T length() const noexcept { return sqrt(length2()); }
 
     vec_t normalized() const noexcept {
-        T len = length();
-        // Avoid div-by-zero: return zero if len == 0
-        if (len == T(0)) return vec_t{};
-        return *this / len;
+        T len2 = length2();
+        if (len2 <= T(abs_eps * abs_eps)) return vec_t{}; // avoid div-by-zero
+        return *this / sqrt(len2);
     }
 
     // dot
@@ -149,25 +174,31 @@ public:
     {
         return a[0]*b[1] - a[1]*b[0];
     }
+
+    // linear interpolation
+    friend constexpr vec_t<N, T> lerp(const vec_t<N,T>& a, const vec_t<N,T>& b, T t) noexcept {
+        return a + t * (b - a);
+    }
+
+    friend constexpr f32 angle(const vec_t<N,T>& a, const vec_t<N,T>& b) noexcept {
+        return glm::angle(a.v, b.v);
+    }
 };
 
-
-// make friend functions visible and scoped to math namespace
-template<int N, typename T>
-constexpr T dot(const vec_t<N,T>& a, const vec_t<N,T>& b) noexcept {
-    return dot(a,b); // call friend
-}
-
-template<typename T>
-constexpr vec_t<3,T> cross(const vec_t<3,T>& a, const vec_t<3,T>& b) noexcept {
-    return cross(a,b); // call friend
-}
 
 // ------------------------- approx equality helper -------------------------
 
 template<int N, typename T>
+inline bool equal(const vec_t<N,T>& a, const vec_t<N,T>& b, T threshold = math::epsilon<T>()) noexcept {
+    for (int i=0;i<N;++i) {
+        if (std::abs(a[i] - b[i]) > threshold) return false;
+    }
+    return true;
+}
+
+template<int N, typename T>
 inline bool approxEqual(const vec_t<N,T>& a, const vec_t<N,T>& b,
-                         T abs_eps = math::abs_eps, T rel_eps = math::rel_eps) noexcept
+                         T abs_eps = math::epsilon<T>(), T rel_eps = math::rel_eps) noexcept
 {
     for (int i=0;i<N;++i) {
         const T x = a[i], y = b[i];
@@ -178,11 +209,11 @@ inline bool approxEqual(const vec_t<N,T>& a, const vec_t<N,T>& b,
     return true;
 }
 
-// -------------------------- mat × vec_t / vec_t × mat --------------------------
+// -------------------------- mat_t × vec_t / vec_t × mat_t --------------------------
 // (R×C) * (C) → (R)
 template<int R, int C, typename Tm, typename Tv>
 constexpr vec_t<R, std::common_type_t<Tm,Tv>>
-operator*(const mat<R,C,Tm>& M, const vec_t<C,Tv>& x)
+operator*(const mat_t<R,C,Tm>& M, const vec_t<C,Tv>& x)
 {
     using T = std::common_type_t<Tm,Tv>;
     vec_t<R,T> y;
@@ -197,7 +228,7 @@ operator*(const mat<R,C,Tm>& M, const vec_t<C,Tv>& x)
 // (R) * (R×C) → (C)   // row-vector times matrix
 template<int R, int C, typename Tv, typename Tm>
 constexpr vec_t<C, std::common_type_t<Tv,Tm>>
-operator*(const vec_t<R,Tv>& x, const mat<R,C,Tm>& M)
+operator*(const vec_t<R,Tv>& x, const mat_t<R,C,Tm>& M)
 {
     using T = std::common_type_t<Tv,Tm>;
     vec_t<C,T> y;

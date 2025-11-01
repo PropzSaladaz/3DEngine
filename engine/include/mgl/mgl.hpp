@@ -37,4 +37,9 @@
 #include <mgl/camera/mglOrbitCamController.hpp>
 #include <mgl/camera/mglPerspectiveCamera.hpp>
 
+// using namespace math
+namespace mgl {
+    using namespace math;
+}
+
 #endif /* MGL_HPP */

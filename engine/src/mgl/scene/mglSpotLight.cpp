@@ -5,40 +5,40 @@
 namespace mgl {
 	/////////////////////////////////////////////////////////////////////////////// Constant definition
 
-	const GLfloat SpotLight::DEFAULT_INNER_COS_CUTOFF = glm::cos(glm::radians(10.0f));
-	const GLfloat SpotLight::DEFAULT_OUTER_COS_CUTOFF = glm::cos(glm::radians(12.0f));
+	const GLfloat SpotLight::DEFAULT_INNER_COS_CUTOFF = math::cos(math::radians(10.0f));
+	const GLfloat SpotLight::DEFAULT_OUTER_COS_CUTOFF = math::cos(math::radians(12.0f));
 	const GLfloat SpotLight::DEFAULT_EPSILON = (DEFAULT_OUTER_COS_CUTOFF - DEFAULT_INNER_COS_CUTOFF);
 
 
 	/////////////////////////////////////////////////////////////////////////////// Constructors
 	SpotLight::SpotLight() : PositionalLight() {}
-	SpotLight::SpotLight(const glm::vec3 &position) : 
+	SpotLight::SpotLight(const math::vec3 &position) : 
 		PositionalLight(position) {}
 	SpotLight::SpotLight(const SceneObject* position) : PositionalLight(position) {}
-	SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3& color) : 
+	SpotLight::SpotLight(const math::vec3 &position, const math::vec3& color) : 
 		PositionalLight(position, color) {}
-	SpotLight::SpotLight(const SceneObject* position, const glm::vec3 &color) 
+	SpotLight::SpotLight(const SceneObject* position, const math::vec3 &color) 
 		: PositionalLight(position, color) {}
-	SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &target) :
+	SpotLight::SpotLight(const math::vec3 &position, const math::vec3 &color, const math::vec3 &target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3 &color, const SceneObject* target) :
+	SpotLight::SpotLight(const math::vec3 &position, const math::vec3 &color, const SceneObject* target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const SceneObject* position, const glm::vec3& color, const glm::vec3& target) :
+	SpotLight::SpotLight(const SceneObject* position, const math::vec3& color, const math::vec3& target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const SceneObject* position, const glm::vec3& color, const SceneObject* target) :
+	SpotLight::SpotLight(const SceneObject* position, const math::vec3& color, const SceneObject* target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
 
 	///////////////////////////////////////////////////// Setters
 
-	void SpotLight::setTarget(const glm::vec3 &target) {
+	void SpotLight::setTarget(const math::vec3 &target) {
 		mgl::SceneObject* sceneObj = new SceneObject();
 		sceneObj->setPosition(target);
 		this->target = sceneObj;
@@ -52,7 +52,7 @@ namespace mgl {
 			MGL_ERROR("Inner angle must be in [0, 90]");
 			exit(EXIT_FAILURE);
 		}
-		spotInnerCosCutoff = glm::cos(glm::radians(angleDegrees));
+		spotInnerCosCutoff = math::cos(math::radians(angleDegrees));
 	}
 	void SpotLight::setOuterCutoffAngle(GLfloat angleDegrees) {
 		if (angleDegrees >= 90.0f || angleDegrees <= 0.0f) {
@@ -61,7 +61,7 @@ namespace mgl {
 			exit(EXIT_FAILURE);
 		}
 		
-		GLfloat cosCutoff = glm::cos(glm::radians(angleDegrees));
+		GLfloat cosCutoff = math::cos(math::radians(angleDegrees));
 		
 		if (cosCutoff > spotInnerCosCutoff) {
 			MGL_ERROR("Outer angle must be larger than inner angle.");
@@ -74,7 +74,7 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////// Getters
 
-	glm::vec3 SpotLight::getDirection() {
+	math::vec3 SpotLight::getDirection() {
 		return target->getAbsolutePosition() - position->getAbsolutePosition();
 	}
 
@@ -85,7 +85,7 @@ namespace mgl {
 		shader->setUniformInt  (LIGHT_LIGHT_TYPE, SPOT_LIGHT);
 		shader->setUniformFloat(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
 		shader->setUniformFloat(LIGHT_EPSILON,	  epsilon);
-		shader->setUniformVec3f(LIGHT_DIRECTION, glm::value_ptr(glm::vec4(getDirection(), 0.0)));
+		shader->setUniformVec3f(LIGHT_DIRECTION, math::vec4(getDirection(), 0.0).data());
 	}
 
 }

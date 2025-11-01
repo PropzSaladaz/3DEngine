@@ -2,6 +2,7 @@
 #include <cmath>
 #include <math/quaternion.hpp>
 #include <math/vector.hpp>
+#include "math/transform/quaternion.hpp"
 
 using namespace mgl::math;
 
@@ -117,7 +118,7 @@ TEST(QuatTest, RotateAroundY90Degrees)
     vec3 v(5.0f, 0.0f, 0.0f);
     auto q = quat::fromY(static_cast<float>(M_PI_2)); // +90° around Y
 
-    auto vr = q.rotate(v);
+    auto vr = mgl::math::rotate(q, v);
 
     // Expected: (5,0,0) rotated 90° around +Y = (0,0,-5)
     EXPECT_TRUE(approxEqual(vr, vec3(0.0f, 0.0f, -5.0f)));
@@ -127,7 +128,7 @@ TEST(QuatTest, RotateIdentityDoesNothing)
 {
     auto q = quat::identity();
     vec3 v(1.5f, -2.0f, 7.0f);
-    auto vr = q.rotate(v);
+    auto vr = mgl::math::rotate(q, v);
     EXPECT_TRUE(approxEqual(vr, v));
 }
 
@@ -141,7 +142,7 @@ TEST(QuatTest, CompositionOrderGLMStyle)
     auto q = qx * qy;
 
     vec3 v(0.0f, 0.0f, 1.0f);
-    auto vr = q.rotate(v);
+    auto vr = mgl::math::rotate(q, v);
 
     // Expected: rotate (0,0,1) by y90 → (1,0,0); then x90 → (1,-0,0)
     EXPECT_TRUE(approxEqual(vr, vec3(1.0f, 0.0f, 0.0f)));
@@ -163,7 +164,7 @@ TEST(QuatTest, FromRotationBetweenAlignedVectorsIsIdentity)
     vec3 a(0.0f, 1.0f, 0.0f);
     vec3 b(0.0f, 1.0f, 0.0f);
 
-    auto q = quat::fromRotationBetweenUnit(a, b);
+    auto q = mgl::math::rotationUnit(a, b);
     EXPECT_TRUE(approxEqual(q, quat::identity()));
 }
 
@@ -172,8 +173,8 @@ TEST(QuatTest, FromRotationBetweenOppositeVectors)
     vec3 a(0.0f, 1.0f, 0.0f);
     vec3 b(0.0f, -1.0f, 0.0f);
 
-    quat q = quat::fromRotationBetweenUnit(a, b);
-    auto vr = q.rotate(a);
+    quat q = mgl::math::rotationUnit(a, b);
+    auto vr = mgl::math::rotate(q, a);
 
     EXPECT_TRUE(approxEqual(vr, b));
 }
@@ -182,7 +183,7 @@ TEST(QuatTest, FromRotationBetweenOppositeVectors)
 TEST(QuatTest, Between_Identity_NoRotation) {
     vec3 a = unitize(vec3{0.3f,-0.7f,0.6f});
     vec3 b = a;
-    quat q = quat::fromRotationBetweenUnit(a, b);
+    quat q = mgl::math::rotationUnit(a, b);
     EXPECT_TRUE(approxEqual(q.inverse(), q.conjugate())); // unit
     EXPECT_TRUE(approxEqual(q * a, b));       // maps a->b
     EXPECT_TRUE(approxEqual(q, quat::identity()));        // near identity
@@ -193,7 +194,7 @@ TEST(QuatTest, Between_Opposite_180deg) {
     vec3 a = unitize(vec3{0.3f,0.5f,-0.8f});
     vec3 b = a * -1.0f;
 
-    quat q = quat::fromRotationBetweenUnit(a, b);
+    quat q = mgl::math::rotationUnit(a, b);
     EXPECT_TRUE(approxEqual(q.inverse(), q.conjugate()));
     EXPECT_TRUE(approxEqual(q * a, b, 5e-5f, 5e-5f));
 
@@ -206,19 +207,19 @@ TEST(QuatTest, Between_Orthogonal_PrincipalAxes) {
     // X -> Z
     {
         vec3 a{1,0,0}, b{0,0,1};
-        quat q = quat::fromRotationBetweenUnit(a, b);
+        quat q = mgl::math::rotationUnit(a, b);
         EXPECT_TRUE(approxEqual(q * a, b));
     }
     // Z -> -X
     {
         vec3 a{0,0,1}, b{-1,0,0};
-        quat q = quat::fromRotationBetweenUnit(a, b);
+        quat q = mgl::math::rotationUnit(a, b);
         EXPECT_TRUE(approxEqual(q * a, b));
     }
     // Y -> -Z
     {
         vec3 a{0,1,0}, b{0,0,-1};
-        quat q = quat::fromRotationBetweenUnit(a, b);
+        quat q = mgl::math::rotationUnit(a, b);
         EXPECT_TRUE(approxEqual(q * a, b));
     }
 }
@@ -234,7 +235,7 @@ TEST(QuatTest, Between_RandomPairs_MapExactlyAndAreUnit) {
     };
     for (auto& a : s) {
         for (auto& b : s) {
-            quat q = quat::fromRotationBetweenUnit(a, b);
+            quat q = mgl::math::rotationUnit(a, b);
             EXPECT_TRUE(approxEqual(q.inverse(), q.conjugate()));
             EXPECT_TRUE(approxEqual(q * a, b, 5e-5f, 5e-5f));
             EXPECT_TRUE(approxEqual(q.inverse() * b, a, 5e-5f, 5e-5f));
@@ -249,7 +250,7 @@ TEST(QuatTest, Between_EdgeNearParallelAndNearAntiparallel) {
     // Near-parallel (+ε in Y)
     {
         vec3 b = unitize(vec3{1.0f, 1e-6f, 0.0f});
-        quat q = quat::fromRotationBetweenUnit(a, b);
+        quat q = mgl::math::rotationUnit(a, b);
         EXPECT_TRUE(approxEqual(q * a, b, 1e-5f, 1e-5f));
         EXPECT_TRUE(approxEqual(q.inverse(), q.conjugate()));
     }
@@ -257,7 +258,7 @@ TEST(QuatTest, Between_EdgeNearParallelAndNearAntiparallel) {
     // Near-antiparallel (-X + small Y)
     {
         vec3 b = unitize(vec3{-1.0f, 1e-4f, 0.0f});
-        quat q = quat::fromRotationBetweenUnit(a, b);
+        quat q = mgl::math::rotationUnit(a, b);
         EXPECT_TRUE(approxEqual(q * a, b, 5e-5f, 5e-5f));
         EXPECT_TRUE(approxEqual(q.inverse(), q.conjugate()));
     }
@@ -267,7 +268,7 @@ TEST(QuatTest, Between_EdgeNearParallelAndNearAntiparallel) {
 TEST(QuatTest, Between_SignAmbiguityNoEffect) {
     vec3 a = unitize(vec3{0.2f, -0.4f, 0.9f});
     vec3 b = unitize(vec3{-0.6f, 0.1f, 0.8f});
-    quat q  = quat::fromRotationBetweenUnit(a, b);
+    quat q  = mgl::math::rotationUnit(a, b);
     quat qm = quat{-q.x(), -q.y(), -q.z(), -q.w()}; // if you expose accessors
 
     vec3 r1 = q  * a;
