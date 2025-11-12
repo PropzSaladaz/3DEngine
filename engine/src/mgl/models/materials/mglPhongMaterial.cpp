@@ -64,10 +64,10 @@ namespace mgl {
 	}
 
 	void PhongMaterial::setMaterialUniforms(ShaderProgram* shaders) {
-		shaders->setUniformVec4f(MATERIAL_PHONG_AMBIENT,  ambientColor.data());
-		shaders->setUniformVec4f(MATERIAL_PHONG_DIFFUSE,  diffuseColor.data());
-		shaders->setUniformVec4f(MATERIAL_PHONG_SPECULAR, specularColor.data());
-		shaders->setUniformFloat(MATERIAL_PHONG_SHININESS, shininess);
+		shaders->setUniform(MATERIAL_PHONG_AMBIENT,  ambientColor);
+		shaders->setUniform(MATERIAL_PHONG_DIFFUSE,  diffuseColor);
+		shaders->setUniform(MATERIAL_PHONG_SPECULAR, specularColor);
+		shaders->setUniform(MATERIAL_PHONG_SHININESS, shininess);
 	}
 
 }

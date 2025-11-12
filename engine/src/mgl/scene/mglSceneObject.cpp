@@ -25,7 +25,7 @@ SceneObject::~SceneObject() {}
 	user-defined uniforms through callbacks
 */
 void SceneObject::setUniforms() {
-	shaders->setUniformMatrix(MODEL_MATRIX, AbsoluteTransform.data());
+	shaders->setUniform(MODEL_MATRIX, AbsoluteTransform);
 	for (const auto& callback : shaderUniformCallbacks) {
 		callback(shaders);
 	}

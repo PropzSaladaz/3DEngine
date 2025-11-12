@@ -132,8 +132,12 @@ void Engine::setupOpenGL() {
   glDepthMask(GL_TRUE);
   glDepthRange(0.0, 1.0);
   glClearDepth(1.0);
+
+  // Enable culling
   glEnable(GL_CULL_FACE);
+  // Discard back faces by default
   glCullFace(GL_BACK);
+  // front faces are by default following CCW winding
   glFrontFace(GL_CCW);
   // The first two parameters of glViewport set the location of the lower left corner of the window
   glViewport(0, 0, WindowWidth, WindowHeight);

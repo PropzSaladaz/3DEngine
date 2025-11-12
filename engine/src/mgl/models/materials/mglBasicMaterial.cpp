@@ -24,7 +24,7 @@ namespace mgl {
 	}
 
 	void BasicMaterial::setMaterialUniforms(ShaderProgram* shaders) {
-		shaders->setUniformVec4f(COLOR_ATTRIBUTE, color.data());
+		shaders->setUniform(COLOR_ATTRIBUTE, color);
 	}
 
 	math::vec3 BasicMaterial::getColor() {

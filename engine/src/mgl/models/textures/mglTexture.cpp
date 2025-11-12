@@ -27,7 +27,7 @@ void TextureInfo::updateShader(ShaderProgram *shader) {
   texture->bind();
   if (sampler)
     sampler->bind(index);
-  shader->setUniformInt(uniform, index);
+  shader->setUniform(uniform, index);
 }
 
 //////////////////////////////////////////////////////////////////////// Texture

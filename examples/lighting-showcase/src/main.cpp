@@ -237,9 +237,9 @@ void MyApp::createSceneGraph() {
         ->rotate(-90.0f, mgl::XX)
         ->translate(0, 0.15f, 0));
     statueObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", STATUE_COLOR_1.data());
-        shaders->setUniformVec4f("darkColor", STATUE_COLOR_2.data());
-        });
+        shaders->setUniform("whiteColor", STATUE_COLOR_1);
+        shaders->setUniform("darkColor", STATUE_COLOR_2);
+    });
 
     // wooden base ----------------------------------------------------
     mgl::SceneObject* woodenBaseObj = new mgl::SceneObject(
@@ -247,9 +247,9 @@ void MyApp::createSceneGraph() {
         materials->get("wood"),
         shaders->get("wood"));
     woodenBaseObj->setShaderUniformCallback([](mgl::ShaderProgram* shaders) {
-        shaders->setUniformVec4f("whiteColor", WOOD_COLOR_1.data());
-        shaders->setUniformVec4f("darkColor", WOOD_COLOR_2.data());
-        });
+        shaders->setUniform("whiteColor", WOOD_COLOR_1);
+        shaders->setUniform("darkColor", WOOD_COLOR_2);
+    });
 
     // Glass dome ----------------------------------------------------
     // Has to be created to be drawn last (graph objects ordered by id,

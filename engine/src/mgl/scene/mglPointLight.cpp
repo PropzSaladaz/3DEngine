@@ -15,7 +15,7 @@ namespace mgl {
 	/////////////////////////////////////////////////////////////////// Shaders
 	void PointLight::updateShaders(ShaderProgram* shader) {
 		PositionalLight::updateShaders(shader);
-		shader->setUniformInt(LIGHT_LIGHT_TYPE, POINT_LIGHT);
+		shader->setUniform(LIGHT_LIGHT_TYPE, POINT_LIGHT);
 	}
 
 }

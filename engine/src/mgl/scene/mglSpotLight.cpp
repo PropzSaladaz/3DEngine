@@ -82,10 +82,10 @@ namespace mgl {
 
 	void SpotLight::updateShaders(ShaderProgram* shader) {
 		PositionalLight::updateShaders(shader);
-		shader->setUniformInt  (LIGHT_LIGHT_TYPE, SPOT_LIGHT);
-		shader->setUniformFloat(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
-		shader->setUniformFloat(LIGHT_EPSILON,	  epsilon);
-		shader->setUniformVec3f(LIGHT_DIRECTION, math::vec4(getDirection(), 0.0).data());
+		shader->setUniform(LIGHT_LIGHT_TYPE, SPOT_LIGHT);
+		shader->setUniform(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
+		shader->setUniform(LIGHT_EPSILON,	  epsilon);
+		shader->setUniform(LIGHT_DIRECTION, math::vec4(getDirection(), 0.0));
 	}
 
 }

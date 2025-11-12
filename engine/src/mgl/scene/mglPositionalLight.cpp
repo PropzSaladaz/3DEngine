@@ -76,14 +76,14 @@ namespace mgl {
 	/////////////////////////////////////////////////////////////////// Shaders
 	void PositionalLight::updateShaders(ShaderProgram* shader) {
 		math::vec3 WorldSpaceAbsolutePos = position->getAbsolutePosition();
-		shader->setUniformBool (LIGHT_IS_ENABLED,	enabled);
-		shader->setUniformVec3f(LIGHT_POSITION,		WorldSpaceAbsolutePos.data());
-		shader->setUniformVec4f(LIGHT_AMBIENT,		ambientColor.data());
-		shader->setUniformVec4f(LIGHT_DIFFUSE,		diffuseColor.data());
-		shader->setUniformVec4f(LIGHT_SPECULAR,		specularColor.data());
-		shader->setUniformFloat(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
-		shader->setUniformFloat(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
-		shader->setUniformFloat(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);
+		shader->setUniform(LIGHT_IS_ENABLED,	enabled);
+		shader->setUniform(LIGHT_POSITION,		WorldSpaceAbsolutePos);
+		shader->setUniform(LIGHT_AMBIENT,		ambientColor);
+		shader->setUniform(LIGHT_DIFFUSE,		diffuseColor);
+		shader->setUniform(LIGHT_SPECULAR,		specularColor);
+		shader->setUniform(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
+		shader->setUniform(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
+		shader->setUniform(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);
 	}
 
 }

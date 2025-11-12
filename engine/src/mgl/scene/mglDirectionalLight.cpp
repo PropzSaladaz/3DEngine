@@ -20,12 +20,12 @@ namespace mgl {
 
 	void DirectionalLight::updateShaders(ShaderProgram* shader) {
 		math::vec3 WorldSpaceDirection = direction;
-		shader->setUniformBool(LIGHT_IS_ENABLED, enabled);
-		shader->setUniformInt  (LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
-		shader->setUniformVec3f(LIGHT_DIRECTION,  WorldSpaceDirection.data());
-		shader->setUniformVec4f(LIGHT_AMBIENT, ambientColor.data());
-		shader->setUniformVec4f(LIGHT_DIFFUSE, diffuseColor.data());
-		shader->setUniformVec4f(LIGHT_SPECULAR, specularColor.data());
+		shader->setUniform(LIGHT_IS_ENABLED, enabled);
+		shader->setUniform(LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
+		shader->setUniform(LIGHT_DIRECTION,  WorldSpaceDirection);
+		shader->setUniform(LIGHT_AMBIENT, ambientColor);
+		shader->setUniform(LIGHT_DIFFUSE, diffuseColor);
+		shader->setUniform(LIGHT_SPECULAR, specularColor);
 	}
 
 }

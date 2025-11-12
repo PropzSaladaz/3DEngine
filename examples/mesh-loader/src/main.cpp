@@ -40,18 +40,17 @@ private:
 void MyApp::createMeshes() {
     meshes = new mgl::MeshManager();
     mgl::Mesh* mesh1 = new mgl::Mesh();
-    mesh1->createFromData(
-        {
-            glm::vec3(-0.5f, -0.5f, 0.0f),
-            glm::vec3(0.5f, -0.5f, 0.0f),
-            glm::vec3(0.0f, 0.5f, 0.0f)
+    mgl::MeshData data = {
+        .positions = {
+            mgl::vec3(-0.5f, -0.5f, 0.0f),
+            mgl::vec3(0.5f, -0.5f, 0.0f),
+            mgl::vec3(0.0f, 0.5f, 0.0f)
         },
-        {
+        .indices = {
             0, 1, 2
         },
-        {},
-        {}
-    );
+    };
+    mesh1->createFromData(data);
 
     meshes->add("triangle", mesh1);
 }
@@ -80,11 +79,12 @@ void MyApp::createShaderPrograms() {
     });
 
     mgl::ShaderProgram* simpleShaders = new mgl::ShaderProgram();
-    simpleShaders->addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/vert.glsl");
-    simpleShaders->addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/frag.glsl");
-
+    simpleShaders->addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/shader.vert");
+    simpleShaders->addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/shader.frag");
+    simpleShaders->addUniform("triangleColor");
     shaders->add("simple", simpleShaders);
-
+    
+    simpleShaders->setUniform("triangleColor", mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
@@ -95,6 +95,15 @@ void MyApp::createSceneGraph() {
         meshes->get("triangle"));
 
     triangleObj->setShaders(shaders->get("simple"));
+    triangleObj->beforeAndAfterDraw(
+        [](void) {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+        },
+        [](void) {
+            glDisable(GL_CULL_FACE);
+        }
+    );
     
     mgl::SceneGraph* triangle = new mgl::SceneGraph();
     triangle->add(triangleObj);
@@ -114,7 +123,7 @@ void MyApp::processInput(double elapsed) {
 
 void MyApp::createCamera() {
     // mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
-    // OrbitCam = new mgl::OrbitCamController(camera2, glm::vec3(0, 0, 0), 5.0f);
+    // OrbitCam = new mgl::OrbitCamController(camera2, mgl::vec3(0, 0, 0), 5.0f);
     // OrbitCam->setActive();
 }
 
