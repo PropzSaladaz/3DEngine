@@ -10,11 +10,11 @@ namespace mgl {
         /** 
          * @brief Called when creating a shader program to declare shader uniform's names
          */
-        static void declareShaderUniforms(ShaderBuilder* shaders);
+        static void declareShaderUniforms(ShaderBuilder& shaders);
 
         /**
          * @brief Called at runtime to set the values on the predeclared shader uniform names
          */
-        virtual void updateShaders(ShaderProgram* shaders) = 0;
+        virtual void updateShaders(ShaderProgram& shaders) = 0;
     };
 }

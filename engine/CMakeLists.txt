@@ -5,8 +5,9 @@ set(ENGINE_SOURCES
   src/mgl/mglAnimation.cpp
   src/mgl/mglError.cpp
   src/mgl/mglInputManager.cpp
+  src/mgl/shaders/ShaderBuilder.cpp
+  src/mgl/shaders/ShaderProgram.cpp
   src/mgl/mglShaderManager.cpp
-  src/mgl/mglShaders.cpp
   src/mgl/mglSimulation.cpp
   src/mgl/mglTransform.cpp
   src/mgl/camera/mglCamera.cpp

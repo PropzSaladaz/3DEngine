@@ -13,7 +13,7 @@
 #include <string>
 
 #include <mgl/models/textures/mglSampler.hpp>
-#include <mgl/mglShaders.hpp>
+#include <mgl/shaders/ShaderProgram.hpp>
 
 namespace mgl {
 
@@ -48,7 +48,7 @@ struct TextureInfo {
 
   TextureInfo(GLenum textureunit, GLuint index, const std::string &uniform,
               Texture *texture, Sampler *sampler);
-  void updateShader(ShaderProgram *shader);
+  void updateShader(ShaderProgram& shader);
 };
 
 /////////////////////////////////////////////////////////////////////// TEXTURES

@@ -8,6 +8,8 @@
 #include <mgl/scene/mglLight.hpp>
 #include <mgl/scene/mglLightManager.hpp>
 #include <mgl/camera/mglCameraManager.hpp>
+#include <mgl/shaders/ShaderUpdator.hpp>
+#include <mgl/shaders/ShaderProgram.hpp>
 #include <mgl/mglShaderManager.hpp>
 #include <mgl/models/meshes/mglMeshManager.hpp>
 #include <mgl/models/textures/mglTextureManager.hpp>

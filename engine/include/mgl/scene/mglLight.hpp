@@ -4,6 +4,7 @@
 #include <cstring>
 #include <mgl/mglShaders.hpp>
 #include <mgl/camera/mglCamera.hpp>
+#include <mgl/shaders/ShaderUpdator.hpp>
 
 namespace mgl {
 

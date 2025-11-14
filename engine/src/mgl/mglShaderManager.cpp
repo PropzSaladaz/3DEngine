@@ -2,17 +2,8 @@
 
 namespace mgl {
 
-void ShaderManager::add(const std::string& name, ShaderProgram* program) {
-	if (itemCallback) {
-		itemCallback(program);
-	}
-
-	program->create();
+void ShaderManager::add(const std::string& name, std::shared_ptr<ShaderProgram> program) {
 	Manager::add(name, program);
-}
-
-void ShaderManager::beforeBuild(SetManagedItemCallback callback) {
-	itemCallback = callback;
 }
 
 }

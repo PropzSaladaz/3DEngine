@@ -1,10 +1,13 @@
 #ifndef MGL_HPP
 #define MGL_HPP
 
+// shaders
+#include <mgl/shaders/ShaderBuilder.hpp>
+#include <mgl/shaders/ShaderProgram.hpp>
+
 #include <mgl/mglApp.hpp>
 #include <mgl/mglConventions.hpp>
 #include <mgl/mglError.hpp>
-#include <mgl/mglShaders.hpp>
 #include <mgl/mglTransform.hpp>
 #include <mgl/mglSimulation.hpp>
 #include <mgl/mglAnimation.hpp>

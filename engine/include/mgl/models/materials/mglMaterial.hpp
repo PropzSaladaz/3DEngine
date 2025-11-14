@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <mgl/mglShaders.hpp>
+#include <mgl/shaders/ShaderUpdator.hpp>
 #include <mgl/mglConventions.hpp>
 #include <mgl/models/textures/mglTexture.hpp>
 
@@ -24,11 +24,11 @@ public:
 	void addTexture(TextureInfo* texture);
 	virtual Material* setColor(const math::vec3 &color) = 0; // without alpha
 	virtual Material* setColor(const math::vec4 &color) = 0; // with alpha
-	void updateShaders(ShaderProgram* shaders) override;
+	void updateShaders(ShaderProgram& shaders) override;
 
 private:
 	std::vector<TextureInfo*> textures;
-	virtual void setMaterialUniforms(ShaderProgram* shaders) = 0;
+	virtual void setMaterialUniforms(ShaderProgram& shaders) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

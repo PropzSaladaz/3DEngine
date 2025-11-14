@@ -39,7 +39,7 @@ private:
 
 void MyApp::createMeshes() {
     meshes = new mgl::MeshManager();
-    mgl::Mesh* mesh1 = new mgl::Mesh();
+    std::shared_ptr<mgl::Mesh> mesh1 = std::make_shared<mgl::Mesh>();
     mgl::MeshData data = {
         .positions = {
             mgl::vec3(-0.5f, -0.5f, 0.0f),
@@ -72,19 +72,20 @@ void MyApp::createMaterials() {
 
 void MyApp::createShaderPrograms() {
     shaders = new mgl::ShaderManager();
-    shaders->beforeBuild([this](mgl::ShaderProgram* shader) {
-        shader->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-        shader->addUniform(mgl::MODEL_MATRIX);
-        shader->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
-    });
 
-    mgl::ShaderProgram* simpleShaders = new mgl::ShaderProgram();
-    simpleShaders->addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/shader.vert");
-    simpleShaders->addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/shader.frag");
-    simpleShaders->addUniform("triangleColor");
-    shaders->add("simple", simpleShaders);
+
+    mgl::ShaderBuilder simpleShaders;
+    simpleShaders.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+    simpleShaders.addUniform(mgl::MODEL_MATRIX);
+    simpleShaders.addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+    simpleShaders.addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/shader.vert");
+    simpleShaders.addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/shader.frag");
+    simpleShaders.addUniform("triangleColor");
+
+    std::shared_ptr<mgl::ShaderProgram> program = std::make_shared<mgl::ShaderProgram>(simpleShaders.build());
+    shaders->add("simple", program);
     
-    simpleShaders->setUniform("triangleColor", mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
+    program->setUniform("triangleColor", mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE

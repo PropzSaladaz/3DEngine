@@ -27,7 +27,7 @@ namespace mgl {
 		using SetManagedItemCallback = std::function<void(T* item)>;
 		Manager();
 		~Manager();
-		virtual void add(const std::string& name, T* item);
+		virtual void add(const std::string& name, std::shared_ptr<T> item);
 		void remove(const std::string& name);
 		T* get(const std::string& name);
 		void forEach(SetManagedItemCallback function);
@@ -36,7 +36,7 @@ namespace mgl {
 		void setManagedItemCallback(SetManagedItemCallback callback);
 		SetManagedItemCallback itemCallback;
 	private:
-		std::map<std::string, T*> items;
+		std::map<std::string, std::shared_ptr<T>> items;
 
 	};
 
@@ -48,7 +48,7 @@ namespace mgl {
 	Manager<T>::~Manager() {}
 
 	template <typename T>
-	void Manager<T>::add(const std::string& name, T* item) {
+	void Manager<T>::add(const std::string& name, std::shared_ptr<T> item) {
 		items.insert(std::make_pair(name, item));
 	}
 

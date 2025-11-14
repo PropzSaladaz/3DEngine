@@ -1,10 +1,11 @@
 #include <mgl/models/materials/mglBasicMaterial.hpp>
 #include <mgl/mglConventions.hpp>
+#include <mgl/shaders/ShaderBuilder.hpp>
 
 namespace mgl {
 
-	void BasicMaterial::declareShaderUniforms(ShaderProgram* shaders) {
-		shaders->addUniform(COLOR_ATTRIBUTE);
+	void BasicMaterial::declareShaderUniforms(ShaderBuilder& shaders) {
+		shaders.addUniform(COLOR_ATTRIBUTE);
 	}
 
 	BasicMaterial::BasicMaterial() {}
@@ -23,8 +24,8 @@ namespace mgl {
 		return setColor(math::vec4(color, 1.0f));
 	}
 
-	void BasicMaterial::setMaterialUniforms(ShaderProgram* shaders) {
-		shaders->setUniform(COLOR_ATTRIBUTE, color);
+	void BasicMaterial::setMaterialUniforms(ShaderProgram& shaders) {
+		shaders.setUniform(COLOR_ATTRIBUTE, color);
 	}
 
 	math::vec3 BasicMaterial::getColor() {

@@ -6,7 +6,7 @@ namespace mgl {
 
 	class BasicMaterial : public Material {
 	public:
-		static void declareShaderUniforms(ShaderProgram* shaders);
+		static void declareShaderUniforms(ShaderBuilder& shaders);
 
 		BasicMaterial();
 		BasicMaterial(const math::vec3& color);
@@ -19,7 +19,7 @@ namespace mgl {
 	private:
 		math::vec4 color = math::vec4(COLOR_WHITE, 1.0f);
 
-		void setMaterialUniforms(ShaderProgram* shaders) override;
+		void setMaterialUniforms(ShaderProgram& shaders) override;
 	};
 
 }

@@ -23,9 +23,9 @@ namespace mgl {
         // Stores the OpenGL's shader program object ID
         ui32 ProgramId;
 
-        struct AttributeInfo { std::string name; i32 location; GLenum type; i32 size; };
-        struct UniformInfo   { std::string name; i32 location; GLenum type; i32 size; };
-        struct UboInfo       { std::string name; ui32 index; ui32 binding;  i32 dataSize; };
+        struct AttributeInfo { i32 location; };
+        struct UniformInfo   { i32 location; };
+        struct UboInfo       { i32 location; i32 bindingPoint; };
 
         std::unordered_map<std::string, AttributeInfo> Attributes;
         std::unordered_map<std::string, UniformInfo>   Uniforms;

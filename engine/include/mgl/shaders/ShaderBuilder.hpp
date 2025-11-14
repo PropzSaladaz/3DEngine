@@ -11,6 +11,8 @@
 
 namespace mgl {
 
+    class ShaderUpdator;
+
     /**
      * @brief Represents a shader program consisting of multiple shaders (vertex, fragment, etc).
      * Serves as a declarative interface to create, compile, link and use shader programs in OpenGL, 
@@ -24,7 +26,7 @@ namespace mgl {
         /**
          * @brief Holds info about a declared attribute in the shader program
          */
-        struct AttributeDecl { ui32 index; };
+        struct AttributeDecl { i32 index; };
 
         /**
          * @brief Holds info about a declared uniform in the shader program
@@ -34,7 +36,7 @@ namespace mgl {
         /**
          * @brief Holds info about a declared UBO in the shader program
          */
-        struct UboDecl { ui32 index; ui32 binding_point; };
+        struct UboDecl { i32 index; ui32 binding_point; };
 
         // Links shader type to the OpenGL's shader object ID 
         // E.g:
@@ -61,7 +63,7 @@ namespace mgl {
 
         // TODO - currently we use strings to identify attributes/uniforms.
         // In the future, it may be better to use enums, or just ints for performance
-        void addAttribute(const std::string &name, const ui32 index);
+        void addAttribute(const std::string &name, const i32 index);
         bool isAttribute(const std::string &name);
     
         template <typename T> void addUniforms();

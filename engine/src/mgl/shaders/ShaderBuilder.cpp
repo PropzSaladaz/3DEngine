@@ -9,10 +9,7 @@ namespace mgl {
 
 ////////////////////////////////////////////////////////////////// ShaderUpdator
 
-// void ShaderUpdator::declareShaderUniforms(ShaderBuilder* shaders) {
-//     MGL_ERROR("DeclareShaderUniforms is not defined!");
-//     exit(EXIT_FAILURE);
-// }
+
 
 ////////////////////////////////////////////////////////////////// ShaderBuilder
 
@@ -22,7 +19,7 @@ void ShaderBuilder::addShader(const GLenum shader_type,const std::string &filena
     Shaders[shader_type] = { filename };
 }
 
-void ShaderBuilder::addAttribute(const std::string &name, const GLuint index) {
+void ShaderBuilder::addAttribute(const std::string &name, const i32 index) {
   Attributes[name] = {index};
 }
 
@@ -115,9 +112,23 @@ ShaderProgram ShaderBuilder::build() {
         }
     }
 
-    glUseProgram(0);
-
-    return ShaderProgram(programId);
+    std::unordered_map<std::string, ShaderProgram::AttributeInfo> shaderAttributes;
+    for (const auto& [name, attrDecl] : Attributes) {
+        shaderAttributes[name] = { static_cast<i32>(attrDecl.index) };
+    }
+    std::unordered_map<std::string, ShaderProgram::UniformInfo> shaderUniforms;
+    for (const auto& [name, uniformDecl] : Uniforms) {
+        shaderUniforms[name] = { uniformDecl.index };
+    }
+    std::unordered_map<std::string, ShaderProgram::UboInfo> shaderUbos;
+    for (const auto& [name, uboDecl] : Ubos) {
+        shaderUbos[name] = { uboDecl.index, static_cast<i32>(uboDecl.binding_point) };
+    }
+    return ShaderProgram(
+        programId, 
+        shaderAttributes, 
+        shaderUniforms, 
+        shaderUbos);
 }
 
 
@@ -136,7 +147,7 @@ bool ShaderBuilder::isUniform(const std::string &name) {
   return Uniforms.find(name) != Uniforms.end();
 }
 
-void ShaderBuilder::addUniformBlock(const std::string &name,const GLuint binding_point) {
+void ShaderBuilder::addUniformBlock(const std::string &name,const ui32 binding_point) {
   Ubos[name] = {0, binding_point};
 }
 
@@ -144,38 +155,9 @@ bool ShaderBuilder::isUniformBlock(const std::string &name) {
   return Ubos.find(name) != Ubos.end();
 }
 
-void ShaderBuilder::create() {
-    // Links all shaders
-    glLinkProgram(ProgramId);
-
-    checkLinkage();
-
-    // individual shaders are not longer needed - they are already linked
-    // to the shader program - we can delete them
-    for (auto &i : Shaders) {
-        glDetachShader(ProgramId, i.second);
-        glDeleteShader(i.second);
-    }
-
-    for (auto &i : Uniforms) {
-        i.second.index = glGetUniformLocation(ProgramId, i.first.c_str());
-        if (i.second.index < 0)
-            MGL_WARN("Uniform " + i.first + " not found");
-    }
-    for (auto &i : Ubos) {
-        i.second.index = glGetUniformBlockIndex(ProgramId, i.first.c_str());
-        if (i.second.index < 0)
-            MGL_WARN("UBO " + i.first + " not found");
-        glUniformBlockBinding(ProgramId, i.second.index, i.second.binding_point);
-    }
-    glLinkProgram(0);
-}
-
-
-
 ////////////////////////////////////////////////////////////// Set Uniforms
 
-const void ShaderBuilder::checkCompilation(const GLuint shader_id, const std::string &filename) {
+const void ShaderBuilder::checkCompilation(const ui32 shader_id, const std::string &filename) {
   i32 compiled; // stores if shader compiled successfully or not
   glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
   if (compiled == GL_FALSE) {

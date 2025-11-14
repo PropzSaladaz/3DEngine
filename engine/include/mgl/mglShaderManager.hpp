@@ -1,5 +1,4 @@
-#ifndef MGL_SHADER_MANAGER_HPP
-#define MGL_SHADER_MANAGER_HPP
+#pragma once
 
 
 #include <glad/glad.h>
@@ -8,6 +7,7 @@
 #include <mgl/models/meshes/mglMesh.hpp>
 #include <mgl/mglShaders.hpp>
 #include <mgl/mglManager.hpp>
+#include <mgl/shaders/ShaderProgram.hpp>
 #include <iostream>
 #include <string>
 #include <map>
@@ -18,9 +18,6 @@ namespace mgl {
 
 	class ShaderManager : public Manager<ShaderProgram>{
 	public:
-		void add(const std::string& name, ShaderProgram* program) override;
-		void beforeBuild(SetManagedItemCallback shaders);
+		void add(const std::string& name, std::shared_ptr<ShaderProgram> program) override;
 	};
 }
-
-#endif

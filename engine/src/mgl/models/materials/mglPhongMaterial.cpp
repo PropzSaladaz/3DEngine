@@ -1,16 +1,16 @@
 #include <mgl/models/materials/mglPhongMaterial.hpp>
-
+#include <mgl/shaders/ShaderBuilder.hpp>
 namespace mgl {
 	const char PhongMaterial::MATERIAL_PHONG_AMBIENT[] = "material.ambient";
 	const char PhongMaterial::MATERIAL_PHONG_DIFFUSE[] = "material.diffuse";
 	const char PhongMaterial::MATERIAL_PHONG_SPECULAR[] = "material.specular";
 	const char PhongMaterial::MATERIAL_PHONG_SHININESS[] = "material.shininess";
 
-	void PhongMaterial::declareShaderUniforms(ShaderProgram* shaders) {
-		shaders->addUniform(MATERIAL_PHONG_AMBIENT);
-		shaders->addUniform(MATERIAL_PHONG_DIFFUSE);
-		shaders->addUniform(MATERIAL_PHONG_SPECULAR);
-		shaders->addUniform(MATERIAL_PHONG_SHININESS);
+	void PhongMaterial::declareShaderUniforms(ShaderBuilder& shaders) {
+		shaders.addUniform(MATERIAL_PHONG_AMBIENT);
+		shaders.addUniform(MATERIAL_PHONG_DIFFUSE);
+		shaders.addUniform(MATERIAL_PHONG_SPECULAR);
+		shaders.addUniform(MATERIAL_PHONG_SHININESS);
 	}
 
 	PhongMaterial::PhongMaterial() {}
@@ -63,11 +63,11 @@ namespace mgl {
 		return this;
 	}
 
-	void PhongMaterial::setMaterialUniforms(ShaderProgram* shaders) {
-		shaders->setUniform(MATERIAL_PHONG_AMBIENT,  ambientColor);
-		shaders->setUniform(MATERIAL_PHONG_DIFFUSE,  diffuseColor);
-		shaders->setUniform(MATERIAL_PHONG_SPECULAR, specularColor);
-		shaders->setUniform(MATERIAL_PHONG_SHININESS, shininess);
+	void PhongMaterial::setMaterialUniforms(ShaderProgram& shaders) {
+		shaders.setUniform(MATERIAL_PHONG_AMBIENT,  ambientColor);
+		shaders.setUniform(MATERIAL_PHONG_DIFFUSE,  diffuseColor);
+		shaders.setUniform(MATERIAL_PHONG_SPECULAR, specularColor);
+		shaders.setUniform(MATERIAL_PHONG_SHININESS, shininess);
 	}
 
 }

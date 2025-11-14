@@ -13,7 +13,7 @@ namespace mgl {
 		static const char MATERIAL_PHONG_SPECULAR[];
 		static const char MATERIAL_PHONG_SHININESS[];
 
-		static void declareShaderUniforms(ShaderProgram* shaders);
+		static void declareShaderUniforms(ShaderBuilder& shaders);
 
 		PhongMaterial();
 		PhongMaterial(const math::vec3 &color);
@@ -38,7 +38,7 @@ namespace mgl {
 		math::vec4 specularColor = math::vec4(COLOR_WHITE, 1.0f);
 		GLfloat shininess		= 1.0f;
 
-		void setMaterialUniforms(ShaderProgram* shaders) override;
+		void setMaterialUniforms(ShaderProgram& shaders) override;
 
 	};
 

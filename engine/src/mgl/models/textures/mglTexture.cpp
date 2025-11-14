@@ -22,12 +22,12 @@ TextureInfo::TextureInfo(GLenum _unit, GLuint _index,
   sampler = _sampler;
 }
 
-void TextureInfo::updateShader(ShaderProgram *shader) {
+void TextureInfo::updateShader(ShaderProgram& shader) {
   glActiveTexture(unit);
   texture->bind();
   if (sampler)
     sampler->bind(index);
-  shader->setUniform(uniform, index);
+  shader.setUniform(uniform, index);
 }
 
 //////////////////////////////////////////////////////////////////////// Texture

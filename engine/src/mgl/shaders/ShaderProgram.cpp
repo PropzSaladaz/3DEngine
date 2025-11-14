@@ -5,21 +5,6 @@
 
 namespace mgl {
 
-////////////////////////////////////////////////////////////////// ShaderUpdator
-
-// void ShaderUpdator::declareShaderUniforms(ShaderProgram* shaders) {
-//     MGL_ERROR("DeclareShaderUniforms is not defined!");
-//     exit(EXIT_FAILURE);
-// }
-
-////////////////////////////////////////////////////////////////// ShaderProgram
-
-ShaderProgram::ShaderProgram() : 
-    // glCreateProgram creates a program & returns the ID reference to the newly created 
-    // program object - this is will be used when attaching new shaders to this program
-    ProgramId(glCreateProgram()) 
-{}
-
 ShaderProgram::~ShaderProgram() {
   glUseProgram(0);
   glDeleteProgram(ProgramId);
