@@ -6,10 +6,10 @@ MeshManager::MeshManager() {}
 MeshManager::~MeshManager() {}
 
 void MeshManager::import(const std::string& name, const std::string& filePath) {
-	Mesh* mesh = new Mesh();
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
 	if (itemCallback) {
-		itemCallback(mesh);
+		itemCallback(*mesh);
 	}
 
 	mesh->createFromFile(filePath);

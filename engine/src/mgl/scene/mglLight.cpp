@@ -23,21 +23,21 @@ namespace mgl {
 	const char Light::LIGHT_ATTENUATION_LINEAR_PROP[]    = "linearAttenuation";
 	const char Light::LIGHT_ATTENUATION_QUADRATIC_PROP[] = "quadraticAttenuation";
 
-	void Light::declareShaderUniforms(ShaderProgram* shaders) {
+	void Light::declareShaderUniforms(ShaderProgram& shaders) {
 		// declare all light unifoms
 		for (int i = 0; i < MAX_NR_LIGHTS; i++) {
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_IS_ENABLED_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_LIGHT_TYPE_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_POSITION_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_DIRECTION_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_AMBIENT_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_DIFFUSE_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_SPECULAR_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_SPOT_OUTER_COS_CUTOFF_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_EPSILON_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_CONSTANT_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_LINEAR_PROP));
-			shaders->addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_QUADRATIC_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_IS_ENABLED_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_LIGHT_TYPE_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_POSITION_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_DIRECTION_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_AMBIENT_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_DIFFUSE_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_SPECULAR_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_SPOT_OUTER_COS_CUTOFF_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_EPSILON_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_CONSTANT_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_LINEAR_PROP));
+			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_ATTENUATION_QUADRATIC_PROP));
 		}
 	}
 

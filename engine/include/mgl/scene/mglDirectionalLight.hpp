@@ -28,7 +28,7 @@ namespace mgl {
 		void setDirection(const math::vec3 &direction);
 		math::vec3 getDirection() const;
 
-		void updateShaders(ShaderProgram* shader) override;
+		void updateShaders(ShaderProgram& shader) override;
 
 	private:
 		math::vec3 direction;

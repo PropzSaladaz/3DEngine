@@ -11,11 +11,11 @@ namespace mgl {
 /////////////////////////////////////////////////////////////// STATIC CALLBACKS
 
 static void window_close_callback(GLFWwindow *window) {
-    Engine::getInstance().getApp()->windowCloseCallback(window);
+    Engine::getInstance().getApp().windowCloseCallback(window);
 }
 
 static void window_resize_callback(GLFWwindow* window, int width, int height) {
-    Engine::getInstance().getApp()->windowSizeCallback(window, width, height);
+    glViewport(0, 0, width, height);
 }
 
 static void glfw_error_callback(int error, const char *description) {
@@ -25,7 +25,6 @@ static void glfw_error_callback(int error, const char *description) {
 ////////////////////////////////////////////////////////////////////////// SETUP
 
 Engine::Engine(void) {
-    GlApp = 0;
     Window = 0;
     WindowWidth = 640, WindowHeight = 480;
     GlMajor = 3, GlMinor = 3;
@@ -40,9 +39,9 @@ Engine &Engine::getInstance(void) {
   return instance;
 }
 
-App *Engine::getApp(void) { return GlApp; }
+App& Engine::getApp(void) { return app; }
 
-void Engine::setApp(App *app) { GlApp = app; }
+void Engine::setApp(App app) { this->app = std::move(app); }
 
 void Engine::setOpenGL(int major, int minor) {
   GlMajor = major;
@@ -158,16 +157,47 @@ void Engine::init() {
     setupGLFW();
     setupGLAD();
     setupOpenGL();
-    GlApp->initCallback(Window);
 #ifdef DEBUG
     displayInfo();
     setupDebugOutput();
 #endif
 }
 
+ResourceContext Engine::getManagers() {
+    ResourceContext resources {
+        Meshes,
+        Textures,
+        Shaders,
+        Materials
+    };
+    return resources;
+}
+
+void Engine::setupManagers() {
+    Meshes = std::move(MeshManager());
+    Textures = std::move(TextureManager());
+    Shaders = std::move(ShaderManager());
+    Materials = std::move(MaterialManager());
+}
+
+Scene& Engine::createMainScene() {
+    Scene& scene = *(new Scene(&Meshes, &Shaders, &Textures));
+    return scene;
+}
+
 //////////////////////////////////////////////////////////////////////////// RUN
 
 void Engine::run() {
+    // setup
+    setupManagers();
+    ResourceContext resources = getManagers();
+    app.onRegisterGlobalResources(resources);
+
+    Scene& scene = createMainScene();
+    app.onCreateScene(scene, resources);
+    app.onStart();
+
+    // start running loop
     double last_time = glfwGetTime();
 
     // wait for window to be closed
@@ -184,7 +214,7 @@ void Engine::run() {
         Simulation::getInstance().update(elapsed_time);
 
         // Let App render / display
-        GlApp->displayCallback(Window, elapsed_time);
+        app.onUpdate( elapsed_time);
 
         // Swap buffers and poll events
         glfwSwapBuffers(Window);

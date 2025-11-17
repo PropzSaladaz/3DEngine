@@ -6,7 +6,7 @@
 
 namespace mgl {
 
-	void Material::updateShaders(ShaderProgram* shaders) {
+	void Material::updateShaders(ShaderProgram& shaders) {
 		// set material uniforms
 		setMaterialUniforms(shaders);
 		for (const auto& texture : textures) {

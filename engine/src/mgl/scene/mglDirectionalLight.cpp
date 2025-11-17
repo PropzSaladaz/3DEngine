@@ -18,14 +18,14 @@ namespace mgl {
 		return direction;
 	}
 
-	void DirectionalLight::updateShaders(ShaderProgram* shader) {
+	void DirectionalLight::updateShaders(ShaderProgram& shader) {
 		math::vec3 WorldSpaceDirection = direction;
-		shader->setUniform(LIGHT_IS_ENABLED, enabled);
-		shader->setUniform(LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
-		shader->setUniform(LIGHT_DIRECTION,  WorldSpaceDirection);
-		shader->setUniform(LIGHT_AMBIENT, ambientColor);
-		shader->setUniform(LIGHT_DIFFUSE, diffuseColor);
-		shader->setUniform(LIGHT_SPECULAR, specularColor);
+		shader.setUniform(LIGHT_IS_ENABLED, enabled);
+		shader.setUniform(LIGHT_LIGHT_TYPE, DIRECTIONAL_LIGHT);
+		shader.setUniform(LIGHT_DIRECTION,  WorldSpaceDirection);
+		shader.setUniform(LIGHT_AMBIENT, ambientColor);
+		shader.setUniform(LIGHT_DIFFUSE, diffuseColor);
+		shader.setUniform(LIGHT_SPECULAR, specularColor);
 	}
 
 }

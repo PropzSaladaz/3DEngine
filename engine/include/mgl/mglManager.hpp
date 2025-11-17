@@ -24,12 +24,12 @@ namespace mgl {
 	template<typename T>
 	class Manager {
 	public:
-		using SetManagedItemCallback = std::function<void(T* item)>;
+		using SetManagedItemCallback = std::function<void(T& item)>;
 		Manager();
 		~Manager();
 		virtual void add(const std::string& name, std::shared_ptr<T> item);
 		void remove(const std::string& name);
-		T* get(const std::string& name);
+		std::shared_ptr<T> get(const std::string& name);
 		void forEach(SetManagedItemCallback function);
 
 	protected:
@@ -58,7 +58,7 @@ namespace mgl {
 	}
 
 	template <typename T>
-	T* Manager<T>::get(const std::string& name) {
+	std::shared_ptr<T> Manager<T>::get(const std::string& name) {
 		auto it = items.find(name);
 		if (it != items.end()) {
 			return it->second;

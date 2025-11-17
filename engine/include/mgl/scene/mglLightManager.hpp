@@ -8,7 +8,7 @@
 namespace mgl {
 	class LightManager : public Manager<Light>, public ShaderUpdator {
 	public:
-		void updateShaders(ShaderProgram* shaders) override;
+		void updateShaders(ShaderProgram& shaders) override;
 	};
 }
 

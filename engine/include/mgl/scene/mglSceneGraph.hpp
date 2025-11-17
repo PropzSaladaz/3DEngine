@@ -41,17 +41,20 @@ namespace mgl {
 		void setScenegraph(SceneGraph* graph);
 		void setSkybox(const std::string& folder, const std::string& fileType);
 		void assignLightToCamera(const std::string& light, const std::string& camera);
-		void updateShaders(ShaderProgram* shaders) override;
+
+		void updateShaders(ShaderProgram& shaders) override;
+
 	protected:
 		void performDraw() override;
+
 	private:
-		SceneGraph* graph;
-		LightManager* lights;
-		ShaderManager* shaders;
-		MeshManager* meshes;
-		TextureManager* textures;
-		CameraManager* cameras;
-		SceneNode* skybox;
+		std::unique_ptr<SceneGraph> graph;
+		std::unique_ptr<LightManager> lights;
+		std::unique_ptr<ShaderManager> shaders;
+		std::unique_ptr<MeshManager> meshes;
+		std::unique_ptr<TextureManager> textures;
+		std::unique_ptr<CameraManager> cameras;
+		std::unique_ptr<SceneNode> skybox;
 
 	};
 

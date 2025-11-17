@@ -58,7 +58,7 @@ public:
 	const char *LIGHT_ATTENUATION_LINEAR;
 	const char *LIGHT_ATTENUATION_QUADRATIC;
 
-	static void declareShaderUniforms(ShaderProgram* shaders);
+	static void declareShaderUniforms(ShaderProgram& shaders);
 
 	Light();
 	~Light();

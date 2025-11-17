@@ -36,7 +36,7 @@ namespace mgl {
 		math::vec3 getPosition() const;
 		LightAttenuation getAttenuation() const;
 
-		virtual void updateShaders(ShaderProgram* shader) override;
+		virtual void updateShaders(ShaderProgram& shader) override;
 
 	protected:
 		const SceneObject* position;
