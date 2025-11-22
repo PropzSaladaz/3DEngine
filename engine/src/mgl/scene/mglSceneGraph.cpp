@@ -3,6 +3,7 @@
 #include <mgl/models/materials/mglBasicMaterial.hpp>
 #include <mgl/models/textures/mglTexture.hpp>
 #include <mgl/scene/mglSceneObject.hpp>
+#include <mgl/shaders/ShaderBuilder.hpp>
 #include <utils/Logger.hpp>
 
 namespace mgl {
@@ -36,32 +37,30 @@ void IDrawable::beforeAndAfterDraw(IDrawableVoidCallback before, IDrawableVoidCa
 
 //////////////////////////////////////////////////////////////// Scene
 
-Scene::Scene(MeshManager *meshes, ShaderManager *shaders, TextureManager* textures) {
+Scene::Scene(
+	std::shared_ptr<MeshManager> meshes, 
+	std::shared_ptr<ShaderManager> shaders, 
+	std::shared_ptr<TextureManager> textures
+) {
 	this->meshes = meshes;
 	this->shaders = shaders;
 	this->textures = textures;
-	this->lights = new LightManager();
-	this->cameras = new CameraManager();
+	this->lights = std::make_shared<LightManager>();
+	this->cameras = std::make_shared<CameraManager>();
 }
 
-Scene::~Scene() {
-	delete this->meshes;
-	delete this->shaders;
-	delete this->textures;
-	delete this->lights;
-	delete this->cameras;
-}
+Scene::~Scene() {}
 
-void Scene::setScenegraph(SceneGraph* graph) {
+void Scene::setScenegraph(std::shared_ptr<SceneGraph> graph) {
 	this->graph = graph;
 	this->graph->setScene(this);
 }
 
-void Scene::addLight(const std::string& name, Light* light) {
+void Scene::addLight(const std::string& name, std::shared_ptr<Light> light) {
 	lights->add(name, light);
 }
 
-void Scene::addCamera(const std::string& name, Camera* camera) {
+void Scene::addCamera(const std::string& name, std::shared_ptr<Camera> camera) {
 	cameras->add(name, camera);
 }
 
@@ -69,7 +68,7 @@ void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 	// import skybox mesh
 	meshes->import(SKYBOX, "models/cube-vtn.obj");
 	// create skybox shader
-	mgl::ShaderProgram* skyboxShaders = new mgl::ShaderProgram();
+	std::shared_ptr<mgl::ShaderBuilder> skyboxShaders = std::make_shared<mgl::ShaderBuilder>();
 	skyboxShaders->addShader(GL_VERTEX_SHADER, "shaders/skyboxVS.glsl");
 	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "shaders/light/skybox.glsl");
 	skyboxShaders->addUniforms<mgl::BasicMaterial>();

@@ -34,10 +34,10 @@ namespace mgl {
 	 */
 	class Scene : public IDrawable, public ShaderUpdator {
 	public:
-		Scene(MeshManager* meshes, ShaderManager* shaders, TextureManager* textures);
+		Scene(std::shared_ptr<MeshManager> meshes, std::shared_ptr<ShaderManager> shaders, std::shared_ptr<TextureManager> textures);
 		~Scene();
-		void addLight(const std::string &name, Light* light);
-		void addCamera(const std::string& name, Camera* camera);
+		void addLight(const std::string &name, std::shared_ptr<Light> light);
+		void addCamera(const std::string& name, std::shared_ptr<Camera> camera);
 		void setScenegraph(SceneGraph* graph);
 		void setSkybox(const std::string& folder, const std::string& fileType);
 		void assignLightToCamera(const std::string& light, const std::string& camera);
@@ -48,13 +48,13 @@ namespace mgl {
 		void performDraw() override;
 
 	private:
-		std::unique_ptr<SceneGraph> graph;
-		std::unique_ptr<LightManager> lights;
-		std::unique_ptr<ShaderManager> shaders;
-		std::unique_ptr<MeshManager> meshes;
-		std::unique_ptr<TextureManager> textures;
-		std::unique_ptr<CameraManager> cameras;
-		std::unique_ptr<SceneNode> skybox;
+		std::shared_ptr<SceneGraph> graph;
+		std::shared_ptr<LightManager> lights;
+		std::shared_ptr<ShaderManager> shaders;
+		std::shared_ptr<MeshManager> meshes;
+		std::shared_ptr<TextureManager> textures;
+		std::shared_ptr<CameraManager> cameras;
+		std::shared_ptr<SceneNode> skybox;
 
 	};
 
@@ -70,7 +70,7 @@ namespace mgl {
 
 		math::vec3 getAbsolutePosition() const;
 		virtual void setScene(Scene* scene) = 0;
-		virtual void setSkybox(TextureInfo* skybox) = 0;
+		virtual void setSkybox(std::shared_ptr<TextureInfo> skybox) = 0;
 
 	protected:
 		static SceneGraph* NO_PARENT;
@@ -98,16 +98,16 @@ namespace mgl {
 		/// Adds a child
 		/// </summary>
 		/// <param name="child">reference of the child to be added</param>
-		void add(SceneNode* child);
+		void add(std::shared_ptr<SceneNode> child);
 
 		/// <summary>
 		/// Removes a child
 		/// </summary>
 		/// <param name="child">reference of the child to be removed</param>
-		void remove(SceneNode* child);
+		void remove(std::shared_ptr<SceneNode> child);
 
 		void setScene(Scene* scene) override;
-		void setSkybox(TextureInfo* skybox) override;
+		void setSkybox(std::shared_ptr<TextureInfo> skybox) override;
 
 	protected:
 		/// <summary>
@@ -117,7 +117,7 @@ namespace mgl {
 		void performDraw() override;
 
 	private:
-		std::map<ui32, SceneNode*> children;
+		std::map<ui32, std::shared_ptr<SceneNode>> children;
 	};
 
 }

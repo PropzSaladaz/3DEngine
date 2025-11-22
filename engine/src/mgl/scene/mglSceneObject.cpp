@@ -51,11 +51,11 @@ void SceneObject::performDraw() {
 	shaders->unbind();
 }
 
-void SceneObject::setShaders(ShaderProgram* shaders) {
+void SceneObject::setShaders(std::shared_ptr<ShaderProgram> shaders) {
 	this->shaders = shaders;
 }
 
-void SceneObject::setMaterial(Material* material) {
+void SceneObject::setMaterial(std::shared_ptr<Material> material) {
 	this->material = material;
 }
 
@@ -63,7 +63,7 @@ void SceneObject::setScene(Scene* scene) {
 	this->scene = scene;
 }
 
-void SceneObject::setSkybox(TextureInfo* skybox) {
+void SceneObject::setSkybox(std::shared_ptr<TextureInfo> skybox) {
 	// only add skybox to shaders that are expecting it
 	if (material && shaders->isUniform(skybox->uniform)) {
 		material->addTexture(skybox);

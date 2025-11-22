@@ -9,12 +9,12 @@ namespace mgl {
 	void Material::updateShaders(ShaderProgram& shaders) {
 		// set material uniforms
 		setMaterialUniforms(shaders);
-		for (const auto& texture : textures) {
-			texture->updateShader(shaders);
+		for (auto& texture : textures) {
+			texture.updateShader(shaders);
 		}
 	}
 
-	void Material::addTexture(TextureInfo* texture) {
+	void Material::addTexture(TextureInfo texture) {
 		textures.push_back(texture);
 	}
 }

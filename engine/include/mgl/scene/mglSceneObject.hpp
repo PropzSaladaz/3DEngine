@@ -26,18 +26,17 @@ namespace mgl {
 	class SceneObject : public SceneNode {
 	public:
 		SceneObject();
-		SceneObject(Mesh* mesh);
-		SceneObject(Mesh* mesh, Material* material);
-		SceneObject(Mesh* mesh, Material* material, ShaderProgram* shaders);
+		SceneObject(std::shared_ptr<Mesh> mesh);
+		SceneObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+		SceneObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, std::shared_ptr<ShaderProgram> shaders);
 		~SceneObject();
 
-		void setMaterial(Material* _material);
-		void setShaders(ShaderProgram* shaders);
+		void setMaterial(std::shared_ptr<Material> _material);
+		void setShaders(std::shared_ptr<ShaderProgram> shaders);
 
 		void setScene(Scene* scene) override;
-		void setSkybox(TextureInfo* skybox) override;
-
-		Material* getMaterial();
+		void setSkybox(std::shared_ptr<TextureInfo> skybox) override;
+		Material& getMaterial();
 
 		/// <summary>
 		/// Sets the default MODEL_MATRIX
@@ -59,10 +58,10 @@ namespace mgl {
 		void performDraw() override;
 
 	private:
-		Scene* scene;
-		ShaderProgram* shaders;
-		Mesh* mesh;
-		Material* material;
+		std::shared_ptr<Scene> scene;
+		std::shared_ptr<ShaderProgram> shaders;
+		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Material> material;
 		std::vector<SetShaderUniformCallback> shaderUniformCallbacks;
 
 	};

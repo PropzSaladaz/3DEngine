@@ -4,19 +4,16 @@
 
 class MyApp : public mgl::App {
 public:
-    void initCallback(GLFWwindow* win) override;
-    void displayCallback(GLFWwindow* win, double elapsed) override;
-    void windowSizeCallback(GLFWwindow* window, int width, int height) override;
+    void onRegisterGlobalResources(mgl::ResourceContext& resources) override;
+    void onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) override;
+    void onStart() override;
+    void onUpdate(double deltaTime) override;
 
 private:
     const float initialScreenRatio = 800.0f / 600.0f;
     const GLuint UBO_BP = 0;
     mgl::Scene* Scene = nullptr;
     mgl::SceneGraph* lightObj, * lightObj2;
-    mgl::MeshManager* meshes;
-    mgl::ShaderManager* shaders;
-    mgl::TextureManager* textures;
-    mgl::MaterialManager* materials;
     // cameras
     mgl::FPSCamController* FPSCamera;
     mgl::OrbitCamController* OrbitCam;
@@ -25,11 +22,11 @@ private:
     // input
     void processInput(double elapsed);
     void animateLights(double elapsed);
+
     // scene
-    void createMeshes();
-    void createShaderPrograms();
-    void createTextures();
-    void createMaterials();
+    void createMeshes(mgl::MeshManager& meshManager);
+    void createShaderPrograms(mgl::ShaderManager& shaderManager);
+
     void createSceneGraph();
     void createCamera();
     void drawScene();
@@ -37,8 +34,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////// MESHES
 
-void MyApp::createMeshes() {
-    meshes = new mgl::MeshManager();
+void MyApp::createMeshes(mgl::MeshManager& meshManager) {
     std::shared_ptr<mgl::Mesh> mesh1 = std::make_shared<mgl::Mesh>();
     mgl::MeshData data = {
         .positions = {
@@ -52,28 +48,12 @@ void MyApp::createMeshes() {
     };
     mesh1->createFromData(data);
 
-    meshes->add("triangle", mesh1);
-}
-
-///////////////////////////////////////////////////////////////////////// TEXTURES
-
-void MyApp::createTextures() {
-    textures = new mgl::TextureManager();
-
-}
-
-///////////////////////////////////////////////////////////////////////// MATERIALS
-
-void MyApp::createMaterials() {
-    materials = new mgl::MaterialManager();
+    meshManager.add("triangle", mesh1);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
 
-void MyApp::createShaderPrograms() {
-    shaders = new mgl::ShaderManager();
-
-
+void MyApp::createShaderPrograms(mgl::ShaderManager& shaderManager) {
     mgl::ShaderBuilder simpleShaders;
     simpleShaders.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
     simpleShaders.addUniform(mgl::MODEL_MATRIX);
@@ -83,7 +63,7 @@ void MyApp::createShaderPrograms() {
     simpleShaders.addUniform("triangleColor");
 
     std::shared_ptr<mgl::ShaderProgram> program = std::make_shared<mgl::ShaderProgram>(simpleShaders.build());
-    shaders->add("simple", program);
+    shaderManager.add("simple", program);
     
     program->setUniform("triangleColor", mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
 }
@@ -91,11 +71,11 @@ void MyApp::createShaderPrograms() {
 ///////////////////////////////////////////////////////////////////////// SCENE
 
 
-void MyApp::createSceneGraph() {
-    mgl::SceneObject* triangleObj = new mgl::SceneObject(
-        meshes->get("triangle"));
+void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
+    std::shared_ptr<mgl::SceneObject> triangleObj = std::make_shared<mgl::SceneObject>(
+        resources.meshManager.get("triangle"));
 
-    triangleObj->setShaders(shaders->get("simple"));
+    triangleObj->setShaders(resources.shaderManager.get("simple"));
     triangleObj->beforeAndAfterDraw(
         [](void) {
             glEnable(GL_CULL_FACE);
@@ -106,12 +86,10 @@ void MyApp::createSceneGraph() {
         }
     );
     
-    mgl::SceneGraph* triangle = new mgl::SceneGraph();
+    std::shared_ptr<mgl::SceneGraph> triangle = std::make_shared<mgl::SceneGraph>();
     triangle->add(triangleObj);
 
-    Scene = new mgl::Scene(meshes, shaders, textures);
-    Scene->setScenegraph(triangle);
-    // Scene->addCamera("mainCamera", OrbitCam->getCamera());
+    scene.setScenegraph(triangle);
 }
 
 ///////////////////////////////////////////////////////////////////////// INPUT
