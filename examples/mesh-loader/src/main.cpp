@@ -1,4 +1,5 @@
 #include <mgl/mgl.hpp>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
 
@@ -6,8 +7,6 @@ class MyApp : public mgl::App {
 public:
     void onRegisterGlobalResources(mgl::ResourceContext& resources) override;
     void onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) override;
-    void onStart() override;
-    void onUpdate(double deltaTime) override;
 
 private:
     const float initialScreenRatio = 800.0f / 600.0f;
@@ -19,17 +18,10 @@ private:
     mgl::OrbitCamController* OrbitCam;
     GLuint cam = 0;
     mgl::PerspectiveParams perspectiveP = { 45.0f, 800.0f / 600.0f, 0.1f, 100.0f };
-    // input
-    void processInput(double elapsed);
-    void animateLights(double elapsed);
 
     // scene
     void createMeshes(mgl::MeshManager& meshManager);
     void createShaderPrograms(mgl::ShaderManager& shaderManager);
-
-    void createSceneGraph();
-    void createCamera();
-    void drawScene();
 };
 
 ///////////////////////////////////////////////////////////////////////// MESHES
@@ -92,58 +84,19 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
     scene.setScenegraph(triangle);
 }
 
-///////////////////////////////////////////////////////////////////////// INPUT
-
-void MyApp::processInput(double elapsed) {
-
-}
-
-///////////////////////////////////////////////////////////////////////// CAMERAS
-
-void MyApp::createCamera() {
-    // mgl::PerspectiveCamera* camera2 = new mgl::PerspectiveCamera(UBO_BP, &perspectiveP);
-    // OrbitCam = new mgl::OrbitCamController(camera2, mgl::vec3(0, 0, 0), 5.0f);
-    // OrbitCam->setActive();
-}
-
-/////////////////////////////////////////////////////////////////////////// DRAW
-
-void MyApp::animateLights(double elapsed) {
- 
-}
-
-
-void MyApp::drawScene() {
-    Scene->draw();
-}
-
 ////////////////////////////////////////////////////////////////////// CALLBACKS
 
-void MyApp::initCallback(GLFWwindow* win) {
+void MyApp::onRegisterGlobalResources(mgl::ResourceContext& resources) {
     //glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    createMeshes();
-    createTextures();
-    createMaterials();
-    createShaderPrograms();  // after mesh;
-    createCamera();
-    createSceneGraph();
-}
-
-void MyApp::windowSizeCallback(GLFWwindow* window, int winx, int winy) {
-    glViewport(0, 0, winx, winy);
-}
-
-void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
-    //processInput(elapsed);
-    //animateLights(elapsed);
-    drawScene();
+    createMeshes(resources.meshManager);
+    createShaderPrograms(resources.shaderManager);  // after mesh;
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN
 
 int main(int argc, char* argv[]) {
     mgl::Engine& engine = mgl::Engine::getInstance();
-    engine.setApp(new MyApp());
+    engine.setApp(std::make_shared<MyApp>());
     engine.setOpenGL(4, 6);
     engine.setWindow(800, 600, "Mesh Loader", 0, 1);
     engine.init();

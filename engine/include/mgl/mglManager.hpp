@@ -76,8 +76,8 @@ namespace mgl {
 
 	template <typename T>
 	void Manager<T>::forEach(SetManagedItemCallback function) {
-		for (const auto& item : items) {
-			function(item.second);
+		for (const auto& [id, item] : items) {
+			function(*item);
 		}
 	}
 

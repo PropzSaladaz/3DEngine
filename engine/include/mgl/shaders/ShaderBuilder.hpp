@@ -99,7 +99,7 @@ namespace mgl {
     void ShaderBuilder::addUniforms() {
         static_assert(std::is_base_of<ShaderUpdator, T>::value, 
             "T must be a subclass of ShaderUpdator");
-        T::declareShaderUniforms(this);
+        T::declareShaderUniforms(*this);
     }
 
 } // namespace mgl

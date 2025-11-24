@@ -1,5 +1,6 @@
 #include <mgl/scene/mglLight.hpp>
 #include <mgl/camera/mglCamera.hpp>
+#include "mgl/shaders/ShaderBuilder.hpp"
 #include <utils/Logger.hpp>
 #include <cstring>
 namespace mgl {
@@ -23,7 +24,7 @@ namespace mgl {
 	const char Light::LIGHT_ATTENUATION_LINEAR_PROP[]    = "linearAttenuation";
 	const char Light::LIGHT_ATTENUATION_QUADRATIC_PROP[] = "quadraticAttenuation";
 
-	void Light::declareShaderUniforms(ShaderProgram& shaders) {
+	void Light::declareShaderUniforms(ShaderBuilder& shaders) {
 		// declare all light unifoms
 		for (int i = 0; i < MAX_NR_LIGHTS; i++) {
 			shaders.addUniform(LIGHT_UNIFORM(i, LIGHT_IS_ENABLED_PROP));
@@ -78,7 +79,7 @@ namespace mgl {
 		return enabled;
 	}
 
-	void Light::assignCamera(const Camera* camera) {
+	void Light::assignCamera(const std::shared_ptr<Camera> camera) {
 		this->camera = camera;
 	}
 

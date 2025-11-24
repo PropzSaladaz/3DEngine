@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <memory>
 #include <mgl/models/textures/mglSampler.hpp>
 #include <mgl/shaders/ShaderProgram.hpp>
 
@@ -25,7 +25,7 @@ struct TextureInfo;
 
 class Texture {
 protected:
-  GLuint id;
+  ui32 id;
 
 public:
   Texture();
@@ -33,21 +33,21 @@ public:
   virtual void bind() = 0;
   virtual void unbind() = 0;
 protected:
-    void genAndBindTextureOpenGL(GLuint  texType, GLuint channels,
-        GLuint width, GLuint height, void* image, GLuint type);
+    void genAndBindTextureOpenGL(ui32  texType, ui32 channels,
+        ui32 width, ui32 height, void* image, ui32 type);
 };
 
 //////////////////////////////////////////////////////////////////// TextureInfo
 
 struct TextureInfo {
   GLenum unit;                // GL_TEXTUREi
-  GLuint index;               // sampler index in shader
+  ui32 index;               // sampler index in shader
   std::string uniform;        // uniform name in shader
-  Texture *texture = nullptr; // Texture (engine object)
-  Sampler *sampler = nullptr; // Sampler (engine object)
+  std::shared_ptr<Texture> texture = nullptr; // Texture (engine object)
+  std::shared_ptr<Sampler> sampler = nullptr; // Sampler (engine object)
 
-  TextureInfo(GLenum textureunit, GLuint index, const std::string &uniform,
-              Texture *texture, Sampler *sampler);
+  TextureInfo(GLenum textureunit, ui32 index, const std::string &uniform,
+              std::shared_ptr<Texture> texture, std::shared_ptr<Sampler> sampler);
   void updateShader(ShaderProgram& shader);
 };
 
@@ -58,12 +58,12 @@ public:
   void bind() override;
   void unbind() override;
   void load(const std::string &filename);
-  void genPerlinNoise(GLuint size, GLuint octaves, 
-      GLdouble atenuation, GLdouble frequency);
-  void genSinePerlinNoise(GLuint size, GLuint octaves,
-      GLdouble xPeriod, GLdouble yPeriod, GLfloat turbulence);
-  void genSawPerlinNoise(GLuint size, GLuint octaves,
-      GLfloat period, GLfloat turbulence);
+  void genPerlinNoise(ui32 size, ui32 octaves, 
+      f64 atenuation, f64 frequency);
+  void genSinePerlinNoise(ui32 size, ui32 octaves,
+      f64 xPeriod, f64 yPeriod, f32 turbulence);
+  void genSawPerlinNoise(ui32 size, ui32 octaves,
+      f32 period, f32 turbulence);
 };
 
 
@@ -72,8 +72,8 @@ public:
     void bind() override;
     void unbind() override;
     void load(const std::string& filename);
-    void genPerlinNoise(GLuint size, GLuint octaves,
-        GLdouble atenuation, GLdouble frequency);
+    void genPerlinNoise(ui32 size, ui32 octaves,
+        f64 atenuation, f64 frequency);
 };
 
 ////////////////////////////////////////////////////////////////// CubeMap

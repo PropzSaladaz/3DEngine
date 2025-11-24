@@ -2,9 +2,9 @@
 #include <mgl/camera/mglCameraManager.hpp>
 namespace mgl {
 
-	void LightManager::updateShaders(ShaderProgram* shaders) {
-		this->forEach([shaders](Light* light) {
-			light->updateShaders(shaders);
+	void LightManager::updateShaders(ShaderProgram& shaders) {
+		this->forEach([&shaders](Light& light) {
+			light.updateShaders(shaders);
 		});
 	}
 }

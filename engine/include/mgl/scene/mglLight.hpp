@@ -2,6 +2,7 @@
 #define MGL_LIGHT_HPP
 
 #include <cstring>
+#include <memory>
 #include <mgl/mglShaders.hpp>
 #include <mgl/camera/mglCamera.hpp>
 #include <mgl/shaders/ShaderUpdator.hpp>
@@ -58,7 +59,7 @@ public:
 	const char *LIGHT_ATTENUATION_LINEAR;
 	const char *LIGHT_ATTENUATION_QUADRATIC;
 
-	static void declareShaderUniforms(ShaderProgram& shaders);
+	static void declareShaderUniforms(ShaderBuilder& shaders);
 
 	Light();
 	~Light();
@@ -66,7 +67,7 @@ public:
 	void disable();
 	bool isEnabled();
 
-	void assignCamera(const Camera* camera);
+	void assignCamera(const std::shared_ptr<Camera> camera);
 
 	void setColor(const math::vec3& color);
 	void setAmbient(const math::vec3& ambient);
@@ -82,7 +83,7 @@ protected:
 	math::vec4 ambientColor;
 	math::vec4 diffuseColor;
 	math::vec4 specularColor;
-	const Camera* camera;
+	std::shared_ptr<Camera> camera;
 };
 
 }

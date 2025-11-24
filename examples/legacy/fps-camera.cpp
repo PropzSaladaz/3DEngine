@@ -4,6 +4,7 @@
 
 #include <mgl/mgl.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
 
@@ -173,7 +174,7 @@ void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
 
 int main(int argc, char* argv[]) {
     mgl::Engine& engine = mgl::Engine::getInstance();
-    engine.setApp(new MyApp());
+    engine.setApp(std::make_shared<MyApp>());
     engine.setOpenGL(4, 6);
     engine.setWindow(800, 600, "Mesh Loader", 0, 1);
     engine.init();

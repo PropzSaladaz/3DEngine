@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 #include "mgl/mglShaderManager.hpp"
 #include "mgl/models//textures/mglTextureManager.hpp"
 #include "mgl/models/meshes/mglMeshManager.hpp"
@@ -22,13 +23,11 @@ struct ResourceContext {
 
 class App {
 public:
-    virtual void windowCloseCallback(GLFWwindow *window) {}
-    virtual void windowSizeCallback(GLFWwindow *window, int width, int height) {}
-
-    virtual void onRegisterGlobalResources(ResourceContext& resources);
-    virtual void onCreateScene(Scene& scene, ResourceContext& resources);
-    virtual void onStart();
-    virtual void onUpdate(double deltaTime);
+    virtual void onRegisterGlobalResources(ResourceContext& resources) {};
+    virtual void onCreateScene(Scene& scene, ResourceContext& resources) {};
+    virtual void onStart() {};
+    virtual void onUpdate(double deltaTime) {};
+    virtual ~App() = default;
 };
 
 
@@ -36,7 +35,7 @@ class Engine {
 public:
     static Engine &getInstance();
 
-    void setApp(App app);
+    void setApp(std::shared_ptr<App> app);
     App& getApp();
     void setOpenGL(int major, int minor);
     void setWindow(int width, int height, const char *title, int fullscreen,
@@ -45,10 +44,10 @@ public:
     void init();
     void run();
 
-    MeshManager&     getMeshManager()     { return Meshes; }
-    TextureManager&  getTextureManager()  { return Textures; }
-    ShaderManager&   getShaderManager()   { return Shaders; }
-    MaterialManager& getMaterialManager() { return Materials; }
+    MeshManager&     getMeshManager()     { return *Meshes; }
+    TextureManager&  getTextureManager()  { return *Textures; }
+    ShaderManager&   getShaderManager()   { return *Shaders; }
+    MaterialManager& getMaterialManager() { return *Materials; }
 
     Engine(Engine const &) = delete;
     void operator=(Engine const &) = delete;
@@ -57,7 +56,7 @@ protected:
     virtual ~Engine();
 
 private:
-    App app;
+    std::shared_ptr<App> app;
     int GlMajor, GlMinor;
     uint16_t WindowWidth, WindowHeight;
 
@@ -67,11 +66,11 @@ private:
     int Fullscreen;
     int Vsync;
 
-    // managers
-    MeshManager Meshes;
-    TextureManager Textures;
-    ShaderManager Shaders;
-    MaterialManager Materials;
+    // managers - TODO check if shared_ptr is needed
+    std::shared_ptr<MeshManager> Meshes;
+    std::shared_ptr<TextureManager> Textures;
+    std::shared_ptr<ShaderManager> Shaders;
+    std::shared_ptr<MaterialManager> Materials;
     Engine();
 
 
@@ -106,7 +105,7 @@ private:
 
     void setupManagers();
     ResourceContext getManagers();
-    Scene& createMainScene();
+    std::shared_ptr<Scene> createMainScene();
 };
 
 }  // namespace mgl

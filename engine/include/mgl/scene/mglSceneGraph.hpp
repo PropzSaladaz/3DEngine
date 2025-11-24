@@ -38,7 +38,7 @@ namespace mgl {
 		~Scene();
 		void addLight(const std::string &name, std::shared_ptr<Light> light);
 		void addCamera(const std::string& name, std::shared_ptr<Camera> camera);
-		void setScenegraph(SceneGraph* graph);
+		void setScenegraph(std::shared_ptr<SceneGraph> graph);
 		void setSkybox(const std::string& folder, const std::string& fileType);
 		void assignLightToCamera(const std::string& light, const std::string& camera);
 
@@ -91,7 +91,7 @@ namespace mgl {
 	class SceneGraph : public SceneNode {
 	public:
 		SceneGraph();
-		SceneGraph(SceneNode* child);
+		SceneGraph(std::shared_ptr<SceneNode> child);
 		~SceneGraph();
 
 		/// <summary>

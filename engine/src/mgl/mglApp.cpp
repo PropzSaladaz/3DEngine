@@ -10,10 +10,6 @@ namespace mgl {
 
 /////////////////////////////////////////////////////////////// STATIC CALLBACKS
 
-static void window_close_callback(GLFWwindow *window) {
-    Engine::getInstance().getApp().windowCloseCallback(window);
-}
-
 static void window_resize_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -39,9 +35,15 @@ Engine &Engine::getInstance(void) {
   return instance;
 }
 
-App& Engine::getApp(void) { return app; }
+App& Engine::getApp(void) { return *app; }
 
-void Engine::setApp(App app) { this->app = std::move(app); }
+void Engine::setApp(std::shared_ptr<App> app) {
+    if (!app) {
+        MGL_ERROR("Engine::setApp called with null app");
+        exit(EXIT_FAILURE);
+    }
+    this->app = std::move(app);
+}
 
 void Engine::setOpenGL(int major, int minor) {
   GlMajor = major;
@@ -104,7 +106,6 @@ void Engine::setupGLFWWindowCallbacks() {
     InputManager::getInstance().setupCallbacks(Window);
 
     // set global callbacks
-    glfwSetWindowCloseCallback(Window, window_close_callback);
     glfwSetFramebufferSizeCallback(Window, window_resize_callback);
 }
 
@@ -165,37 +166,43 @@ void Engine::init() {
 
 ResourceContext Engine::getManagers() {
     ResourceContext resources {
-        Meshes,
-        Textures,
-        Shaders,
-        Materials
+        *Meshes,
+        *Textures,
+        *Shaders,
+        *Materials
     };
     return resources;
 }
 
 void Engine::setupManagers() {
-    Meshes = std::move(MeshManager());
-    Textures = std::move(TextureManager());
-    Shaders = std::move(ShaderManager());
-    Materials = std::move(MaterialManager());
+    Meshes = std::make_shared<MeshManager>();
+    Textures = std::make_shared<TextureManager>();
+    Shaders = std::make_shared<ShaderManager>();
+    Materials = std::make_shared<MaterialManager>();
 }
 
-Scene& Engine::createMainScene() {
-    Scene& scene = *(new Scene(&Meshes, &Shaders, &Textures));
+std::shared_ptr<Scene> Engine::createMainScene() {
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>(
+        Meshes, Shaders, Textures
+    );
     return scene;
 }
 
 //////////////////////////////////////////////////////////////////////////// RUN
 
 void Engine::run() {
+    if (!app) {
+        MGL_ERROR("Engine::run called before an app was set");
+        exit(EXIT_FAILURE);
+    }
     // setup
     setupManagers();
     ResourceContext resources = getManagers();
-    app.onRegisterGlobalResources(resources);
+    app->onRegisterGlobalResources(resources);
 
-    Scene& scene = createMainScene();
-    app.onCreateScene(scene, resources);
-    app.onStart();
+    std::shared_ptr<Scene> scene = createMainScene();
+    app->onCreateScene(*scene, resources);
+    app->onStart();
 
     // start running loop
     double last_time = glfwGetTime();
@@ -214,7 +221,8 @@ void Engine::run() {
         Simulation::getInstance().update(elapsed_time);
 
         // Let App render / display
-        app.onUpdate( elapsed_time);
+        app->onUpdate( elapsed_time);
+        scene->draw();
 
         // Swap buffers and poll events
         glfwSwapBuffers(Window);

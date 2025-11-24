@@ -182,15 +182,16 @@ void Mesh::createFromFile(const std::string &filename) {
 
 
 void Mesh::createBufferObjects() {
-  GLuint boId[6];
+  // Ensure previous buffers are cleared before creating new ones
+  destroyBufferObjects();
 
   glGenVertexArrays(1, &VaoId);
   glBindVertexArray(VaoId);
   {
-    glGenBuffers(6, boId);
+    glGenBuffers(6, BufferIds);
 
     // Position is always needed
-    glBindBuffer(GL_ARRAY_BUFFER, boId[POSITION]);
+    glBindBuffer(GL_ARRAY_BUFFER, BufferIds[POSITION]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(_positions[0]) * _positions.size(),
                  &_positions[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(POSITION);
@@ -200,7 +201,7 @@ void Mesh::createBufferObjects() {
 
     // Optional attributes
     if (_normalsLoaded) {
-      glBindBuffer(GL_ARRAY_BUFFER, boId[NORMAL]);
+      glBindBuffer(GL_ARRAY_BUFFER, BufferIds[NORMAL]);
       glBufferData(GL_ARRAY_BUFFER, sizeof(_normals[0]) * _normals.size(),
                    &_normals[0], GL_STATIC_DRAW);
       glEnableVertexAttribArray(NORMAL);
@@ -208,7 +209,7 @@ void Mesh::createBufferObjects() {
     }
 
     if (_texcoordsLoaded) {
-      glBindBuffer(GL_ARRAY_BUFFER, boId[TEXCOORD]);
+      glBindBuffer(GL_ARRAY_BUFFER, BufferIds[TEXCOORD]);
       glBufferData(GL_ARRAY_BUFFER, sizeof(_texCoords[0]) * _texCoords.size(),
                    &_texCoords[0], GL_STATIC_DRAW);
       glEnableVertexAttribArray(TEXCOORD);
@@ -216,7 +217,7 @@ void Mesh::createBufferObjects() {
     }
 
     if (_colorsLoaded) {
-      glBindBuffer(GL_ARRAY_BUFFER, boId[COLOR]);
+      glBindBuffer(GL_ARRAY_BUFFER, BufferIds[COLOR]);
       glBufferData(GL_ARRAY_BUFFER, sizeof(_colors[0]) * _colors.size(),
                    &_colors[0], GL_STATIC_DRAW);
       glEnableVertexAttribArray(COLOR);
@@ -226,22 +227,30 @@ void Mesh::createBufferObjects() {
 
 
     // Indexing is always used as well
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, boId[INDEX]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, BufferIds[INDEX]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices[0]) * _indices.size(),
                  &_indices[0], GL_STATIC_DRAW);
   }
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glDeleteBuffers(6, boId);
 }
 
 void Mesh::destroyBufferObjects() {
-  glBindVertexArray(VaoId);
-  glDisableVertexAttribArray(POSITION);
-  glDisableVertexAttribArray(NORMAL);
-  glDisableVertexAttribArray(TEXCOORD);
-  glDeleteVertexArrays(1, &VaoId);
-  glBindVertexArray(0);
+  if (VaoId) {
+    glBindVertexArray(VaoId);
+    glDisableVertexAttribArray(POSITION);
+    glDisableVertexAttribArray(NORMAL);
+    glDisableVertexAttribArray(TEXCOORD);
+    glDeleteVertexArrays(1, &VaoId);
+    glBindVertexArray(0);
+    VaoId = 0;
+  }
+
+  // Clean up any buffers that were created
+  glDeleteBuffers(6, BufferIds);
+  for (auto& id : BufferIds) {
+    id = 0;
+  }
 }
 
 void Mesh::performDraw() {

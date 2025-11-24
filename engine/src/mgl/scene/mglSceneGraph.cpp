@@ -68,25 +68,28 @@ void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 	// import skybox mesh
 	meshes->import(SKYBOX, "models/cube-vtn.obj");
 	// create skybox shader
-	std::shared_ptr<mgl::ShaderBuilder> skyboxShaders = std::make_shared<mgl::ShaderBuilder>();
-	skyboxShaders->addShader(GL_VERTEX_SHADER, "shaders/skyboxVS.glsl");
-	skyboxShaders->addShader(GL_FRAGMENT_SHADER, "shaders/light/skybox.glsl");
-	skyboxShaders->addUniforms<mgl::BasicMaterial>();
-	skyboxShaders->addUniform(SKYBOX);
-	shaders->add(SKYBOX, skyboxShaders);
+	mgl::ShaderBuilder skyboxShaders = mgl::ShaderBuilder();
+	skyboxShaders.addShader(GL_VERTEX_SHADER, "shaders/skyboxVS.glsl");
+	skyboxShaders.addShader(GL_FRAGMENT_SHADER, "shaders/light/skybox.glsl");
+	skyboxShaders.addUniforms<mgl::BasicMaterial>();
+	skyboxShaders.addUniform(SKYBOX);
+	std::shared_ptr<mgl::ShaderProgram> skyboxProgram = 
+		std::make_shared<mgl::ShaderProgram>(skyboxShaders.build());
+	shaders->add(SKYBOX, skyboxProgram);
+
 	// create skybox material
-	mgl::TextureCubeMap* cubemapT = new mgl::TextureCubeMap();
+	std::shared_ptr<mgl::TextureCubeMap> cubemapT = std::make_shared<mgl::TextureCubeMap>();
 	cubemapT->loadCubeMap(folder, fileType);
-	mgl::Sampler* cubemapS = new mgl::LinearSampler();
+	std::shared_ptr<mgl::Sampler> cubemapS = std::make_shared<mgl::LinearSampler>();
 	cubemapS->create();
-	mgl::TextureInfo* cubeTinfo = new mgl::TextureInfo(GL_TEXTURE0, 0,
+	std::shared_ptr<mgl::TextureInfo> cubeTinfo = std::make_shared<mgl::TextureInfo>(GL_TEXTURE0, 0,
 		SKYBOX, cubemapT, cubemapS);
 	textures->add(SKYBOX, cubeTinfo);
 
-	mgl::Material* SKYBOX_M = new mgl::BasicMaterial();
+	std::shared_ptr<mgl::Material> SKYBOX_M = std::make_shared<mgl::BasicMaterial>();
 	SKYBOX_M->addTexture(cubeTinfo);
 	// create sceneNode
-	mgl::SceneObject* skyboxObj = new mgl::SceneObject(
+	std::shared_ptr<mgl::SceneObject> skyboxObj = std::make_shared<mgl::SceneObject>(
 		meshes->get(SKYBOX),
 		SKYBOX_M,
 		shaders->get(SKYBOX));
@@ -106,8 +109,8 @@ void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 }
 
 void Scene::assignLightToCamera(const std::string& light, const std::string& camera) {
-	Light* lightObj = lights->get(light);
-	Camera* cam = cameras->get(camera);
+	std::shared_ptr<Light> lightObj = lights->get(light);
+	std::shared_ptr<Camera> cam = cameras->get(camera);
 
 	if (!lightObj) {
 		MGL_ERROR("No light with name " + light + " exists in current scene");
@@ -129,9 +132,9 @@ void Scene::performDraw() {
 	if (graph)  graph ->draw();
 }
 
-void Scene::updateShaders(ShaderProgram* shaders) {
+void Scene::updateShaders(ShaderProgram& shaders) {
 	// check if lights are defined for current shader
-	if (shaders->isUniform(Light::LIGHT_UNIFORM(0, Light::LIGHT_POSITION_PROP))) {
+	if (shaders.isUniform(Light::LIGHT_UNIFORM(0, Light::LIGHT_POSITION_PROP))) {
 		lights->updateShaders(shaders);
 	}
 }
@@ -155,16 +158,16 @@ SceneGraph::~SceneGraph(void) {
 
 SceneGraph::SceneGraph() : SceneNode() {}
 
-SceneGraph::SceneGraph(SceneNode* child) : SceneGraph() {
+SceneGraph::SceneGraph(std::shared_ptr<SceneNode> child) : SceneGraph() {
 	add(child);
 }
 
-void SceneGraph::add(SceneNode* child) {
+void SceneGraph::add(std::shared_ptr<SceneNode> child) {
 	children.insert(std::make_pair(child->getId(), child));
 	child->Parent = this;
 }
 
-void SceneGraph::remove(SceneNode* child) {
+void SceneGraph::remove(std::shared_ptr<SceneNode> child) {
 	child->Parent = NO_PARENT;
 	children.erase(child->getId());
 }
@@ -184,7 +187,7 @@ void SceneGraph::setScene(Scene* scene) {
 	}
 }
 
-void SceneGraph::setSkybox(TextureInfo* skybox) {
+void SceneGraph::setSkybox(std::shared_ptr<TextureInfo> skybox) {
 	for (const auto& node : children) {
 		node.second->setSkybox(skybox);
 	}

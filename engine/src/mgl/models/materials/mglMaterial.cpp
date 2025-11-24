@@ -10,11 +10,11 @@ namespace mgl {
 		// set material uniforms
 		setMaterialUniforms(shaders);
 		for (auto& texture : textures) {
-			texture.updateShader(shaders);
+			texture->updateShader(shaders);
 		}
 	}
 
-	void Material::addTexture(TextureInfo texture) {
+	void Material::addTexture(std::shared_ptr<TextureInfo> texture) {
 		textures.push_back(texture);
 	}
 }

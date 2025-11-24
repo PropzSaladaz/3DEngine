@@ -9,7 +9,7 @@ namespace mgl {
 		setColor(COLOR_WHITE);
 		setAttenuation(DEFAULT_ATTENUATION);
 	}
-	PositionalLight::PositionalLight(const SceneObject* position) 
+	PositionalLight::PositionalLight(const std::shared_ptr<SceneObject> position) 
 		: PositionalLight() {
 		setPosition(position);
 	}
@@ -24,7 +24,7 @@ namespace mgl {
 		setColor(color);
 	}
 
-	PositionalLight::PositionalLight(const SceneObject* position, 
+	PositionalLight::PositionalLight(const std::shared_ptr<SceneObject> position, 
 		const math::vec3& color) : PositionalLight(position) {
 		setColor(color);
 	}
@@ -32,12 +32,12 @@ namespace mgl {
 	/////////////////////////////////////////////////////////////////// Setters
 
 	void PositionalLight::setPosition(const math::vec3& position) {
-		mgl::SceneObject* lightPos = new SceneObject();
+		std::shared_ptr<SceneObject> lightPos = std::make_shared<SceneObject>();
 		lightPos->setPosition(position);
 		this->position = lightPos;
 	}
 
-	void PositionalLight::setPosition(const SceneObject* position) {
+	void PositionalLight::setPosition(const std::shared_ptr<SceneObject> position) {
 		this->position = position;
 	}
 
@@ -74,16 +74,16 @@ namespace mgl {
 	}
 
 	/////////////////////////////////////////////////////////////////// Shaders
-	void PositionalLight::updateShaders(ShaderProgram* shader) {
+	void PositionalLight::updateShaders(ShaderProgram& shader) {
 		math::vec3 WorldSpaceAbsolutePos = position->getAbsolutePosition();
-		shader->setUniform(LIGHT_IS_ENABLED,	enabled);
-		shader->setUniform(LIGHT_POSITION,		WorldSpaceAbsolutePos);
-		shader->setUniform(LIGHT_AMBIENT,		ambientColor);
-		shader->setUniform(LIGHT_DIFFUSE,		diffuseColor);
-		shader->setUniform(LIGHT_SPECULAR,		specularColor);
-		shader->setUniform(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
-		shader->setUniform(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
-		shader->setUniform(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);
+		shader.setUniform(LIGHT_IS_ENABLED,	enabled);
+		shader.setUniform(LIGHT_POSITION,		WorldSpaceAbsolutePos);
+		shader.setUniform(LIGHT_AMBIENT,		ambientColor);
+		shader.setUniform(LIGHT_DIFFUSE,		diffuseColor);
+		shader.setUniform(LIGHT_SPECULAR,		specularColor);
+		shader.setUniform(LIGHT_ATTENUATION_CONSTANT,  attenuation.constant);
+		shader.setUniform(LIGHT_ATTENUATION_LINEAR,	 attenuation.linear);
+		shader.setUniform(LIGHT_ATTENUATION_QUADRATIC, attenuation.quadratic);
 	}
 
 }

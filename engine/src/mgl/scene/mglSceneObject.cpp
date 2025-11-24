@@ -4,15 +4,15 @@ namespace mgl {
 
 SceneObject::SceneObject() : SceneNode() {}
 
-SceneObject::SceneObject(Mesh* _mesh) : SceneNode(), mesh(_mesh), 
+SceneObject::SceneObject(std::shared_ptr<Mesh> _mesh) : SceneNode(), mesh(_mesh), 
 		material(nullptr), shaders(nullptr), scene(nullptr) {}
 	
-SceneObject::SceneObject(Mesh* mesh, Material* material) 
+SceneObject::SceneObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) 
 	: SceneObject(mesh) {
 	setMaterial(material);
 }
 
-SceneObject::SceneObject(Mesh* mesh, Material* material, ShaderProgram* shaders)
+SceneObject::SceneObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, std::shared_ptr<ShaderProgram> shaders)
 	: SceneObject(mesh, material) {
 	setShaders(shaders);
 }
@@ -27,7 +27,7 @@ SceneObject::~SceneObject() {}
 void SceneObject::setUniforms() {
 	shaders->setUniform(MODEL_MATRIX, AbsoluteTransform);
 	for (const auto& callback : shaderUniformCallbacks) {
-		callback(shaders);
+		callback(*shaders);
 	}
 }
 
@@ -44,8 +44,8 @@ void SceneObject::performDraw() {
 		Parent->AbsoluteTransform * getTransformMatrix();
 
 	shaders->bind();
-	if (material) material->updateShaders(shaders);
-	if (scene) scene->updateShaders(shaders); // update with global scene info
+	if (material) material->updateShaders(*shaders);
+	if (scene) scene->updateShaders(*shaders); // update with global scene info
 	setUniforms();
 	mesh->draw();
 	shaders->unbind();
@@ -70,8 +70,8 @@ void SceneObject::setSkybox(std::shared_ptr<TextureInfo> skybox) {
 	}
 }
 
-Material* SceneObject::getMaterial() {
-	return material;
+Material& SceneObject::getMaterial() {
+	return *material;
 }
 
 }

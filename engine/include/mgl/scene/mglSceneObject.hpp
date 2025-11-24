@@ -13,7 +13,7 @@
 
 namespace mgl {
 
-	using SetShaderUniformCallback = std::function<void(ShaderProgram* shaders)>;
+	using SetShaderUniformCallback = std::function<void(ShaderProgram& shaders)>;
 
 	/**
 	 * Defines an object to be drawn within the scene it is on.
@@ -58,7 +58,7 @@ namespace mgl {
 		void performDraw() override;
 
 	private:
-		std::shared_ptr<Scene> scene;
+		Scene* scene;
 		std::shared_ptr<ShaderProgram> shaders;
 		std::shared_ptr<Mesh> mesh;
 		std::shared_ptr<Material> material;

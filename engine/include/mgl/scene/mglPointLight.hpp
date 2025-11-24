@@ -13,11 +13,11 @@ namespace mgl {
 	class PointLight : public PositionalLight {
 	public:
 		PointLight(const math::vec3 &position);
-		PointLight(const SceneObject* position);
+		PointLight(const std::shared_ptr<SceneObject> position);
 		PointLight(const math::vec3 &position, const math::vec3 &color);
-		PointLight(const SceneObject* position, const math::vec3 &color);
+		PointLight(const std::shared_ptr<SceneObject> position, const math::vec3 &color);
 
-		void updateShaders(ShaderProgram* shader) override;
+		void updateShaders(ShaderProgram& shader) override;
 	};
 
 }  // namespace mgl

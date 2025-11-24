@@ -79,6 +79,7 @@ namespace mgl {
 
     private:
         ui32 VaoId = 0;
+        GLuint BufferIds[6] = {0, 0, 0, 0, 0, 0};
         unsigned int AssimpFlags = 0;
         bool _normalsLoaded = false;
         bool _texcoordsLoaded = false;

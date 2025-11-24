@@ -12,26 +12,31 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////////////////////////////// Constructors
 	SpotLight::SpotLight() : PositionalLight() {}
+	
 	SpotLight::SpotLight(const math::vec3 &position) : 
 		PositionalLight(position) {}
-	SpotLight::SpotLight(const SceneObject* position) : PositionalLight(position) {}
+
+	SpotLight::SpotLight(const std::shared_ptr<SceneObject> position) : PositionalLight(position) {}
+
 	SpotLight::SpotLight(const math::vec3 &position, const math::vec3& color) : 
 		PositionalLight(position, color) {}
-	SpotLight::SpotLight(const SceneObject* position, const math::vec3 &color) 
+
+	SpotLight::SpotLight(const std::shared_ptr<SceneObject> position, const math::vec3 &color) 
 		: PositionalLight(position, color) {}
+
 	SpotLight::SpotLight(const math::vec3 &position, const math::vec3 &color, const math::vec3 &target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const math::vec3 &position, const math::vec3 &color, const SceneObject* target) :
+	SpotLight::SpotLight(const math::vec3 &position, const math::vec3 &color, const std::shared_ptr<SceneObject> target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const SceneObject* position, const math::vec3& color, const math::vec3& target) :
+	SpotLight::SpotLight(const std::shared_ptr<SceneObject> position, const math::vec3& color, const math::vec3& target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
-	SpotLight::SpotLight(const SceneObject* position, const math::vec3& color, const SceneObject* target) :
+	SpotLight::SpotLight(const std::shared_ptr<SceneObject> position, const math::vec3& color, const std::shared_ptr<SceneObject> target) :
 		PositionalLight(position, color) {
 		setTarget(target);
 	}
@@ -39,11 +44,11 @@ namespace mgl {
 	///////////////////////////////////////////////////// Setters
 
 	void SpotLight::setTarget(const math::vec3 &target) {
-		mgl::SceneObject* sceneObj = new SceneObject();
+		std::shared_ptr<SceneObject> sceneObj = std::make_shared<SceneObject>();
 		sceneObj->setPosition(target);
 		this->target = sceneObj;
 	}
-	void SpotLight::setTarget(const SceneObject* direction) {
+	void SpotLight::setTarget(const std::shared_ptr<SceneObject> direction) {
 		this->target = direction;
 	}
 
@@ -80,12 +85,12 @@ namespace mgl {
 
 	/////////////////////////////////////////////////////// Update Shaders
 
-	void SpotLight::updateShaders(ShaderProgram* shader) {
+	void SpotLight::updateShaders(ShaderProgram& shader) {
 		PositionalLight::updateShaders(shader);
-		shader->setUniform(LIGHT_LIGHT_TYPE, SPOT_LIGHT);
-		shader->setUniform(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
-		shader->setUniform(LIGHT_EPSILON,	  epsilon);
-		shader->setUniform(LIGHT_DIRECTION, math::vec4(getDirection(), 0.0));
+		shader.setUniform(LIGHT_LIGHT_TYPE, SPOT_LIGHT);
+		shader.setUniform(LIGHT_SPOT_OUTER_COS_CUTOFF, spotOuterCosCutoff);
+		shader.setUniform(LIGHT_EPSILON,	  epsilon);
+		shader.setUniform(LIGHT_DIRECTION, math::vec4(getDirection(), 0.0));
 	}
 
 }

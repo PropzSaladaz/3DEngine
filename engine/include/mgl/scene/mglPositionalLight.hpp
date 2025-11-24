@@ -24,12 +24,12 @@ namespace mgl {
 
 		PositionalLight();
 		PositionalLight(const math::vec3& position);
-		PositionalLight(const SceneObject* position);
+		PositionalLight(const std::shared_ptr<SceneObject> position);
 		PositionalLight(const math::vec3& position, const math::vec3& color);
-		PositionalLight(const SceneObject* position, const math::vec3& color);
+		PositionalLight(const std::shared_ptr<SceneObject> position, const math::vec3& color);
 
 		void setPosition(const math::vec3& position);
-		void setPosition(const SceneObject* position);
+		void setPosition(const std::shared_ptr<SceneObject> position);
 		void setAttenuation(ui32 distance);
 		void setAttenuation(const LightAttenuation& attenuation);
 
@@ -39,7 +39,7 @@ namespace mgl {
 		virtual void updateShaders(ShaderProgram& shader) override;
 
 	protected:
-		const SceneObject* position;
+		std::shared_ptr<SceneObject> position;
 
 	private:
 		LightAttenuation attenuation;

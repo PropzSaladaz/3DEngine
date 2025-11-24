@@ -13,8 +13,8 @@ namespace mgl {
 //////////////////////////////////////////////////////////////////// TextureInfo
 
 TextureInfo::TextureInfo(GLenum _unit, GLuint _index,
-                         const std::string &_uniform, Texture *_texture,
-                         Sampler *_sampler) {
+                         const std::string &_uniform, std::shared_ptr<Texture> _texture,
+                         std::shared_ptr<Sampler> _sampler) {
   unit = _unit;
   uniform = _uniform;
   index = _index;
@@ -129,7 +129,7 @@ void Texture2D::genPerlinNoise(GLuint size, GLuint octaves,
         }
     }
     genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
-    delete image;
+    delete[] image;
 }
 
 void Texture2D::genSinePerlinNoise(GLuint size, GLuint octaves,
@@ -152,7 +152,7 @@ void Texture2D::genSinePerlinNoise(GLuint size, GLuint octaves,
         }
     }
     genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
-    delete image;
+    delete[] image;
 }
 
 void Texture2D::genSawPerlinNoise(GLuint size, GLuint octaves,
@@ -172,7 +172,7 @@ void Texture2D::genSawPerlinNoise(GLuint size, GLuint octaves,
             }
         }
         genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, size, size, image, GL_FLOAT);
-        delete image;
+        delete[] image;
 }
 
 ////////////////////////////////////////////////////////////////////// Texture3D
@@ -232,7 +232,7 @@ void Texture3D::genPerlinNoise(GLuint size, GLuint octaves,
     }
 
     genAndBindTextureOpenGL(GL_TEXTURE_3D, GL_RGB, size, size, image, GL_FLOAT);
-    delete image;
+    delete[] image;
 }
 
 ///////////////////////////////////////////////////////////////// TextureCubeMap
