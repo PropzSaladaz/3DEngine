@@ -24,7 +24,7 @@ Engine::Engine(void) {
     Window = 0;
     WindowWidth = 640, WindowHeight = 480;
     GlMajor = 3, GlMinor = 3;
-    Fullscreen = 0, Vsync = 0;
+    Fullscreen = 0, Vsync = 1;
     WindowTitle = "OpenGL App";
 }
 
@@ -97,8 +97,9 @@ void Engine::setupGLFWWindow() {
 
     // configure window
     glfwMakeContextCurrent(Window);
-    //glfwSwapInterval(Vsync);
-    glfwSwapInterval(0);
+    // Respect requested vsync to avoid unthrottled render loops
+    const int swapInterval = Vsync ? 1 : 0;
+    glfwSwapInterval(swapInterval);
 }
 
 void Engine::setupGLFWWindowCallbacks() {
@@ -206,6 +207,9 @@ void Engine::run() {
 
     // start running loop
     double last_time = glfwGetTime();
+    double fps_timer = 0.0;
+    int fps_frames = 0;
+    constexpr double fps_refresh_interval = 0.5;
 
     // wait for window to be closed
     while (!glfwWindowShouldClose(Window)) { // render loop
@@ -214,10 +218,17 @@ void Engine::run() {
         double time = glfwGetTime();
         double elapsed_time = time - last_time;
         last_time = time;
+        fps_timer += elapsed_time;
+        ++fps_frames;
         
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        if (fps_timer >= fps_refresh_interval) {
+            const double fps = fps_frames / fps_timer;
+            glfwSetWindowTitle(Window, std::to_string(static_cast<int>(fps)).c_str());
+            fps_timer = 0.0;
+            fps_frames = 0;
+        }
 
-        glfwSetWindowTitle(Window, std::to_string(static_cast<int>(1.0 / elapsed_time)).c_str());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         Simulation::getInstance().update(elapsed_time);
 
         // Let App render / display
@@ -228,6 +239,14 @@ void Engine::run() {
         glfwSwapBuffers(Window);
         glfwPollEvents();
     }
+
+    // Clean up GPU resources while the context is still valid
+    scene.reset();
+    Materials.reset();
+    Shaders.reset();
+    Textures.reset();
+    Meshes.reset();
+
     glfwDestroyWindow(Window);
     glfwTerminate();
 }

@@ -21,27 +21,59 @@ namespace mgl {
     public:
 
         // Stores the OpenGL's shader program object ID
-        ui32 ProgramId;
+        ui32 _programId;
 
         struct AttributeInfo { i32 location; };
         struct UniformInfo   { i32 location; };
         struct UboInfo       { i32 location; i32 bindingPoint; };
 
-        std::unordered_map<std::string, AttributeInfo> Attributes;
-        std::unordered_map<std::string, UniformInfo>   Uniforms;
-        std::unordered_map<std::string, UboInfo>       Ubos;
+        std::unordered_map<std::string, AttributeInfo> _attributes;
+        std::unordered_map<std::string, UniformInfo>   _uniforms;
+        std::unordered_map<std::string, UboInfo>       _ubos;
 
         /**
          * @brief Creates a shader program and assigns it an ID returned from calling 'glCreateProgram'
          */
-        ShaderProgram(ui32 programId, 
-                      const std::unordered_map<std::string, AttributeInfo>& attributes = {},
-                      const std::unordered_map<std::string, UniformInfo>& uniforms = {},
-                      const std::unordered_map<std::string, UboInfo>& ubos = {}) 
-            : ProgramId(programId), Attributes(attributes), Uniforms(uniforms), Ubos(ubos) 
-        {};
+        ShaderProgram(ui32 programId,
+                    std::unordered_map<std::string, AttributeInfo> attributes,
+                    std::unordered_map<std::string, UniformInfo> uniforms,
+                    std::unordered_map<std::string, UboInfo> ubos) noexcept
+            : _programId(programId),
+            _attributes(std::move(attributes)),
+            _uniforms(std::move(uniforms)),
+            _ubos(std::move(ubos)) {}
 
         ~ShaderProgram();
+
+        ShaderProgram(const ShaderProgram&) = delete;
+        ShaderProgram& operator=(const ShaderProgram&) = delete;
+
+        // Move ctor
+        ShaderProgram(ShaderProgram&& other) noexcept
+            : _programId(other._programId),
+            _attributes(std::move(other._attributes)),
+            _uniforms(std::move(other._uniforms)),
+            _ubos(std::move(other._ubos)) {
+            other._programId = 0;  // don't let the moved-from object delete the program
+        }
+
+        // Move assign
+        ShaderProgram& operator=(ShaderProgram&& other) noexcept {
+            if (this != &other) {
+                // Clean up current program
+                if (_programId != 0) {
+                    glDeleteProgram(_programId);
+                }
+
+                _programId = other._programId;
+                _attributes = std::move(other._attributes);
+                _uniforms  = std::move(other._uniforms);
+                _ubos      = std::move(other._ubos);
+
+                other._programId = 0;
+            }
+            return *this;
+        }
 
         // =========== Query on attributes and uniforms =========== //
 
@@ -58,7 +90,7 @@ namespace mgl {
         template <class T>
         void setUniform(const std::string& name, const T& value) {
             assertUniform(name);
-            setUniform(Uniforms.at(name).location, value); // forwards to overloads below
+            setUniform(_uniforms.at(name).location, value); // forwards to overloads below
         }
    
 

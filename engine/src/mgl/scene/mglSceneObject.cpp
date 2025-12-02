@@ -25,7 +25,9 @@ SceneObject::~SceneObject() {}
 	user-defined uniforms through callbacks
 */
 void SceneObject::setUniforms() {
-	shaders->setUniform(MODEL_MATRIX, AbsoluteTransform);
+	// TODO - allows no use of camera model, but is slower
+	if (shaders->isUniform(MODEL_MATRIX)) shaders->setUniform(MODEL_MATRIX, AbsoluteTransform);
+	
 	for (const auto& callback : shaderUniformCallbacks) {
 		callback(*shaders);
 	}

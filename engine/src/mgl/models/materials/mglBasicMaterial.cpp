@@ -9,8 +9,10 @@ namespace mgl {
 	}
 
 	BasicMaterial::BasicMaterial() {}
+
 	BasicMaterial::BasicMaterial(const math::vec3& color) 
 		: BasicMaterial(math::vec4(color, 1.0f)) {}
+		
 	BasicMaterial::BasicMaterial(const math::vec4& color) {
 		setColor(color);
 	}

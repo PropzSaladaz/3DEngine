@@ -6,23 +6,24 @@
 namespace mgl {
 
 ShaderProgram::~ShaderProgram() {
-  glUseProgram(0);
-  glDeleteProgram(ProgramId);
+  if (_programId != 0) {
+    glDeleteProgram(_programId);
+  }
 }
 
 bool ShaderProgram::isAttribute(const std::string &name) {
-  return Attributes.find(name) != Attributes.end();
+  return _attributes.find(name) != _attributes.end();
 }
 
 bool ShaderProgram::isUniform(const std::string &name) {
-  return Uniforms.find(name) != Uniforms.end();
+  return _uniforms.find(name) != _uniforms.end();
 }
 
 bool ShaderProgram::isUniformBlock(const std::string &name) {
-  return Ubos.find(name) != Ubos.end();
+  return _ubos.find(name) != _ubos.end();
 }
 
-void ShaderProgram::bind() { glUseProgram(ProgramId); }
+void ShaderProgram::bind() { glUseProgram(_programId); }
 
 void ShaderProgram::unbind() { glUseProgram(0); }
 
@@ -44,7 +45,7 @@ void ShaderProgram::setUniform(i32 loc, const math::mat4& m) { glUniformMatrix4f
 void ShaderProgram::assertUniform(const std::string &name) {
     if (!isUniform(name)) {
         MGL_ERROR("Uniform with name " + name + 
-            " doesn't exist in the shader program " + std::to_string(ProgramId));
+            " doesn't exist in the shader program " + std::to_string(_programId));
         exit(EXIT_FAILURE);
     }
 }

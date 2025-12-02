@@ -21,6 +21,7 @@ private:
 
     // scene
     void createMeshes(mgl::MeshManager& meshManager);
+    void createMaterials(mgl::MaterialManager& materialManager);
     void createShaderPrograms(mgl::ShaderManager& shaderManager);
 };
 
@@ -48,16 +49,12 @@ void MyApp::createMeshes(mgl::MeshManager& meshManager) {
 void MyApp::createShaderPrograms(mgl::ShaderManager& shaderManager) {
     mgl::ShaderBuilder simpleShaders;
     simpleShaders.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-    simpleShaders.addUniform(mgl::MODEL_MATRIX);
-    simpleShaders.addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
     simpleShaders.addShader(GL_VERTEX_SHADER, "shaders/tmp_openGL/shader.vert");
     simpleShaders.addShader(GL_FRAGMENT_SHADER, "shaders/tmp_openGL/shader.frag");
-    simpleShaders.addUniform("triangleColor");
+    simpleShaders.addUniforms<mgl::BasicMaterial>();
 
     std::shared_ptr<mgl::ShaderProgram> program = std::make_shared<mgl::ShaderProgram>(simpleShaders.build());
     shaderManager.add("simple", program);
-    
-    program->setUniform("triangleColor", mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
@@ -68,15 +65,16 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
         resources.meshManager.get("triangle"));
 
     triangleObj->setShaders(resources.shaderManager.get("simple"));
-    triangleObj->beforeAndAfterDraw(
-        [](void) {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-        },
-        [](void) {
-            glDisable(GL_CULL_FACE);
-        }
-    );
+    // triangleObj->beforeAndAfterDraw(
+    //     [](void) {
+    //         glEnable(GL_CULL_FACE);
+    //         glCullFace(GL_FRONT);
+    //     },
+    //     [](void) {
+    //         glDisable(GL_CULL_FACE);
+    //     }
+    // );
+    triangleObj->setMaterial(resources.materialManager.get("basic"));
     
     std::shared_ptr<mgl::SceneGraph> triangle = std::make_shared<mgl::SceneGraph>();
     triangle->add(triangleObj);
@@ -84,11 +82,17 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
     scene.setScenegraph(triangle);
 }
 
+void MyApp::createMaterials(mgl::MaterialManager& materialManager) {
+    std::shared_ptr<mgl::Material> mat1 = std::make_shared<mgl::BasicMaterial>(mgl::vec4(1.0f, 0.5f, 0.2f, 1.0f));
+    materialManager.add("basic", mat1);
+}
+
 ////////////////////////////////////////////////////////////////////// CALLBACKS
 
 void MyApp::onRegisterGlobalResources(mgl::ResourceContext& resources) {
     //glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     createMeshes(resources.meshManager);
+    createMaterials(resources.materialManager);
     createShaderPrograms(resources.shaderManager);  // after mesh;
 }
 
@@ -97,7 +101,7 @@ void MyApp::onRegisterGlobalResources(mgl::ResourceContext& resources) {
 int main(int argc, char* argv[]) {
     mgl::Engine& engine = mgl::Engine::getInstance();
     engine.setApp(std::make_shared<MyApp>());
-    engine.setOpenGL(4, 6);
+    engine.setOpenGL(3, 3);
     engine.setWindow(800, 600, "Mesh Loader", 0, 1);
     engine.init();
     engine.run();

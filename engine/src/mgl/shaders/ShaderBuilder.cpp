@@ -53,6 +53,7 @@ ShaderBuilder::~ShaderBuilder() {}
 
 ShaderProgram ShaderBuilder::build() {
     ui32 programId = glCreateProgram();
+    assert(glIsProgram(programId));
 
     // Compile + attach all sahders
     std::vector<ui32> shaderIds;
