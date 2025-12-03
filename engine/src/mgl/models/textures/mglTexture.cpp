@@ -32,9 +32,29 @@ void TextureInfo::updateShader(ShaderProgram& shader) {
 
 //////////////////////////////////////////////////////////////////////// Texture
 
-Texture::Texture() : id(-1) {}
+Texture::Texture() : id(0) {}
 
-Texture::~Texture() {}
+Texture::~Texture() {
+    if (id != 0) {
+        glDeleteTextures(1, &id);
+    }
+}
+
+Texture::Texture(Texture&& other) noexcept {
+    id = other.id;
+    other.id = 0;
+}
+
+Texture& Texture::operator=(Texture&& other) noexcept {
+    if (this != &other) {
+        if (id != 0) {
+            glDeleteTextures(1, &id);
+        }
+        id = other.id;
+        other.id = 0;
+    }
+    return *this;
+}
 
 void Texture::genAndBindTextureOpenGL(GLuint  texType, GLuint channels, 
     GLuint width, GLuint height, void* image, GLuint type) {

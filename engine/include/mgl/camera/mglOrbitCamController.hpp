@@ -2,6 +2,7 @@
 #define MGL_ORBIT_CAM_CONTROLLER_HPP
 
 #include <mgl/camera/mglCameraController.hpp>
+#include <memory>
 
 namespace mgl {
 
@@ -24,7 +25,7 @@ protected:
 private:
     math::quat rotation = math::quat::fromAxisAngle(mgl::YY, 0.0f);
     f32 radius = 1.0f;
-    Transform* center;
+    std::unique_ptr<Transform> center;
     f32 mouseSensitivity = 4.0f;
 
     void rotateCamera(f32 degrees, const math::vec3& axis);

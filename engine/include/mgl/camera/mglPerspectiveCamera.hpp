@@ -8,9 +8,9 @@ namespace mgl {
 
 	class PerspectiveCamera : public Camera {
 	public:
-		PerspectiveCamera(ui32 bindingPoint, PerspectiveParams* params);
+		PerspectiveCamera(ui32 bindingPoint, const PerspectiveParams& params);
 
-		void setPerspective(PerspectiveParams* params);
+		void setPerspective(const PerspectiveParams& params);
 		void setPerspective(f32 fov, f32 screen_ratio,
 			f32 near, f32 far);
 
@@ -19,7 +19,7 @@ namespace mgl {
 		void zoom(f32 step) override;
 
 	private:
-		PerspectiveParams* perspectiveParams;
+		PerspectiveParams perspectiveParams{};
 	};
 
 

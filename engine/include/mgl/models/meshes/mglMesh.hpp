@@ -44,6 +44,10 @@ namespace mgl {
 
         Mesh();
         ~Mesh();
+        Mesh(const Mesh&) = delete;
+        Mesh& operator=(const Mesh&) = delete;
+        Mesh(Mesh&& other) noexcept;
+        Mesh& operator=(Mesh&& other) noexcept;
 
         void setAssimpFlags(unsigned int flags);
         void joinIdenticalVertices();
@@ -69,7 +73,7 @@ namespace mgl {
          * @brief Creates a mesh from raw vertex data using MeshData structure.
          * All attributes are optional except positions and indices
          */
-        void createFromData(const MeshData &data);
+        void createFromData(MeshData data);
 
         bool hasNormals();
         bool hasTexcoords();

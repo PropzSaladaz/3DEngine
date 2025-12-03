@@ -33,6 +33,10 @@ protected:
 public:
   Sampler();
   ~Sampler();
+  Sampler(const Sampler&) = delete;
+  Sampler& operator=(const Sampler&) = delete;
+  Sampler(Sampler&& other) noexcept;
+  Sampler& operator=(Sampler&& other) noexcept;
   virtual void create() = 0;
   void bind(GLuint unit);
   void unbind(GLuint unit);

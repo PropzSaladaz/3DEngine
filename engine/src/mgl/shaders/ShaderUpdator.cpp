@@ -1,7 +1,13 @@
-#include "mgl/shaders/ShaderUpdator.hpp"
-#include "mgl/shaders/ShaderBuilder.hpp"
+#include <mgl/shaders/ShaderUpdator.hpp>
+#include <mgl/shaders/ShaderBuilder.hpp>
+#include <utils/Logger.hpp>
+#include <stdexcept>
 
-void ShaderUpdator::declareShaderUniforms(std::shared_ptr<ShaderBuilder> shaders) {
-    MGL_ERROR("DeclareShaderUniforms is not defined!");
-    exit(EXIT_FAILURE);
+namespace mgl {
+
+void ShaderUpdator::declareShaderUniforms(ShaderBuilder& shaders) {
+    MGL_ERROR("DeclareShaderUniforms is not defined for this ShaderUpdator.");
+    throw std::logic_error("ShaderUpdator::declareShaderUniforms must be overridden");
 }
+
+} // namespace mgl

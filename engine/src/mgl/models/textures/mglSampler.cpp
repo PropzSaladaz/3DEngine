@@ -12,7 +12,27 @@ Sampler::Sampler() {
   glSamplerParameteri(_samplerId, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-Sampler::~Sampler() {}
+Sampler::~Sampler() {
+  if (_samplerId != 0) {
+    glDeleteSamplers(1, &_samplerId);
+  }
+}
+
+Sampler::Sampler(Sampler&& other) noexcept {
+  _samplerId = other._samplerId;
+  other._samplerId = 0;
+}
+
+Sampler& Sampler::operator=(Sampler&& other) noexcept {
+  if (this != &other) {
+    if (_samplerId != 0) {
+      glDeleteSamplers(1, &_samplerId);
+    }
+    _samplerId = other._samplerId;
+    other._samplerId = 0;
+  }
+  return *this;
+}
 
 void Sampler::bind(GLuint unit) { glBindSampler(unit, _samplerId); }
 

@@ -1,6 +1,7 @@
 #include <mgl/models/meshes/mglMesh.hpp>
 #include <utils/file.hpp>
 #include <utils/Logger.hpp>
+#include <algorithm>
 
 namespace mgl {
 
@@ -11,6 +12,34 @@ Mesh::Mesh() {
 }
 
 Mesh::~Mesh() { destroyBufferObjects(); }
+
+Mesh::Mesh(Mesh&& other) noexcept {
+  *this = std::move(other);
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept {
+  if (this != &other) {
+    destroyBufferObjects();
+    VaoId = other.VaoId;
+    other.VaoId = 0;
+
+    std::copy(std::begin(other.BufferIds), std::end(other.BufferIds), std::begin(BufferIds));
+    std::fill(std::begin(other.BufferIds), std::end(other.BufferIds), 0);
+
+    AssimpFlags = other.AssimpFlags;
+    _normalsLoaded = other._normalsLoaded;
+    _texcoordsLoaded = other._texcoordsLoaded;
+    _colorsLoaded = other._colorsLoaded;
+
+    _meshes     = std::move(other._meshes);
+    _indices    = std::move(other._indices);
+    _positions  = std::move(other._positions);
+    _normals    = std::move(other._normals);
+    _texCoords  = std::move(other._texCoords);
+    _colors     = std::move(other._colors);
+  }
+  return *this;
+}
 
 void Mesh::setAssimpFlags(unsigned int flags) { AssimpFlags = flags; }
 
@@ -115,7 +144,7 @@ void Mesh::createFromFile(const std::string &filename) {
 }
 
 
-  void Mesh::createFromData(const MeshData &data) {
+  void Mesh::createFromData(MeshData data) {
       // --- Basic validation ---
       const ui32 positionCount = static_cast<ui32>(data.positions.size());
       if (positionCount == 0) throw std::invalid_argument("createFromData: positions is empty");

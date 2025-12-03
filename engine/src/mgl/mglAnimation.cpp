@@ -4,7 +4,7 @@ namespace mgl {
 
 
 Animation::Animation(Transform* origin, const Transform* target) {
-	originTransform = new Transform(origin); // shallow copy
+	originTransform = std::make_unique<Transform>(origin); // shallow copy
 	currentTransform = origin;
 	targetTransform = target;
 

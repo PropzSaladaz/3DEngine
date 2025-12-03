@@ -19,7 +19,7 @@ namespace mgl::math {
 
     template<typename T>
     quat_t<T> slerp(const quat_t<T>& a, const quat_t<T>& b, T t) {
-        return slerp(a, b, t);
+        return quat_t<T>(glm::slerp(a.backend(), b.backend(), t));
     }
 
     template<typename T>

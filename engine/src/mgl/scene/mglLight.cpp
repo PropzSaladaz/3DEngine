@@ -8,7 +8,9 @@ namespace mgl {
 	const ui32 Light::MAX_NR_LIGHTS = 10;
 	const i32 Light::LIGHT_TYPE = -1;
 
-	ui32 Light::LIGHT_NR = 0; // current light number
+	ui32 Light::nextLightIndex = 0;
+	ui32 Light::activeLights = 0;
+	std::vector<ui32> Light::freeLightIndices = {};
 
 	// fixed property names
 	const char Light::LIGHT_IS_ENABLED_PROP[]	= "isEnabled";
@@ -44,31 +46,39 @@ namespace mgl {
 
 	Light::Light() {
 		enabled = true;
-		if (LIGHT_NR > MAX_NR_LIGHTS) {
+		if (freeLightIndices.empty() && nextLightIndex >= MAX_NR_LIGHTS) {
 			MGL_ERROR("Max number of lights reached");
 			exit(EXIT_FAILURE);
 		}
+		if (!freeLightIndices.empty()) {
+			lightIndex = freeLightIndices.back();
+			freeLightIndices.pop_back();
+		} else {
+			lightIndex = nextLightIndex++;
+		}
+		++activeLights;
 		// set uniform properties with the light number index
-		LIGHT_IS_ENABLED	= LIGHT_UNIFORM(LIGHT_NR, LIGHT_IS_ENABLED_PROP);
-		LIGHT_LIGHT_TYPE	= LIGHT_UNIFORM(LIGHT_NR, LIGHT_LIGHT_TYPE_PROP);
-		LIGHT_POSITION		= LIGHT_UNIFORM(LIGHT_NR, LIGHT_POSITION_PROP);
-		LIGHT_DIRECTION		= LIGHT_UNIFORM(LIGHT_NR, LIGHT_DIRECTION_PROP);
-		LIGHT_AMBIENT		= LIGHT_UNIFORM(LIGHT_NR, LIGHT_AMBIENT_PROP);
-		LIGHT_DIFFUSE		= LIGHT_UNIFORM(LIGHT_NR, LIGHT_DIFFUSE_PROP);
-		LIGHT_SPECULAR		= LIGHT_UNIFORM(LIGHT_NR, LIGHT_SPECULAR_PROP);
-		LIGHT_SPOT_OUTER_COS_CUTOFF = LIGHT_UNIFORM(LIGHT_NR, LIGHT_SPOT_OUTER_COS_CUTOFF_PROP);
-		LIGHT_EPSILON				= LIGHT_UNIFORM(LIGHT_NR, LIGHT_EPSILON_PROP);
-		LIGHT_ATTENUATION_CONSTANT	= LIGHT_UNIFORM(LIGHT_NR, LIGHT_ATTENUATION_CONSTANT_PROP);
-		LIGHT_ATTENUATION_LINEAR	= LIGHT_UNIFORM(LIGHT_NR, LIGHT_ATTENUATION_LINEAR_PROP);
-		LIGHT_ATTENUATION_QUADRATIC = LIGHT_UNIFORM(LIGHT_NR, LIGHT_ATTENUATION_QUADRATIC_PROP);
+		LIGHT_IS_ENABLED	= LIGHT_UNIFORM(lightIndex, LIGHT_IS_ENABLED_PROP);
+		LIGHT_LIGHT_TYPE	= LIGHT_UNIFORM(lightIndex, LIGHT_LIGHT_TYPE_PROP);
+		LIGHT_POSITION		= LIGHT_UNIFORM(lightIndex, LIGHT_POSITION_PROP);
+		LIGHT_DIRECTION		= LIGHT_UNIFORM(lightIndex, LIGHT_DIRECTION_PROP);
+		LIGHT_AMBIENT		= LIGHT_UNIFORM(lightIndex, LIGHT_AMBIENT_PROP);
+		LIGHT_DIFFUSE		= LIGHT_UNIFORM(lightIndex, LIGHT_DIFFUSE_PROP);
+		LIGHT_SPECULAR		= LIGHT_UNIFORM(lightIndex, LIGHT_SPECULAR_PROP);
+		LIGHT_SPOT_OUTER_COS_CUTOFF = LIGHT_UNIFORM(lightIndex, LIGHT_SPOT_OUTER_COS_CUTOFF_PROP);
+		LIGHT_EPSILON				= LIGHT_UNIFORM(lightIndex, LIGHT_EPSILON_PROP);
+		LIGHT_ATTENUATION_CONSTANT	= LIGHT_UNIFORM(lightIndex, LIGHT_ATTENUATION_CONSTANT_PROP);
+		LIGHT_ATTENUATION_LINEAR	= LIGHT_UNIFORM(lightIndex, LIGHT_ATTENUATION_LINEAR_PROP);
+		LIGHT_ATTENUATION_QUADRATIC = LIGHT_UNIFORM(lightIndex, LIGHT_ATTENUATION_QUADRATIC_PROP);
 
 		setAmbient(math::vec3(1.0f));
 		setDiffuse(math::vec3(1.0f));
 		setSpecular(math::vec3(1.0f));
-
-		LIGHT_NR++;
 	}
-	Light::~Light() {}
+	Light::~Light() {
+		if (activeLights > 0) --activeLights;
+		freeLightIndices.push_back(lightIndex);
+	}
 	void Light::enable() {
 		enabled = true;
 	}

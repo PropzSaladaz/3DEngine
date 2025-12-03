@@ -3,6 +3,8 @@
 
 #include <cstring>
 #include <memory>
+#include <string>
+#include <vector>
 #include <mgl/mglShaders.hpp>
 #include <mgl/camera/mglCamera.hpp>
 #include <mgl/shaders/ShaderUpdator.hpp>
@@ -18,9 +20,8 @@ class PointLight;
 */
 class Light : public ShaderUpdator {
 public:
-	static inline char* LIGHT_UNIFORM(ui32 light_nr, const char* propertyName) {
-		std::string result = "Lights[" + std::to_string(light_nr) + "]." + propertyName;
-		return strdup(result.c_str());
+	static inline std::string LIGHT_UNIFORM(ui32 light_nr, const char* propertyName) {
+		return "Lights[" + std::to_string(light_nr) + "]." + propertyName;
 	}
 
 
@@ -28,8 +29,6 @@ public:
 
 	static const ui32 MAX_NR_LIGHTS;
 	static const i32 LIGHT_TYPE;
-
-	static ui32 LIGHT_NR;
 
 	// property name only
 	static const char LIGHT_IS_ENABLED_PROP[];
@@ -46,18 +45,18 @@ public:
 	static const char LIGHT_ATTENUATION_QUADRATIC_PROP[];
 
 	// full property name "Lights[N].propName"
-	const char *LIGHT_IS_ENABLED;
-	const char *LIGHT_LIGHT_TYPE;
-	const char *LIGHT_POSITION;
-	const char *LIGHT_DIRECTION;
-	const char *LIGHT_AMBIENT;
-	const char *LIGHT_DIFFUSE;
-	const char *LIGHT_SPECULAR;
-	const char *LIGHT_SPOT_OUTER_COS_CUTOFF;
-	const char *LIGHT_EPSILON;
-	const char *LIGHT_ATTENUATION_CONSTANT;
-	const char *LIGHT_ATTENUATION_LINEAR;
-	const char *LIGHT_ATTENUATION_QUADRATIC;
+	std::string LIGHT_IS_ENABLED;
+	std::string LIGHT_LIGHT_TYPE;
+	std::string LIGHT_POSITION;
+	std::string LIGHT_DIRECTION;
+	std::string LIGHT_AMBIENT;
+	std::string LIGHT_DIFFUSE;
+	std::string LIGHT_SPECULAR;
+	std::string LIGHT_SPOT_OUTER_COS_CUTOFF;
+	std::string LIGHT_EPSILON;
+	std::string LIGHT_ATTENUATION_CONSTANT;
+	std::string LIGHT_ATTENUATION_LINEAR;
+	std::string LIGHT_ATTENUATION_QUADRATIC;
 
 	static void declareShaderUniforms(ShaderBuilder& shaders);
 
@@ -84,6 +83,12 @@ protected:
 	math::vec4 diffuseColor;
 	math::vec4 specularColor;
 	std::shared_ptr<Camera> camera;
+	ui32 lightIndex;
+
+private:
+	static ui32 nextLightIndex;
+	static ui32 activeLights;
+	static std::vector<ui32> freeLightIndices;
 };
 
 }

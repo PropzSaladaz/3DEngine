@@ -100,6 +100,13 @@ void Engine::setupGLFWWindow() {
     // Respect requested vsync to avoid unthrottled render loops
     const int swapInterval = Vsync ? 1 : 0;
     glfwSwapInterval(swapInterval);
+
+    // window grabs mouse cursor
+    // glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // if (glfwRawMouseMotionSupported()) {
+    //     glfwSetInputMode(Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    // }
+
 }
 
 void Engine::setupGLFWWindowCallbacks() {

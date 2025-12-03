@@ -2,6 +2,7 @@
 #define MGL_ANIMATION_HPP
 
 #include "types.hpp"
+#include <memory>
 
 #include <mgl/mglSimulation.hpp>
 #include <mgl/mglTransform.hpp>
@@ -14,7 +15,7 @@ public:
 	void step(f32 step);
 	void setSpeed(f32 speed);
 private:
-	const Transform* originTransform;
+	std::unique_ptr<Transform> originTransform;
 	Transform* currentTransform;
 	const Transform* targetTransform;
 	f32 interpolationSpeed = 0.05f;

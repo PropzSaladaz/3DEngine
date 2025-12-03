@@ -11,17 +11,18 @@ namespace mgl::math {
 
     template<int N, typename T>
     constexpr T dot(const vec_t<N,T>& a, const vec_t<N,T>& b) noexcept {
-        return dot(a,b); // call friend
+        return glm::dot(a.backend(), b.backend());
     }
 
     template<typename T>
     constexpr vec_t<3,T> cross(const vec_t<3,T>& a, const vec_t<3,T>& b) noexcept {
-        return cross(a,b); // call friend
+        auto r = glm::cross(a.backend(), b.backend());
+        return vec_t<3,T>(r.x, r.y, r.z);
     }
 
     template<int N, typename T>
     constexpr vec_t<N,T> lerp(const vec_t<N,T>& a, const vec_t<N,T>& b, T t) noexcept {
-        return lerp(a,b,t); // call friend
+        return a + t * (b - a);
     }
 
 }

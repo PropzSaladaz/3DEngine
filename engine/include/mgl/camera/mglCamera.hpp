@@ -20,7 +20,7 @@ namespace mgl {
 		f32 far;
 	};
 
-	class Camera : Transform {
+    class Camera : public Transform {
 	public:
 		Camera(i32 bindingPoint);
 

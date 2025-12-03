@@ -30,6 +30,10 @@ protected:
 public:
   Texture();
   ~Texture();
+  Texture(const Texture&) = delete;
+  Texture& operator=(const Texture&) = delete;
+  Texture(Texture&& other) noexcept;
+  Texture& operator=(Texture&& other) noexcept;
   virtual void bind() = 0;
   virtual void unbind() = 0;
 protected:

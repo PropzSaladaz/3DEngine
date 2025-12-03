@@ -14,7 +14,7 @@ namespace mgl::math {
 
     template<int N, typename T>
     inline T angle(const vec_t<N, T>& vec1, const vec_t<N, T>& vec2) noexcept {
-        return angle(vec1, vec1);
+        return glm::angle(vec1.backend(), vec2.backend());
     }
 
     // ------------------------------------------------------------
