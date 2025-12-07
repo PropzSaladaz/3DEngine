@@ -40,6 +40,8 @@ public:
     void setOpenGL(int major, int minor);
     void setWindow(int width, int height, const char *title, int fullscreen,
                   int vsync);
+    void setCursorCapture(bool enabled);
+    void toggleCursorCapture();
     
     void init();
     void run();
@@ -65,6 +67,7 @@ private:
     const char *WindowTitle;
     int Fullscreen;
     int Vsync;
+    bool CursorCaptured = false;
 
     // managers - TODO check if shared_ptr is needed
     std::shared_ptr<MeshManager> Meshes;

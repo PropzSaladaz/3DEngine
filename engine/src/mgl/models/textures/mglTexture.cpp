@@ -1,6 +1,8 @@
 #include <cassert>
 #include <sstream>
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 #include <mgl/models/textures/mglTexture.hpp>
 #include <utils/stb_image.h>
@@ -9,26 +11,6 @@
 #include <utils/noise.hpp>
 
 namespace mgl {
-
-//////////////////////////////////////////////////////////////////// TextureInfo
-
-TextureInfo::TextureInfo(GLenum _unit, GLuint _index,
-                         const std::string &_uniform, std::shared_ptr<Texture> _texture,
-                         std::shared_ptr<Sampler> _sampler) {
-  unit = _unit;
-  uniform = _uniform;
-  index = _index;
-  texture = _texture;
-  sampler = _sampler;
-}
-
-void TextureInfo::updateShader(ShaderProgram& shader) {
-  glActiveTexture(unit);
-  texture->bind();
-  if (sampler)
-    sampler->bind(index);
-  shader.setUniform(uniform, index);
-}
 
 //////////////////////////////////////////////////////////////////////// Texture
 
@@ -60,30 +42,6 @@ void Texture::genAndBindTextureOpenGL(GLuint  texType, GLuint channels,
     GLuint width, GLuint height, void* image, GLuint type) {
     glGenTextures(1, &id);
     glBindTexture(texType, id);
-
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    // glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-    // glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexParameteri(texType, GL_TEXTURE_BASE_LEVEL, 0);
-
-    // glTexParameteri(texType, GL_TEXTURE_MIN_FILTER,
-    //                GL_LINEAR_MIPMAP_LINEAR);
-    // glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexImage2D(texType, 0, channels, width, height, 0, channels,
         type, image);
@@ -195,6 +153,26 @@ void Texture2D::genSawPerlinNoise(GLuint size, GLuint octaves,
         delete[] image;
 }
 
+void Texture2D::genCheckerboard(GLuint width, GLuint height, GLuint cells) {
+    GLuint safeCells = cells == 0 ? 1 : cells;
+    GLuint cellW = std::max<GLuint>(1, width / safeCells);
+    GLuint cellH = std::max<GLuint>(1, height / safeCells);
+
+    std::vector<unsigned char> image(width * height * 3);
+    for (GLuint y = 0; y < height; ++y) {
+        for (GLuint x = 0; x < width; ++x) {
+            bool white = ((x / cellW) + (y / cellH)) % 2 == 0;
+            unsigned char c = white ? 255 : 0;
+            size_t idx = (y * width + x) * 3;
+            image[idx] = c;
+            image[idx + 1] = c;
+            image[idx + 2] = c;
+        }
+    }
+
+    genAndBindTextureOpenGL(GL_TEXTURE_2D, GL_RGB, width, height, image.data(), GL_UNSIGNED_BYTE);
+}
+
 ////////////////////////////////////////////////////////////////////// Texture3D
 
 
@@ -273,12 +251,6 @@ const GLenum CUBEMAP_TEXTURES[6] = {
 void TextureCubeMap::loadCubeMap(const std::string& folder, const std::string &fileType) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     for (int i = 0; i < 6; ++i) {
         std::stringstream ss;

@@ -14,15 +14,21 @@
 
 namespace mgl {
 
-class Sampler;
-class NearestSampler;
-class LinearSampler;
-class NearestMimapNearestSampler;
-class NearestMimapLinearSampler;
-class LinearMimapNearestSampler;
-class LinearMimapLinearSampler;
-class LinearAnisotropicSampler;
-class MaxAnisotropicSampler;
+enum class TextureWrap : GLint {
+  Repeat = GL_REPEAT,
+  ClampToEdge = GL_CLAMP_TO_EDGE,
+  MirroredRepeat = GL_MIRRORED_REPEAT,
+  ClampToBorder = GL_CLAMP_TO_BORDER
+};
+
+enum class TextureFilter : GLint {
+  Nearest = GL_NEAREST,
+  Linear = GL_LINEAR,
+  NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
+  NearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR,
+  LinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
+  LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,56 +37,19 @@ protected:
   GLuint _samplerId;
 
 public:
-  Sampler();
+  Sampler(TextureWrap wrapS = TextureWrap::Repeat, TextureWrap wrapT = TextureWrap::Repeat,
+          TextureWrap wrapR = TextureWrap::Repeat);
   ~Sampler();
   Sampler(const Sampler&) = delete;
   Sampler& operator=(const Sampler&) = delete;
   Sampler(Sampler&& other) noexcept;
   Sampler& operator=(Sampler&& other) noexcept;
-  virtual void create() = 0;
+  void create(TextureFilter minFilter = TextureFilter::Linear, TextureFilter magFilter = TextureFilter::Linear);
+  void setWrap(TextureWrap wrapS, TextureWrap wrapT, TextureWrap wrapR = TextureWrap::Repeat);
+  void setFilters(TextureFilter minFilter, TextureFilter magFilter);
+  void setAnisotropy(float amount, bool clampToMax = true);
   void bind(GLuint unit);
   void unbind(GLuint unit);
-};
-
-class NearestSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class LinearSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class NearestMimapNearestSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class NearestMimapLinearSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class LinearMimapNearestSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class LinearMimapLinearSampler : public Sampler {
-public:
-  void create() override;
-};
-
-class LinearAnisotropicSampler : public Sampler {
-public:
-  float Anisotropy = 4.0f;
-  void create() override;
-};
-
-class MaxAnisotropicSampler : public Sampler {
-public:
-  void create() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

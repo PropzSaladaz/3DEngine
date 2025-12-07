@@ -65,7 +65,7 @@ void SceneObject::setScene(Scene* scene) {
 	this->scene = scene;
 }
 
-void SceneObject::setSkybox(std::shared_ptr<TextureInfo> skybox) {
+void SceneObject::setSkybox(std::shared_ptr<TextureSampler> skybox) {
 	// only add skybox to shaders that are expecting it
 	if (material && shaders->isUniform(skybox->uniform)) {
 		material->addTexture(skybox);

@@ -1,15 +1,9 @@
-#ifndef MGL_TEXTURE_MANAGER_HPP
-#define MGL_TEXTURE_MANAGER_HPP
+#pragma once
 
-#include <mgl/models/textures/mglTexture.hpp>
-#include <mgl/mglManager.hpp>
-#include <string>
+#include "mgl/models/textures/mglTexture.hpp"
+#include "mgl/mglManager.hpp"
 
 namespace mgl {
 
-	class TextureManager;
-
-	class TextureManager : public Manager<TextureInfo> {};
+	class TextureManager : public Manager<Texture> {};
 }
-
-#endif // !MGL_MESH_MANAGER_HPP

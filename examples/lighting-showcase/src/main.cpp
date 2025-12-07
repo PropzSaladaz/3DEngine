@@ -60,32 +60,34 @@ void MyApp::createTextures() {
     // stone texture
     mgl::Texture2D* stoneT = new mgl::Texture2D();
     stoneT->genSinePerlinNoise(512, 15, 200, 200, 15);
-    mgl::Sampler* stoneS = new mgl::LinearSampler();
+    mgl::Sampler* stoneS = new mgl::Sampler();
     stoneS->create();
-    mgl::TextureInfo* stoneTinfo = new mgl::TextureInfo(GL_TEXTURE1, 1, "texture1", stoneT, stoneS);
+    mgl::TextureSampler* stoneTinfo = new mgl::TextureSampler(GL_TEXTURE1, 1, "texture1", stoneT, stoneS);
 
     // enviroment diffuse lighting
     mgl::TextureCubeMap* environmentDiffuseT = new mgl::TextureCubeMap();
     environmentDiffuseT->loadCubeMap("textures/cubemaps/bedroom_diffuse/", "png");
-    mgl::Sampler* environmentDiffuseS = new mgl::LinearSampler();
+    mgl::Sampler* environmentDiffuseS = new mgl::Sampler();
     environmentDiffuseS->create();
-    mgl::TextureInfo* environmentDiffuseTinfo = new mgl::TextureInfo(GL_TEXTURE2, 2,
+    environmentDiffuseS->setWrap(mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge);
+    mgl::TextureSampler* environmentDiffuseTinfo = new mgl::TextureSampler(GL_TEXTURE2, 2,
         "DiffuseTexture", environmentDiffuseT, environmentDiffuseS);
 
     // enviroment diffuse lighting
     mgl::TextureCubeMap* environmentSpecT = new mgl::TextureCubeMap();
     environmentSpecT->loadCubeMap("textures/cubemaps/bedroom_spec/", "png");
-    mgl::Sampler* environmentSpecS = new mgl::LinearSampler();
+    mgl::Sampler* environmentSpecS = new mgl::Sampler();
     environmentSpecS->create();
-    mgl::TextureInfo* environmentSpecTinfo = new mgl::TextureInfo(GL_TEXTURE3, 3,
+    environmentSpecS->setWrap(mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge);
+    mgl::TextureSampler* environmentSpecTinfo = new mgl::TextureSampler(GL_TEXTURE3, 3,
         "SpecularTexture", environmentSpecT, environmentSpecS);
 
     // wood texture
     mgl::Texture2D* woodT = new mgl::Texture2D();
     woodT->genSawPerlinNoise(512, 10, 26, 2.6f);
-    mgl::Sampler* woodS = new mgl::LinearSampler();
+    mgl::Sampler* woodS = new mgl::Sampler();
     woodS->create();
-    mgl::TextureInfo* woodTinfo = new mgl::TextureInfo(GL_TEXTURE1, 1, "texture1", woodT, woodS);
+    mgl::TextureSampler* woodTinfo = new mgl::TextureSampler(GL_TEXTURE1, 1, "texture1", woodT, woodS);
 
     textures->add("stone", stoneTinfo);
     textures->add("wood", woodTinfo);

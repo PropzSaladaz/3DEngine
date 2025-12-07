@@ -22,6 +22,7 @@ set(ENGINE_SOURCES
   src/mgl/models/meshes/mglMeshManager.cpp
   src/mgl/models/textures/mglSampler.cpp
   src/mgl/models/textures/mglTexture.cpp
+  src/mgl/models/textures/mglTextureSampler.cpp
   src/mgl/scene/mglDirectionalLight.cpp
   src/mgl/scene/mglLight.cpp
   src/mgl/scene/mglLightManager.cpp

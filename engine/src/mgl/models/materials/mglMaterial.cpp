@@ -14,7 +14,28 @@ namespace mgl {
 		}
 	}
 
-	void Material::addTexture(std::shared_ptr<TextureInfo> texture) {
-		textures.push_back(texture);
+void Material::addTexture(std::shared_ptr<TextureSampler> texture) {
+	textures.push_back(texture);
+}
+
+bool Material::setTexture(const std::string& uniform, std::shared_ptr<Texture> texture) {
+	for (auto& ts : textures) {
+		if (ts && ts->uniform == uniform) {
+			ts->texture = std::move(texture);
+			return true;
+		}
 	}
+	return false;
+}
+
+bool Material::setTextureSampler(const std::string& uniform, std::shared_ptr<TextureSampler> sampler) {
+	for (auto& ts : textures) {
+		if (ts && ts->uniform == uniform) {
+			ts = std::move(sampler);
+			return true;
+		}
+	}
+	textures.push_back(std::move(sampler));
+	return true;
+}
 }

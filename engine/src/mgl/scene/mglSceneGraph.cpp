@@ -2,6 +2,7 @@
 #include <mgl/mglConventions.hpp>
 #include <mgl/models/materials/mglBasicMaterial.hpp>
 #include <mgl/models/textures/mglTexture.hpp>
+#include <mgl/models/textures/mglTextureSampler.hpp>
 #include <mgl/scene/mglSceneObject.hpp>
 #include <mgl/shaders/ShaderBuilder.hpp>
 #include <utils/Logger.hpp>
@@ -80,11 +81,12 @@ void Scene::setSkybox(const std::string& folder, const std::string& fileType) {
 	// create skybox material
 	std::shared_ptr<mgl::TextureCubeMap> cubemapT = std::make_shared<mgl::TextureCubeMap>();
 	cubemapT->loadCubeMap(folder, fileType);
-	std::shared_ptr<mgl::Sampler> cubemapS = std::make_shared<mgl::LinearSampler>();
+	textures->add(SKYBOX, cubemapT);
+	std::shared_ptr<mgl::Sampler> cubemapS = std::make_shared<mgl::Sampler>();
 	cubemapS->create();
-	std::shared_ptr<mgl::TextureInfo> cubeTinfo = std::make_shared<mgl::TextureInfo>(GL_TEXTURE0, 0,
+	cubemapS->setWrap(mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge, mgl::TextureWrap::ClampToEdge);
+	std::shared_ptr<mgl::TextureSampler> cubeTinfo = std::make_shared<mgl::TextureSampler>(GL_TEXTURE0, 0,
 		SKYBOX, cubemapT, cubemapS);
-	textures->add(SKYBOX, cubeTinfo);
 
 	std::shared_ptr<mgl::Material> SKYBOX_M = std::make_shared<mgl::BasicMaterial>();
 	SKYBOX_M->addTexture(cubeTinfo);
@@ -187,7 +189,7 @@ void SceneGraph::setScene(Scene* scene) {
 	}
 }
 
-void SceneGraph::setSkybox(std::shared_ptr<TextureInfo> skybox) {
+void SceneGraph::setSkybox(std::shared_ptr<TextureSampler> skybox) {
 	for (const auto& node : children) {
 		node.second->setSkybox(skybox);
 	}

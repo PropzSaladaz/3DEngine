@@ -13,6 +13,7 @@
 #include <mgl/mglShaderManager.hpp>
 #include <mgl/models/meshes/mglMeshManager.hpp>
 #include <mgl/models/textures/mglTextureManager.hpp>
+#include "mgl/models/textures/mglTextureSampler.hpp"
 #include <string>
 
 namespace mgl {
@@ -70,7 +71,7 @@ namespace mgl {
 
 		math::vec3 getAbsolutePosition() const;
 		virtual void setScene(Scene* scene) = 0;
-		virtual void setSkybox(std::shared_ptr<TextureInfo> skybox) = 0;
+		virtual void setSkybox(std::shared_ptr<TextureSampler> skybox) = 0;
 
 	protected:
 		static SceneGraph* NO_PARENT;
@@ -107,7 +108,7 @@ namespace mgl {
 		void remove(std::shared_ptr<SceneNode> child);
 
 		void setScene(Scene* scene) override;
-		void setSkybox(std::shared_ptr<TextureInfo> skybox) override;
+		void setSkybox(std::shared_ptr<TextureSampler> skybox) override;
 
 	protected:
 		/// <summary>

@@ -35,7 +35,7 @@ namespace mgl {
 		void setShaders(std::shared_ptr<ShaderProgram> shaders);
 
 		void setScene(Scene* scene) override;
-		void setSkybox(std::shared_ptr<TextureInfo> skybox) override;
+		void setSkybox(std::shared_ptr<TextureSampler> skybox) override;
 		Material& getMaterial();
 
 		/// <summary>

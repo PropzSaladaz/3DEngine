@@ -151,6 +151,19 @@ void Engine::setupOpenGL() {
   glViewport(0, 0, WindowWidth, WindowHeight);
 }
 
+void Engine::setCursorCapture(bool enabled) {
+    CursorCaptured = enabled;
+    if (!Window) return;
+    glfwSetInputMode(Window, GLFW_CURSOR, enabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(Window, GLFW_RAW_MOUSE_MOTION, enabled ? GLFW_TRUE : GLFW_FALSE);
+    }
+}
+
+void Engine::toggleCursorCapture() {
+    setCursorCapture(!CursorCaptured);
+}
+
 void displayInfo() {
     std::cerr << "OpenGL Renderer: " << glGetString(GL_RENDERER) << " ("
             << glGetString(GL_VENDOR) << ")" << std::endl;
