@@ -9,6 +9,7 @@ class MyApp : public mgl::App {
 public:
     void onRegisterGlobalResources(mgl::ResourceContext& resources) override;
     void onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) override;
+    void onUpdate(double deltaTime) override;
 
 private:
     struct FilterConfig {
@@ -53,6 +54,14 @@ private:
     void createTextures(mgl::TextureManager& textureManager);
     void createMaterials(mgl::MaterialManager& materialManager);
     void createShaderPrograms(mgl::ShaderManager& shaderManager);
+
+    // state vars
+
+    // texture blending
+    float mixCounter = 0.0f;
+    float mixFactor = 0.0f;
+    // texture UV coordinates moving
+    float time = 0.0f;
 };
 
 ///////////////////////////////////////////////////////////////////////// MESHES
@@ -96,6 +105,7 @@ void MyApp::createTextures(mgl::TextureManager& manager) {
 ///////////////////////////////////////////////////////////////////////// SHADER
 
 void MyApp::createShaderPrograms(mgl::ShaderManager& shaderManager) {
+    // Simple shader
     mgl::ShaderBuilder simpleShaders;
     simpleShaders.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
     simpleShaders.addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
@@ -103,11 +113,46 @@ void MyApp::createShaderPrograms(mgl::ShaderManager& shaderManager) {
     simpleShaders.addShader(GL_FRAGMENT_SHADER, "shaders/frag.glsl");
     simpleShaders.addUniforms<mgl::BasicMaterial>();
     simpleShaders.addUniform(mgl::MODEL_MATRIX);
-    simpleShaders.addUniform("texture1");
     simpleShaders.addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+
+    simpleShaders.addUniform("texture1");
 
     std::shared_ptr<mgl::ShaderProgram> program = std::make_shared<mgl::ShaderProgram>(simpleShaders.build());
     shaderManager.add("simple", program);
+
+    // Blend shader
+    mgl::ShaderBuilder blendShader;
+    blendShader.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+    blendShader.addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
+    blendShader.addShader(GL_VERTEX_SHADER, "shaders/vert.glsl");
+    blendShader.addShader(GL_FRAGMENT_SHADER, "shaders/blend-2-textures.glsl");
+    blendShader.addUniforms<mgl::BasicMaterial>();
+    blendShader.addUniform(mgl::MODEL_MATRIX);
+    blendShader.addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+
+    // blend uniforms
+    blendShader.addUniform("texture1");
+    blendShader.addUniform("texture2");
+    blendShader.addUniform("blendFactor");
+
+    std::shared_ptr<mgl::ShaderProgram> blendProgram = std::make_shared<mgl::ShaderProgram>(blendShader.build());
+    shaderManager.add("blend", blendProgram);
+
+    // UV moving shader
+    mgl::ShaderBuilder uvMovingShader;
+    uvMovingShader.addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+    uvMovingShader.addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
+    uvMovingShader.addShader(GL_VERTEX_SHADER, "shaders/uv-texture-moving-vert.glsl");
+    uvMovingShader.addShader(GL_FRAGMENT_SHADER, "shaders/frag.glsl");
+    uvMovingShader.addUniforms<mgl::BasicMaterial>();
+    uvMovingShader.addUniform(mgl::MODEL_MATRIX);
+    uvMovingShader.addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+    uvMovingShader.addUniform("texture1");
+    uvMovingShader.addUniform("time");
+
+    std::shared_ptr<mgl::ShaderProgram> uvMovingProgram = std::make_shared<mgl::ShaderProgram>(uvMovingShader.build());
+    shaderManager.add("uvMoving", uvMovingProgram);
+
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE
@@ -140,7 +185,7 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
     float filterStartX = -static_cast<float>(filterConfigs.size() - 1) * spacing * 0.5f;
     float wrapStartX = -static_cast<float>(wrapConfigs.size() - 1) * spacing * 0.5f;
 
-    // Wrap row (upper)
+    // Build objects for Wrap row (upper)
     for (size_t i = 0; i < wrapConfigs.size(); ++i) {
         const auto& cfg = wrapConfigs[i];
         auto obj = std::make_shared<mgl::SceneObject>(quadMesh);
@@ -151,7 +196,7 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
         graph->add(obj);
     }
 
-    // Filter row (lower)
+    // Build objects for Filter row (lower)
     for (size_t i = 0; i < filterConfigs.size(); ++i) {
         const auto& cfg = filterConfigs[i];
         auto obj = std::make_shared<mgl::SceneObject>(quadMesh);
@@ -161,6 +206,35 @@ void MyApp::onCreateScene(mgl::Scene& scene, mgl::ResourceContext& resources) {
         obj->rotate(-60.0f, mgl::vec3(1.0f, 0.0f, 0.0f)); // tilt to highlight anisotropy
         graph->add(obj);
     }
+
+    // Build blend textures object
+    auto blendObj = std::make_shared<mgl::SceneObject>(quadMesh);
+    blendObj->setShaders(resources.shaderManager.get("blend"));
+    blendObj->setMaterial(resources.materialManager.get("blend"));
+    blendObj->setPosition(0.f, -2.5f, 0.f);
+    blendObj->rotate(-60.0f, mgl::vec3(1.0f, 0.0f, 0.0f));
+    
+    // Declarative uniform update via callback
+    blendObj->setShaderUniformCallback([this](mgl::ShaderProgram& shaders) {
+        shaders.setUniform("blendFactor", mixFactor);
+    });
+
+    graph->add(blendObj);
+
+    // UV moving object
+    auto uvMovingObj = std::make_shared<mgl::SceneObject>(quadMesh);
+    uvMovingObj->setShaders(resources.shaderManager.get("uvMoving"));
+    uvMovingObj->setMaterial(resources.materialManager.get("grass"));
+    uvMovingObj->setPosition(0.f, -4.5f, 0.f);
+    uvMovingObj->rotate(-60.0f, mgl::vec3(1.0f, 0.0f, 0.0f));
+
+    uvMovingObj->setShaderUniformCallback([this](mgl::ShaderProgram& shaders) {
+        shaders.setUniform("time", time);
+    });
+
+    graph->add(uvMovingObj);
+
+
 
     scene.setScenegraph(graph);
 }
@@ -177,6 +251,7 @@ void MyApp::createMaterials(mgl::MaterialManager& materialManager) {
         materialManager.add(cfg.name, material);
     }
 
+    // Build filter materials
     for (const auto& cfg : filterConfigs) {
         auto sampler = std::make_shared<mgl::Sampler>();
         sampler->create(cfg.minFilter, cfg.magFilter);
@@ -188,6 +263,30 @@ void MyApp::createMaterials(mgl::MaterialManager& materialManager) {
         material->addTexture(texInfo);
         materialManager.add(cfg.name, material);
     }
+
+    // Build blend material
+    auto grassTexture = mgl::Engine::getInstance().getTextureManager().get("grass");
+    auto blendSampler1 = std::make_shared<mgl::Sampler>();
+    blendSampler1->create(mgl::TextureFilter::Linear, mgl::TextureFilter::Linear);
+    auto blendTexInfo1 = std::make_shared<mgl::TextureSampler>(GL_TEXTURE0, 0, "texture1", grassTexture, blendSampler1);
+
+    auto woodTexture = mgl::Engine::getInstance().getTextureManager().get("wood");
+    auto blendSampler2 = std::make_shared<mgl::Sampler>();
+    blendSampler2->create(mgl::TextureFilter::Linear, mgl::TextureFilter::Linear);
+    auto blendTexInfo2 = std::make_shared<mgl::TextureSampler>(GL_TEXTURE1, 1, "texture2", woodTexture, blendSampler2);
+
+    // Build uv moving material
+    auto uvMovingMaterial = std::make_shared<mgl::BasicMaterial>(mgl::vec4(1.0f));
+    uvMovingMaterial->addTexture(blendTexInfo1);
+    materialManager.add("grass", uvMovingMaterial);
+
+    // setup both textures under the same material
+    auto blendMaterial = std::make_shared<mgl::BasicMaterial>(mgl::vec4(1.0f));
+    blendMaterial->addTexture(blendTexInfo1);
+    blendMaterial->addTexture(blendTexInfo2);
+    materialManager.add("blend", blendMaterial);
+
+    
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -250,6 +349,15 @@ void MyApp::onRegisterGlobalResources(mgl::ResourceContext& resources) {
             }
         }
     });
+}
+
+void MyApp::onUpdate( double deltaTime) {
+    // update state variables for texture blending
+    mixCounter += static_cast<float>(deltaTime) * 0.5f; // slow blend
+    mixFactor = (sin(mixCounter) + 1.0f) * 0.5f; // 0.0 to 1.0
+
+    // update time for texture UV coordinates moving
+    time += static_cast<float>(deltaTime);
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN
